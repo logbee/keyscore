@@ -1,9 +1,7 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
-`import java.util.UUID
+import java.util.UUID
 
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
@@ -11,21 +9,18 @@ import akka.pattern.ask
 import akka.util.Timeout
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.Paths.{LocalPipelineManagerPath, PipelineSchedulerPath}
-import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
+import io.logbee.keyscore.commons.cluster.Topics.ClusterTopic
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse, GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
-import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetConfigurationFailure, GetConfigurationRequest, GetConfigurationSuccess}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineBlueprintCollector, PipelineInstanceCollector}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{GetAvailableAgentsRequest, GetAvailableAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
-import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.{PipelineDeployer, PipelineExporter, PipelineImporter}
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineExporter.ExportPipelineRequest
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineImporter.ImportPipelineRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.{PipelineDeployer, PipelineExporter, PipelineImporter}
 import io.logbee.keyscore.model.blueprint._
-import io.logbee.keyscore.model.configuration.Configuration
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
