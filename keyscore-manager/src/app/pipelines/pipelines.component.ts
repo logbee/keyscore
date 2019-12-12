@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {v4 as uuid} from "uuid";
 import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
@@ -17,6 +17,8 @@ import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";
 import {PipelineDataSource} from "../data-source/pipeline-data-source";
 import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
+import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
+import {take, takeUntil} from "rxjs/operators";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -42,43 +44,7 @@ import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
                 </button>
             </mat-form-field>
 
-            <!--Resources Table-->
-            <table fxFlex="90%" mat-table matSort [dataSource]="dataSource"
-                   class="table-position mat-elevation-z8">
-
-                <ng-container matColumnDef="health">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-                    <td mat-cell *matCellDef="let pipelineTableModel">
-                        <resource-health [health]="pipelineTableModel.health"></resource-health>
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-                    <td mat-cell *matCellDef="let pipelineTableModel">
-                        {{pipelineTableModel.name}}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="uuid">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                    <td mat-cell *matCellDef="let pipelineTableModel">
-                        {{pipelineTableModel.uuid}}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="rerun">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Reset Filter States</th>
-                    <td mat-cell *matCellDef="let pipelineTableModel" (click)="$event.stopPropagation()">
-                        <button mat-icon-button (click)="rerun(pipelineTableModel.uuid)">
-                            <mat-icon>play_arrow</mat-icon>
-                        </button>
-                    </td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name'];" (click)="editPipeline(row.uuid)"
-                    class="example-element-row cursor-pointer"></tr>
-            </table>
+            <pipelines-overview [dataSource]="dataSource" (deployPipeline)="deployPipeline($event[0], $event[1])" (editPipeline)="editPipeline($event)"></pipelines-overview>
         </div>
     `
 })
@@ -93,12 +59,17 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
+    private _unsubscribe$: Subject<void> = new Subject<void>();
+
     constructor(private store: Store<PipelinesState>, private dataSourceFactory: DataSourceFactory) {
 
     }
 
     public ngOnInit() {
-        this.dataSource = this.dataSourceFactory.createPipelineDataSource(this.store.pipe(select(getPipelineList)));
+        this.dataSource = new PipelineDataSource([]);
+        this.store.pipe(select(getPipelineList)).pipe(takeUntil(this._unsubscribe$)).subscribe(list => {
+            this.dataSource.data = list;
+        });
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
         this.store.dispatch(new UpdatePipelinePollingAction(true));
@@ -106,16 +77,13 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     }
 
     public ngOnDestroy() {
+        this._unsubscribe$.next();
+        this._unsubscribe$.complete();
         this.store.dispatch(new UpdatePipelinePollingAction(false));
     }
 
     public ngAfterViewInit() {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-    }
 
-    public rerun(uuid: string) {
-        this.store.dispatch(new TriggerFilterResetAction(uuid));
     }
 
     public createPipeline(activeRouting: boolean = false) {
@@ -137,6 +105,10 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
             query: {},
             extras: {}
         }));
+    }
+
+    private deployPipeline(id: string, deploy: boolean): void {
+        console.log("Deploy pipleine '" + id + "': " + deploy)
     }
 
     public updateRefreshTime(refreshTimes: { newRefreshTime: number, oldRefreshTime: number }) {

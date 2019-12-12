@@ -19,6 +19,7 @@ import {AppAuthGuard} from "../app.authguard";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {AgentsEffects} from "@/app/agents/agents.effects";
 import {AgentsReducer} from "@/app/agents/agents.reducer";
+import {PipelineOverviewComponent} from "@/app/pipelines/pipeline-overview/pipeline-overview.component";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent,canActivate:[AppAuthGuard]},
@@ -50,8 +51,8 @@ export const routesWithoutAuth: Routes = [
     ],
     declarations: [
         PipelinesComponent,
-        PipelineEditorComponent
-
+        PipelineEditorComponent,
+        PipelineOverviewComponent
     ],
     providers: [
         AppAuthGuard,

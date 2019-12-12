@@ -6,7 +6,7 @@ import {PipelineDataSource} from "./pipeline-data-source";
 @Injectable()
 export class DataSourceFactory {
 
-    public createPipelineDataSource(pipelineObjects$: Observable<PipelineTableModel[]>): PipelineDataSource {
-        return new PipelineDataSource(pipelineObjects$);
+    public createPipelineDataSource(pipelineObjects: PipelineTableModel[]): PipelineDataSource {
+        return new PipelineDataSource(pipelineObjects);
     }
 }

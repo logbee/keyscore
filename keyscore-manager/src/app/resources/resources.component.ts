@@ -74,7 +74,7 @@ import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/
 
                 <!--Defining row with uuid jsonClass and health columns-->
                 <tr mat-row *matRowDef="let resourceModel; columns: ['jsonClass', 'name', 'uuid', 'categories']"
-                    class="example-element-row"
+                    class="example-element-row clickable cursor-pointer"
                     [class.expanded]="expandedElement === resourceModel.blueprint"
                     (click)="setExpanded(resourceModel)">
                 </tr>
