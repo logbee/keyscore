@@ -176,7 +176,7 @@ task createAgentContainer(type: DockerCreateContainer) {
             'KEYSCORE_REMOTE_PORT=0',
             'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
-    binds = ["$buildDir/libs" : '/opt/keyscore-agent/extensions', "$rootDir/data" : '/opt/keyscore-agent/data']
+    binds = ["$buildDir/libs" : '/usr/share/keyscore/keyscore-agent/bin/extensions', "$rootDir/data" : '/usr/share/keyscore/keyscore-agent/bin/data']
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
