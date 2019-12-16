@@ -5,20 +5,14 @@ import {v4 as uuid} from "uuid";
 import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
-import {
-    CreatePipelineAction,
-    LoadPipelineBlueprints,
-    TriggerFilterResetAction,
-    UpdatePipelinePollingAction
-} from "./actions/pipelines.actions";
+import {CreatePipelineAction, LoadPipelineBlueprints, UpdatePipelinePollingAction} from "./actions/pipelines.actions";
 import {getPipelineList} from "./index";
 import {MatPaginator, MatSort} from "@angular/material";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";
 import {PipelineDataSource} from "../data-source/pipeline-data-source";
 import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
-import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
-import {take, takeUntil} from "rxjs/operators";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -44,7 +38,7 @@ import {take, takeUntil} from "rxjs/operators";
                 </button>
             </mat-form-field>
 
-            <pipelines-overview [dataSource]="dataSource" (deployPipeline)="deployPipeline($event[0], $event[1])" (editPipeline)="editPipeline($event)"></pipelines-overview>
+            <pipelines-overview [dataSource]="dataSource" [selectionMode]="false" (deployPipeline)="deployPipeline($event[0], $event[1])" (editPipeline)="editPipeline($event)"></pipelines-overview>
         </div>
     `
 })

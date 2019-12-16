@@ -13,6 +13,8 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
 import {Health} from "@keyscore-manager-models/src/main/common/Health";
 import {DataSourceFactory} from "@/app/data-source/data-source-factory";
 import {HealthModule} from "@/app/common/health/health.module";
+import { boolean, number, text, withKnobs } from '@storybook/addon-knobs';
+
 
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http);
@@ -56,29 +58,34 @@ const mockPipelines: PipelineTableModel[] = [{
 
 const dataSourceFactory: DataSourceFactory = new DataSourceFactory();
 
-storiesOf('PipelineOverviewTable', module).addDecorator(
-    moduleMetadata({
-        declarations: [PipelineOverviewComponent],
-        imports: [
-            I18nModule,
-            BrowserAnimationsModule,
-            MaterialModule,
-            TranslateModule,
-            CommonModule,
-            HealthModule,
-            TranslateModule.forRoot({
-                loader: {
-                    provide: TranslateLoader,
-                    useValue: staticTranslateLoader,
-                    useFactory: HttpLoaderFactory,
-                    deps: [HttpClient]
-                }
-            }),]
-    })).add('default', () => ({
-    component: PipelineOverviewComponent,
-    props: {
-        dataSource: dataSourceFactory.createPipelineDataSource(mockPipelines),
-        editPipeline: action('edit pipeline'),
-        deployPipeline: action('deploy pipeline')
-    }
-}));
+storiesOf('PipelineOverviewTable', module)
+    .addDecorator(withKnobs)
+    .addDecorator(
+        moduleMetadata({
+            declarations: [PipelineOverviewComponent],
+            imports: [
+                I18nModule,
+                BrowserAnimationsModule,
+                MaterialModule,
+                TranslateModule,
+                CommonModule,
+                HealthModule,
+                TranslateModule.forRoot({
+                    loader: {
+                        provide: TranslateLoader,
+                        useValue: staticTranslateLoader,
+                        useFactory: HttpLoaderFactory,
+                        deps: [HttpClient]
+                    }
+                }),]
+        }))
+    .add('default', () => ({
+        component: PipelineOverviewComponent,
+        props: {
+            dataSource: dataSourceFactory.createPipelineDataSource(mockPipelines),
+            selectionMode: boolean('selectionMode', false),
+            editPipeline: action('edit pipeline'),
+            deployPipeline: action('deploy pipeline'),
+            pipelinesSelected: action('pipelines selected')
+        }
+    }));
