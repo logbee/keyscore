@@ -4,10 +4,44 @@
   border: 1px dashed $accent;
   border-radius: 2px;
   cursor: pointer;
-  padding: 8px 0;
+  box-shadow: none !important;
+
+}
+
+.add-directive-header {
+  display: flex;
+  justify-content: center !important;
+
 
   &:hover {
-    background-color: rgba($accent, 0.05);
+    background-color: rgba($accent, 0.05) !important;
+  }
+
+}
+
+.add-button {
+  justify-content: center;
+}
+
+.add-menu {
+  padding-top: 16px;
+}
+
+.add-menu-item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.038);
   }
 }
 
+.add-menu-item:last-child {
+  border-bottom: none;
+}
+
+.icon-wrapper {
+  height: 16px;
+  width: 16px;
+}

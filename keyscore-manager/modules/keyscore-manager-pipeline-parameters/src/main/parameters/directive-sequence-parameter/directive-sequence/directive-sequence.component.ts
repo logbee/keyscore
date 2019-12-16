@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, Input, OnDestroy, ViewChild, ViewContainerRef} from "@angular/core";
+import {
+    AfterViewInit,
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    Output,
+    ViewChild,
+    ViewContainerRef
+} from "@angular/core";
 import {
     FieldDirectiveSequenceParameterDescriptor,
     FieldDirectiveSequenceParameter,
@@ -11,11 +20,18 @@ import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-param
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {
+    AddDirectiveComponent,
+    MenuItem
+} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/add-directive/add-directive.component";
+import uuid = require("uuid");
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {animate, style, transition, trigger, AnimationEvent} from "@angular/animations";
 
 @Component({
     selector: 'ks-directive-sequence',
     template: `
-        <mat-expansion-panel [hideToggle]="isDisabled()" [disabled]="isDisabled()">
+        <mat-expansion-panel>
             <mat-expansion-panel-header [collapsedHeight]="getExpansionHeight()"
                                         [expandedHeight]="getExpansionHeight()"
                                         fxLayout="row-reverse" fxLayoutGap="15px"
@@ -32,30 +48,70 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
             <div class="sequence-body" fxLayout="column" fxLayoutGap="8px">
                 <mat-divider></mat-divider>
 
-                <div cdkDropList class="directive-list" (cdkDropListDropped)="drop($event)" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="8px">
-                    <ks-directive class="directive-draggable" *ngFor="let directive of sequence.directives" [configuration]="directive"
-                                  [descriptor]="getDirectiveDescriptor(directive)" cdkDrag></ks-directive>
+                <div cdkDropList class="directive-list" (cdkDropListDropped)="drop($event)" fxLayout="column"
+                     fxLayoutAlign="start stretch" fxLayoutGap="8px">
+                    <ks-directive class="directive-draggable"
+                                  *ngFor="let directive of sequence.directives;trackBy:trackByFn"
+                                  [configuration]="directive"
+                                  [descriptor]="getDirectiveDescriptor(directive)" (onDelete)="deleteDirective($event)"
+                                  (onChange)="directiveChange($event)"
+                                  cdkDrag (mousedown)="closeAddPanel()"></ks-directive>
                 </div>
+
+                <ks-button-add-directive [itemsToAdd]="_menuItems"
+                                         [autoClosePanelOnAdd]="true"
+                                         (onAdd)="addDirective($event)"></ks-button-add-directive>
 
             </div>
         </mat-expansion-panel>
     `,
-    styleUrls: ['./directive-sequence.component.scss']
+    styleUrls: ['./directive-sequence.component.scss'],
+    animations: [
+        trigger('items', [
+            transition(':enter', [
+                style({transform: 'scale(0.5)', opacity: 0}),
+                animate('0.6s cubic-bezier(.8, -0.6, 0.2, 1.5)',
+                    style({transform: 'scale(1)', opacity: 1}))
+            ]),
+            transition(':leave', [
+                style({transform: 'scale(1)', opacity: 1, height: '*'}),
+                animate('0.6s cubic-bezier(.8, -0.6, 0.2, 1.5)',
+                    style({
+                        transform: 'scale(0.5)', opacity: 0,
+                        height: '0px', margin: '0px'
+                    }))
+            ])
+        ])
+    ]
 })
 export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     @Input() sequence: FieldDirectiveSequenceConfiguration;
-    @Input() descriptor: FieldDirectiveSequenceParameterDescriptor;
+
+    @Input() set descriptor(val: FieldDirectiveSequenceParameterDescriptor) {
+        this._descriptor = val;
+        this._menuItems = this.directivesToMenuItems();
+    };
+
+    get descriptor(): FieldDirectiveSequenceParameterDescriptor {
+        return this._descriptor;
+    }
+
+    private _descriptor: FieldDirectiveSequenceParameterDescriptor;
     @Input() autoCompleteDataList: string[];
 
-    @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
+    @Output() onSequenceChange: EventEmitter<FieldDirectiveSequenceConfiguration> = new EventEmitter<FieldDirectiveSequenceConfiguration>();
+    @Output() onDelete: EventEmitter<FieldDirectiveSequenceConfiguration> = new EventEmitter<FieldDirectiveSequenceConfiguration>();
 
-    private readonly PARAMETER_HEIGHT: number = 85;
+    @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
+    @ViewChild(AddDirectiveComponent) addComponent: AddDirectiveComponent;
+
+    private readonly PARAMETER_HEIGHT: number = 90;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
+    private _menuItems: MenuItem[] = [];
 
-
-    constructor(private _parameterComponentFactory: ParameterComponentFactoryService) {
+    constructor(private _parameterComponentFactory: ParameterComponentFactoryService, private _parameterFactory: ParameterFactoryService) {
 
     }
 
@@ -77,8 +133,17 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         componentRef.instance.emitter.pipe(takeUntil(this._unsubscribe$)).subscribe(parameter => this.onParameterChange(parameter))
     }
 
+    private sequenceChanged(sequence: FieldDirectiveSequenceConfiguration) {
+        this.onSequenceChange.emit(sequence);
+    }
+
     private onParameterChange(parameter: Parameter) {
-        console.log("Parameter Change!");
+        const index = this.sequence.parameters.parameters.findIndex(param => param.ref.id === parameter.ref.id);
+        if (index < 0) {
+            throw new Error(`[DirectiveSequenceComponent] Parameter ${parameter.ref.id} is not part of the current sequence`)
+        }
+        this.sequence.parameters.parameters.splice(index, 1, parameter);
+        this.sequenceChanged(this.sequence);
     }
 
     private getDirectiveDescriptor(config: DirectiveConfiguration) {
@@ -89,12 +154,9 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         return directiveDescriptor;
     }
 
-    private isDisabled() {
-        return this.sequence.directives.length === 0;
-    }
-
     private delete(event: MouseEvent) {
         event.stopPropagation();
+        this.onDelete.emit(this.sequence);
     }
 
     private getExpansionHeight() {
@@ -104,6 +166,60 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     private drop(event: CdkDragDrop<DirectiveConfiguration[]>) {
         moveItemInArray(this.sequence.directives, event.previousIndex, event.currentIndex);
+        this.sequenceChanged(this.sequence);
+    }
+
+    private directivesToMenuItems(): MenuItem[] {
+        return this.descriptor.directives.map(directive => {
+            return {
+                id: directive.ref.uuid,
+                displayName: directive.displayName,
+                description: directive.description,
+                icon: directive.icon
+            }
+        });
+    }
+
+    private addDirective(item: MenuItem) {
+        const directive = this.descriptor.directives.find(directive => directive.ref.uuid === item.id);
+        if (!directive) throw new Error(`[DirectiveSequenceComponent] Directive ${item.displayName} was not found in the FieldDirectiveSequenceDescriptor!`);
+        this.sequence.directives.push({
+            ref: directive.ref,
+            instance: {
+                uuid: uuid()
+            },
+            parameters: {
+                parameters: directive.parameters.map(descriptor => this._parameterFactory.parameterDescriptorToParameter(descriptor))
+            }
+        });
+        this.sequenceChanged(this.sequence);
+    }
+
+    private deleteDirective(conf: DirectiveConfiguration) {
+        const index = this.sequence.directives.findIndex(directive => directive.instance.uuid === conf.instance.uuid);
+        if (index > -1) {
+            this.sequence.directives.splice(index, 1);
+            this.sequenceChanged(this.sequence);
+        }
+
+    }
+
+    private directiveChange(conf: DirectiveConfiguration) {
+        const index = this.sequence.directives.findIndex(directive => directive.instance.uuid === conf.instance.uuid);
+        if (index < 0) {
+            throw new Error(`[DirectiveSequenceComponent] The directive instance which was updated by the DirectiveComponent could not be found in the current sequence`);
+        }
+        this.sequence.directives.splice(index, 1, conf);
+        this.sequenceChanged(this.sequence);
+
+    }
+
+    private closeAddPanel() {
+        this.addComponent.closePanel();
+    }
+
+    private trackByFn(index: number, item: DirectiveConfiguration) {
+        return item.instance.uuid;
     }
 
     ngOnDestroy(): void {

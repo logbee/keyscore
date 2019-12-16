@@ -178,4 +178,3 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
         return record.fields.find(field => field.name === name);
     }
 }
-

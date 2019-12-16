@@ -1,6 +1,7 @@
 import {
     AfterViewInit,
     Component,
+    ElementRef,
     EventEmitter,
     Input,
     OnDestroy,
@@ -9,26 +10,39 @@ import {
     ViewContainerRef
 } from "@angular/core";
 import {
-    FieldDirectiveDescriptor,
-    DirectiveConfiguration
+    DirectiveConfiguration,
+    FieldDirectiveDescriptor
 } from '@keyscore-manager-models/src/main/parameters/directive.model';
-import {ParameterDescriptor, Parameter} from '@keyscore-manager-models/src/main/parameters/parameter.model';
+import {Parameter, ParameterDescriptor} from '@keyscore-manager-models/src/main/parameters/parameter.model';
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
+import {IconEncoding, IconFormat} from "@keyscore-manager-models/src/main/descriptors/Icon";
 
 @Component({
     selector: 'ks-directive',
     template: `
-        <mat-expansion-panel [hideToggle]="descriptor.parameters.length === 0" [disabled]="descriptor.parameters.length === 0" class="directive-wrapper">
+        <mat-expansion-panel [hideToggle]="noParameters()"
+                             [disabled]="noParameters()" class="directive-wrapper">
             <mat-expansion-panel-header class="directive-header" fxLayout="row-reverse"
-                                        matTooltip="{{descriptor.description}}"
                                         fxLayoutAlign="space-between center" fxLayoutGap="15px">
-                <mat-panel-title fxFlexAlign="center" class="directive-title">{{descriptor.displayName}}</mat-panel-title>
-                <button mat-button matSuffix mat-icon-button aria-label="delete directive"
-                        (click)="delete($event)">
-                    <mat-icon color="warn">delete</mat-icon>
-                </button>
+                <div fxLayout="row" fxLayoutAlign="space-between center" fxFlex>
+                    <div *ngIf="noParameters()" fxFlexAlign="center">
+                        <mat-icon></mat-icon>
+                    </div>
+                    <div *ngIf="!noParameters()" style="width:0px;height:20px"></div>
+                    <div class="directive-title" fxLayout="row" fxLayoutGap="8px">
+                        <div class="icon-wrapper" #iconContainer></div>
+                        <span>{{descriptor.displayName}}</span>
+                    </div>
+                    <div>
+                        <mat-icon></mat-icon>
+                        <button mat-button matSuffix mat-icon-button aria-label="delete directive"
+                                (click)="delete($event)">
+                            <mat-icon color="warn">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
             </mat-expansion-panel-header>
 
             <div fxLayout="column" fxLayoutGap="8px" class="directive-body">
@@ -46,6 +60,7 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
     @Output() onChange: EventEmitter<DirectiveConfiguration> = new EventEmitter<DirectiveConfiguration>();
 
     @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
+    @ViewChild('iconContainer') iconContainer: ElementRef;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -63,12 +78,15 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    delete(event:MouseEvent) {
+    delete(event: MouseEvent) {
         event.stopPropagation();
         this.onDelete.emit(this.configuration);
     }
 
     ngAfterViewInit(): void {
+        if (this.descriptor.icon && this.descriptor.icon.encoding === IconEncoding.RAW && this.descriptor.icon.format === IconFormat.SVG) {
+            this.iconContainer.nativeElement.innerHTML = this.descriptor.icon.data;
+        }
         this.createParameterComponents();
     }
 
@@ -100,9 +118,12 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
         return parameter;
     }
 
+    private noParameters() {
+        return this.descriptor.parameters && this.descriptor.parameters.length === 0;
+    }
+
     ngOnDestroy(): void {
         this._unsubscribe$.next();
         this._unsubscribe$.complete();
     }
-
 }

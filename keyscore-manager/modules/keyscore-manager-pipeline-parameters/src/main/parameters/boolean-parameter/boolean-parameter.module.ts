@@ -14,7 +14,7 @@ import {TranslateModule} from "@ngx-translate/core";
 @NgModule({
     imports: [
         CommonModule,
-        MaterialModule
+        MaterialModule,
     ],
     declarations: [BooleanParameterComponent],
     entryComponents:[BooleanParameterComponent],

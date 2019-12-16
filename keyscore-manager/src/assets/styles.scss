@@ -261,3 +261,13 @@ mat-slide-toggle.mat-colored-always.mat-primary:not(.mat-checked):not(.mat-disab
 mat-slide-toggle.mat-colored-always.mat-accent:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-thumb {
   background-color: $accent;
 }
+
+// temporary fix for expansion panels until Angular Material Issue is fixed,
+// see https://github.com/angular/material2/issues/13870
+.ng-animating mat-expansion-panel-header {
+  height: 48px;
+}
+.ng-animating .mat-expansion-panel-content {
+  height: 0px;
+  visibility: hidden;
+}

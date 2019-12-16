@@ -107,18 +107,26 @@ import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/ma
 import {DirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive/directive.component";
 import {
     FieldDirectiveDescriptor,
-    FieldDirectiveSequenceParameterDescriptor
+    FieldDirectiveSequenceParameterDescriptor,
+    FieldDirectiveSequenceParameter,
+    FieldDirectiveSequenceConfiguration
 } from '@keyscore-manager-models/src/main/parameters/directive.model'
 import {DirectiveSequenceComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence/directive-sequence.component";
 import {FieldNameParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/field-name-parameter/field-name-parameter.module";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {AddDirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/add-directive/add-directive.component";
+import {IconEncoding, IconFormat} from "@keyscore-manager-models/src/main/descriptors/Icon";
+import {DirectiveSequenceParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence-parameter.component";
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
         return of(require('../../../../public/assets/i18n/en.json'))
     }
 };
+
+const splitIcon: string = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000" xml:space="preserve">\n' +
+    '<g><g transform="translate(0.000000,511.000000) scale(0.100000,-0.100000)"><path d="M4240.3,3782.5c-112.6-39.7-187.6-110.4-214.1-207.5c-13.2-48.6-22.1-642.2-22.1-1540.5V571.4h-849.7h-849.7v465.7v465.7l-66.2,66.2c-57.4,55.2-81.7,66.2-141.2,55.2c-53-8.8-361.9-220.7-1010.8-690.8c-512-375.2-944.6-695.2-960-715C111,200.6,100,149.9,100,107.9c0-41.9,11-92.7,26.5-112.6c15.4-17.7,448-339.9,964.4-715c840.9-611.3,946.8-682,1024-682c66.2,0,94.9,13.3,136.8,59.6c53,61.8,53,68.4,53,525.3v461.3h849.7h849.7v-1461c0-896,8.8-1494.1,22.1-1542.7c81.7-293.5,534.1-293.5,620.2,2.2c13.2,50.8,19.9,1218.2,15.4,3513.5c-6.6,3429.6-6.6,3436.2-53,3495.8C4509.5,3787,4381.5,3831.1,4240.3,3782.5z"/><path d="M5707.9,3793.6c-90.5-19.9-176.6-97.1-216.3-192c-46.4-105.9-46.4-6881.3,0-6987.2c101.5-240.6,434.8-264.8,580.4-44.1c37.5,55.2,39.7,169.9,46.3,1566.9l6.6,1507.3h781.3h783.5v-465.7v-465.7l66.2-66.2c57.4-55.2,81.6-66.2,141.3-55.2c50.7,8.8,357.5,218.5,975.4,666.5C9369.2-382,9801.8-59.8,9837.1-28.9c83.9,79.4,83.9,194.2,0,273.7c-35.3,30.9-467.9,353.1-964.4,712.8c-613.5,443.6-926.9,659.9-975.4,666.5c-59.6,11-83.9,0-141.3-55.2l-66.2-66.2v-465.7V571.4h-783.5H6125l-6.6,1509.6c-6.6,1496.3-6.6,1511.8-52.9,1573.6C5979.4,3769.3,5838.1,3822.3,5707.9,3793.6z"/></g></g>\n' +
+    '</svg>';
 
 @NgModule()
 class I18nModule {
@@ -706,7 +714,11 @@ storiesOf('Parameters/Directives/DirectiveComponent', module).addDecorator(
             [
                 new TextParameterDescriptor({id: 'textParameter'}, 'text', '', '', null, false)
             ],
-            null
+            {
+                data: splitIcon,
+                encoding: IconEncoding.RAW,
+                format: IconFormat.SVG
+            }
         ),
         configuration: {
             ref: {uuid: 'testID'},
@@ -742,9 +754,58 @@ storiesOf('Parameters/Directives/DirectiveComponent', module).addDecorator(
     }
 }));
 
+const fieldDirectiveSequenceParameterDescriptor: FieldDirectiveSequenceParameterDescriptor = new FieldDirectiveSequenceParameterDescriptor(
+    {id: 'sequenceParameter'},
+    'Directives',
+    'A description for the directive.',
+    null,
+    [
+        new FieldNameParameterDescriptor({id: 'fieldName'}, 'Fieldname', '', '', FieldNameHint.PresentField, null, true)
+    ],
+    [
+        new FieldDirectiveDescriptor({uuid: 'trimDirective'}, 'Trim', 'Trims something', [
+            new TextParameterDescriptor({id: 'textParam'}, 'TextParameter', '', '', null, false)
+        ], null),
+        new FieldDirectiveDescriptor({uuid: 'splitDirective'}, 'Split', 'Splits something', [], {
+            data: splitIcon,
+            format: IconFormat.SVG,
+            encoding: IconEncoding.RAW
+        }),
+        new FieldDirectiveDescriptor({uuid: 'findAndReplaceDirective'}, 'Find & Replace', '', [], null),
+        new FieldDirectiveDescriptor({uuid: 'toNumber'}, 'To Number', '', [], null),
+        new FieldDirectiveDescriptor({uuid: 'toDecimal'}, 'To Decimal', '', [], null),
+        new FieldDirectiveDescriptor({uuid: 'toTimestampDirective'}, 'To Timestamp', 'Converts a text to a timestamp.', [], null)
+    ],
+    0, 0
+);
+
+const sequence1: FieldDirectiveSequenceConfiguration = {
+    id: 'sequence1',
+    parameters: {parameters: [
+            new FieldNameParameter({id: 'fieldName'}, '')
+        ]},
+    directives: [{
+        ref: {uuid: 'trimDirective'},
+        instance: {uuid: 'firstInstance'},
+        parameters: {
+            parameters: [
+                new TextParameter({id: 'textParam'}, 'initialText')
+            ]
+        }
+    }, {
+        ref: {uuid: 'trimDirective'},
+        instance: {uuid: 'firstInstance1'},
+        parameters: {
+            parameters: [
+                new TextParameter({id: 'textParam'}, 'test')
+            ]
+        }
+    }]
+};
+
 storiesOf('Parameters/Directives/DirectiveSequenceComponent', module).addDecorator(
     moduleMetadata({
-        declarations: [DirectiveComponent, DirectiveSequenceComponent],
+        declarations: [DirectiveComponent, DirectiveSequenceComponent, AddDirectiveComponent],
         imports: [
             CommonModule,
             MaterialModule,
@@ -767,30 +828,11 @@ storiesOf('Parameters/Directives/DirectiveSequenceComponent', module).addDecorat
     })).add('with Parameter', () => ({
     component: DirectiveSequenceComponent,
     props: {
-        descriptor: new FieldDirectiveSequenceParameterDescriptor(
-            {id: 'sequenceParameter'},
-            'Directives',
-            '',
-            null,
-            [new FieldNameParameterDescriptor({id: 'fieldName'}, 'Fieldname', '', '', FieldNameHint.PresentField, null, true)],
-            [new FieldDirectiveDescriptor({uuid: 'trimDirective'}, 'Trim', 'Trims something', [], null)],
-            0, 0
-        ),
+        descriptor: fieldDirectiveSequenceParameterDescriptor,
         sequence:
-            {
-                id: 'sequence1',
-                parameters: {parameters: [new FieldNameParameter({id: 'fieldName'}, '')]},
-                directives: [{
-                    ref: {uuid: 'trimDirective'},
-                    instance: {uuid: 'firstInstance'},
-                    parameters: {parameters: []}
-                }, {
-                    ref: {uuid: 'trimDirective'},
-                    instance: {uuid: 'firstInstance1'},
-                    parameters: {parameters: []}
-                }]
-            },
-        autoCompleteDataList: ['message', 'robo_time', 'logbee_time']
+        sequence1,
+        autoCompleteDataList: ['message', 'robo_time', 'logbee_time'],
+        onSequenceChange: action('Sequence Changed')
 
     }
 }));
@@ -820,7 +862,15 @@ storiesOf('Parameters/Directives/AddDirectiveComponent', module).addDecorator(
     })).add('with Menu', () => ({
     component: AddDirectiveComponent,
     props: {
-        itemsToAdd: [{id: 'id0', name: 'Trim',description:'A directive description'}, {id: 'id1', name: 'Split'}],
+        itemsToAdd: [{id: 'id0', displayName: 'Trim', description: 'A directive description'}, {
+            id: 'id1',
+            displayName: 'Split',
+            icon: {
+                data: splitIcon,
+                encoding: IconEncoding.RAW,
+                format: IconFormat.SVG
+            }
+        }],
         onAdd: action('Add')
     }
 })).add('without menu', () => ({
@@ -829,6 +879,44 @@ storiesOf('Parameters/Directives/AddDirectiveComponent', module).addDecorator(
         onAdd: action('Add')
     }
 }));
+
+storiesOf('Parameters/Directives/DirectiveSequenceParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [
+            AddDirectiveComponent,
+            DirectiveComponent,
+            DirectiveSequenceComponent,
+            DirectiveSequenceParameterComponent],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            DragDropModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+            FieldNameParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
+                }
+            })
+        ],
+        providers: [
+            ParameterComponentFactoryService,
+            StringValidatorService
+        ]
+    })).add('with Menu', () => ({
+    component: DirectiveSequenceParameterComponent,
+    props: {
+        descriptor: fieldDirectiveSequenceParameterDescriptor,
+        parameter: new FieldDirectiveSequenceParameter(
+            fieldDirectiveSequenceParameterDescriptor.ref, [sequence1]),
+        autoCompleteDataList:['robo_time','logbee_time','message','timestamp'],
+        emitter:action('Parameter Change')
+    }
+}));
+
 
 storiesOf('Parameters/ParameterForm', module).addDecorator(
     moduleMetadata({
@@ -915,3 +1003,4 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
         onValueChange: action('Value changed')
     }
 }));
+``

@@ -11,7 +11,7 @@ import {AddDirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/m
     imports: [
         CommonModule,
         MaterialModule,
-        DragDropModule
+        DragDropModule,
     ],
     declarations: [
         DirectiveComponent,
@@ -25,7 +25,8 @@ import {AddDirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/m
         DirectiveSequenceParameterComponent
     ],
     exports: [
-        DirectiveSequenceParameterComponent
+        DirectiveSequenceParameterComponent,
+        AddDirectiveComponent
     ]
 })
 export class DirectiveSequenceParameterModule{
