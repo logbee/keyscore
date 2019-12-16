@@ -9,7 +9,7 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
 @Component({
     selector: "pipelines-overview",
     template: `
-        <table fxFlex="90%" mat-table matSort [dataSource]="dataSource"
+        <table mat-table matSort [dataSource]="dataSource"
                class="table-position mat-elevation-z8">
 
             <ng-container matColumnDef="health">
@@ -35,12 +35,13 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
 
             <ng-container matColumnDef="deploy">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
-                <td mat-cell *matCellDef="let pipelineTableModel">
-                    <mat-slide-toggle [checked]="isRunning(pipelineTableModel)"
-                                      (change)="onChange($event.checked, pipelineTableModel)">
-                    </mat-slide-toggle>
+                <td mat-cell *matCellDef="let pipelineTableModel" align="right">
+                    <!-- TODO: Enable when ready. -->
+<!--                    <mat-slide-toggle [checked]="isRunning(pipelineTableModel)"-->
+<!--                                      (change)="onChange($event.checked, pipelineTableModel)">-->
+<!--                    </mat-slide-toggle>-->
                     <button mat-icon-button (click)="onEditPipeline(pipelineTableModel.uuid)">
-                        <mat-icon>settings</mat-icon>
+                        <mat-icon>edit</mat-icon>
                     </button>
                 </td>
             </ng-container>

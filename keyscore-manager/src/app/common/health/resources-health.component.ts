@@ -4,8 +4,8 @@ import {Health} from "@/../modules/keyscore-manager-models/src/main/common/Healt
 @Component({
     selector: "resource-health",
     template: `
-        <div matTooltipPosition="above" matTooltip="{{health}}">
-            <div class="health-light {{health}}"></div>
+        <div>
+            <div class="health-light {{health}}"  matTooltip="{{health}}" matTooltipPosition="right"></div>
         </div>
     `,
 
