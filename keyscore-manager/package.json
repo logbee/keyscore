@@ -58,6 +58,7 @@
     "@storybook/addon-actions": "5.0.11",
     "@storybook/addon-links": "5.0.11",
     "@storybook/addon-notes": "5.0.11",
+    "@storybook/addon-knobs": "5.0.11",
     "@storybook/addons": "5.0.11",
     "@storybook/angular": "5.0.11",
     "@types/angular": "1.6.54",
