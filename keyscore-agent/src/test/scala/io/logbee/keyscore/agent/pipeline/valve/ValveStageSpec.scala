@@ -82,7 +82,7 @@ class ValveStageSpec extends FreeSpec with Matchers with ScalaFutures with TestS
       }
     }
 
-    "should backpressure when closed, so only buffered messages pass through"  in new TestWithSourceProbeAndSinkProbe(bufferLimit = 2) {
+    "should backpressure when closed"  in new TestWithSourceProbeAndSinkProbe(bufferLimit = 2) {
 
       whenReady(valveFuture) { valve =>
 
@@ -98,9 +98,6 @@ class ValveStageSpec extends FreeSpec with Matchers with ScalaFutures with TestS
           state.position shouldBe Closed
 
           sink.request(3)
-
-          sink.requestNext().records should contain theSameElementsAs dataset2.records
-          sink.requestNext().records should contain theSameElementsAs dataset3.records
 
           sink.expectNoMessage(5 seconds)
         }

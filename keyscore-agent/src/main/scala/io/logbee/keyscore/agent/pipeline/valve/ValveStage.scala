@@ -234,7 +234,7 @@ class ValveStage(supervisor: ActorRef, bufferLimit: Int = 10)(implicit val dispa
         pushOut()
       }
 
-      if (ringBuffer.isNotFull || isDraining) {
+      if (isDraining) {
         pullIn()
       }
     }
