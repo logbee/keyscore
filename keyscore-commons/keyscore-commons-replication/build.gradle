@@ -1,0 +1,22 @@
+import io.logbee.gradle.scalapb.ScalaPBPlugin
+
+apply plugin: ScalaPBPlugin
+
+apply from: rootProject.file('dependencies.gradle')
+
+evaluationDependsOn ':keyscore-commons:keyscore-commons-serialization'
+
+dependencies {
+
+    compile project(':keyscore-commons:keyscore-commons-serialization')
+
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+    compile dependency.scalapb_runtime
+
+    testCompile project(':keyscore-test-fixtures')
+}
+
+generateScalaPB {
+    dependsOn project(':keyscore-commons:keyscore-commons-serialization').tasks['jar']
+}

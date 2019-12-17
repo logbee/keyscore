@@ -8,6 +8,7 @@ project(':keyscore-agent:keyscore-agent-runtimes-jvm').projectDir = new File(pro
 
 include 'keyscore-commons'
 include 'keyscore-commons:keyscore-commons-logging'
+include 'keyscore-commons:keyscore-commons-replication'
 include 'keyscore-commons:keyscore-commons-serialization'
 include 'keyscore-commons:keyscore-commons-serviceregistry'
 include 'keyscore-frontier'
