@@ -20,6 +20,7 @@ import {ChoiceParameterModule} from "./parameters/choice-parameter/choice-parame
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
 import {PasswordParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.module";
+import {DirectiveSequenceParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence-parameter.module";
 
 
 @NgModule({
@@ -42,6 +43,7 @@ import {PasswordParameterModule} from "@keyscore-manager-pipeline-parameters/src
         FieldParameterModule,
         ListParameterModule,
         ChoiceParameterModule,
+        DirectiveSequenceParameterModule,
         /*Import ParameterGroupModule as last module because initialisation might depend on the other ParameterModules*/
         ParameterGroupModule
     ],

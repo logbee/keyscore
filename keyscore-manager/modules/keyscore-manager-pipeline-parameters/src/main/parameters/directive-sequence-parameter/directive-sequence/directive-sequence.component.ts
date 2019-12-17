@@ -27,13 +27,17 @@ import {
 import uuid = require("uuid");
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {animate, style, transition, trigger, AnimationEvent} from "@angular/animations";
+import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
+import {ParameterDescriptorJsonClass} from '@keyscore-manager-models/src/main/parameters/parameter.model'
+import {ParameterGroupDescriptor} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
+import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
 
 @Component({
     selector: 'ks-directive-sequence',
     template: `
         <mat-expansion-panel>
-            <mat-expansion-panel-header [collapsedHeight]="getExpansionHeight()"
-                                        [expandedHeight]="getExpansionHeight()"
+            <mat-expansion-panel-header [collapsedHeight]="expansionHeight"
+                                        [expandedHeight]="expansionHeight"
                                         fxLayout="row-reverse" fxLayoutGap="15px"
                                         fxLayoutAlign="space-between center">
 
@@ -111,6 +115,8 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
     private _unsubscribe$: Subject<void> = new Subject<void>();
     private _menuItems: MenuItem[] = [];
 
+    private _parameterComponents: Map<string, ParameterComponent<ParameterDescriptor, Parameter>> = new Map();
+
     constructor(private _parameterComponentFactory: ParameterComponentFactoryService, private _parameterFactory: ParameterFactoryService) {
 
     }
@@ -125,12 +131,29 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
     }
 
     private createComponent(descriptor: ParameterDescriptor) {
+        if (descriptor.jsonClass === ParameterDescriptorJsonClass.ParameterGroupDescriptor) {
+            const groupDescriptor: ParameterGroupDescriptor = descriptor as ParameterGroupDescriptor;
+            if (groupDescriptor.condition) {
+                setTimeout(() => {
+                    const groupComponent = this._parameterComponents.get(groupDescriptor.ref.id);
+                    const conditionComponent = this._parameterComponents.get(groupDescriptor.condition.parameter.id);
+                    if (!groupComponent || !conditionComponent) return;
+                    (groupComponent as ParameterGroupComponent).conditionInput = conditionComponent.value;
+                    conditionComponent.emitter.pipe(takeUntil(this._unsubscribe$)).subscribe((parameter: Parameter) => {
+                        (groupComponent as ParameterGroupComponent).conditionInput = parameter;
+                    });
+                }, 0)
+            }
+        }
+
         const componentRef = this._parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.parameterContainer);
         componentRef.instance.descriptor = descriptor;
         componentRef.instance.parameter = this.sequence.parameters.parameters.find(param => param.ref.id === descriptor.ref.id);
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
 
-        componentRef.instance.emitter.pipe(takeUntil(this._unsubscribe$)).subscribe(parameter => this.onParameterChange(parameter))
+        componentRef.instance.emitter.pipe(takeUntil(this._unsubscribe$)).subscribe(parameter => this.onParameterChange(parameter));
+
+        this._parameterComponents.set(descriptor.ref.id, componentRef.instance);
     }
 
     private sequenceChanged(sequence: FieldDirectiveSequenceConfiguration) {
@@ -159,10 +182,11 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         this.onDelete.emit(this.sequence);
     }
 
-    private getExpansionHeight() {
-        const height = this.descriptor.parameters.length * this.PARAMETER_HEIGHT;
+    private get expansionHeight() {
+        const height = (this.descriptor.parameters.length) * this.PARAMETER_HEIGHT;
         return `${height}px`;
     }
+
 
     private drop(event: CdkDragDrop<DirectiveConfiguration[]>) {
         moveItemInArray(this.sequence.directives, event.previousIndex, event.currentIndex);

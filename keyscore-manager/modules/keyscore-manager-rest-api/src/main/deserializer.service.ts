@@ -33,6 +33,7 @@ import {
     Choice,
     ChoiceWithLocales,
     ParameterDescriptorWithLocales,
+    FieldDirectiveDescriptorWithLocales,
     ParameterInfo,
     ParameterInfoWithLocales,
     StringValidator,
@@ -45,6 +46,11 @@ import {
     ParameterGroupConditionJsonClass,
     ParameterGroupDescriptor
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
+import {
+    FieldDirectiveDescriptor,
+    FieldDirectiveSequenceParameterDescriptor
+} from "@keyscore-manager-models/src/main/parameters/directive.model"
+import set = Reflect.set;
 
 @Injectable({providedIn: 'root'})
 export class DeserializerService {
@@ -191,10 +197,24 @@ export class DeserializerService {
                 const condition = this.deserializeParameterGroupCondition(parameterDescriptor.condition);
                 return new ParameterGroupDescriptor(base.ref, base.info.displayName, base.info.description, condition, parameterDescriptors);
             }
+            case ParameterDescriptorJsonClass.FieldDirectiveSequenceParameterDescriptor: {
+                const parameters = parameterDescriptor.parameters.map(descriptor => this.resolveParameterDescriptor(settings, descriptor));
+                const directives = parameterDescriptor.directives.map(directive => this.deserializeFieldDirective(settings, directive));
+                return new FieldDirectiveSequenceParameterDescriptor(
+                    parameterDescriptor.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.fieldTypes, parameters, directives, parameterDescriptor.minSequences,
+                    parameterDescriptor.maxSequences);
+            }
             default:
                 throw Error("Failed to resolve ParameterDescriptor: " + parameterDescriptor.jsonClass);
         }
 
+    }
+
+    public deserializeFieldDirective(settings: { descriptor: Descriptor, language: string }, fieldDirectiveJson: FieldDirectiveDescriptorWithLocales) {
+        const info = this.resolveInfo(settings, fieldDirectiveJson.info);
+        const parameters = fieldDirectiveJson.parameters ? fieldDirectiveJson.parameters.map(descriptor => this.resolveParameterDescriptor(settings, descriptor)) : [];
+        return new FieldDirectiveDescriptor(fieldDirectiveJson.ref, info.displayName, info.description, parameters, fieldDirectiveJson.icon);
     }
 
     public deserializeParameterGroupCondition(groupCondition: IParameterGroupCondition) {

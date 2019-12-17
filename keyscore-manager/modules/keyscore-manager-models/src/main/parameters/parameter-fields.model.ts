@@ -1,6 +1,8 @@
 import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 import {ParameterGroupCondition} from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
+import {Icon} from "@keyscore-manager-models/src/main/descriptors/Icon";
+import {DirectiveRef} from "@keyscore-manager-models/src/main/parameters/directive.model";
 
 export interface StringValidatorWithLocales {
     expression: string;
@@ -71,14 +73,23 @@ export interface ParameterDescriptorWithLocales {
     descriptor?: ParameterDescriptorWithLocales;
     fieldTypes?: FieldValueType;
     parameters?: ParameterDescriptorWithLocales[];
-    directives?: any;
     minSequences?: number;
     maxSequences?: number;
     fieldValueType?: FieldValueType;
     condition?: ParameterGroupCondition;
     supports?: PatternType[];
     minLength?: number,
-    maxLength?: number
+    maxLength?: number,
+    icon?: Icon,
+    directives?: FieldDirectiveDescriptorWithLocales[]
+}
+
+export interface FieldDirectiveDescriptorWithLocales {
+    ref: DirectiveRef,
+    info: ParameterInfoWithLocales,
+    jsonClass: string,
+    parameters?: ParameterDescriptorWithLocales[],
+    icon?: Icon
 }
 
 
