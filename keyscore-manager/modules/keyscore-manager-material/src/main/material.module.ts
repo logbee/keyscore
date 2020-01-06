@@ -30,7 +30,7 @@ import {
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {HttpClientModule} from "@angular/common/http";
 import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
-
+import {ConfirmButtonComponent} from "@keyscore-manager-material/src/main/components/confirm-button.component";
 
 @NgModule({
     imports: [
@@ -63,8 +63,7 @@ import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
         MatProgressSpinnerModule,
         MatExpansionModule,
         MatSliderModule,
-        NgxMatSelectSearchModule
-
+        NgxMatSelectSearchModule,
     ],
     exports: [
         MatButtonModule,
@@ -96,9 +95,12 @@ import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
         MatProgressBarModule,
         MatExpansionModule,
         MatSliderModule,
-        NgxMatSelectSearchModule
-
+        NgxMatSelectSearchModule,
+    ],
+    declarations: [
+        ConfirmButtonComponent
     ]
 })
 export class MaterialModule {
+
 }
