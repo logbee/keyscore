@@ -188,9 +188,18 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
     records.flatMap(record => {
       record.fields.find(field => fieldName.equals(field.name) && field.value.isInstanceOf[TextValue]) match {
         case Some(source @ Field(_, TextValue(content, _))) =>
-          val lines = content.lines.toList
+          val lines = content.linesIterator.toList
           val header = lines.head.split(delimiter)
-          val parsed = lines.tail.map(_.split(delimiter).zip(header).map { case (value, name) => Field(name, TextValue(value)) }).map(Record(_:_*))
+          val parsed =
+            lines.tail
+              .map(
+                _.split(delimiter)
+                .toIndexedSeq
+                .zip(header)
+                .map { case (value, name) => Field(name, TextValue(value)) }
+              )
+              .map(Record(_:_*))
+
 
           if (removeSourceField) {
             if (record.fields.size > 1) {
