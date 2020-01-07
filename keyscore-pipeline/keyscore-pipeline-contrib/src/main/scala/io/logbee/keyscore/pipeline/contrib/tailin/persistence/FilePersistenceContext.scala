@@ -29,7 +29,19 @@ class FilePersistenceContext private(configuration: Configuration) extends Persi
       }
       catch {
         case exception: Throwable =>
-          log.error(s"Failed to read persistence from file: ${file.getAbsolutePath}", exception)
+          val isEmpty = file.length == 0;
+
+          val delete_message =
+            if (isEmpty)
+              " (Deleting file, because it is empty.)"
+            else
+              ""
+
+          log.error(s"Failed to read persistence from file '${file.getAbsolutePath}'.$delete_message", exception)
+
+          if (isEmpty) {
+            file.delete()
+          }
       }
     }
   }
@@ -42,14 +54,13 @@ class FilePersistenceContext private(configuration: Configuration) extends Persi
 
     if (configuration.enabled) {
       val persistenceFile = configuration.persistenceDir.toPath.resolve(uniqueIdFromPath + ".json").toFile
+      val jsonFormat = PersistenceFormat(absolutePath, fileReadRecord)
+      var output: FileWriter = null
+
       persistenceFile.createNewFile()
 
-      val jsonFormat = PersistenceFormat(absolutePath, fileReadRecord)
-
-      var output: FileWriter = null
       try {
         output = new FileWriter(persistenceFile, false)
-
         write(jsonFormat, output).flush
       }
       catch {
