@@ -9,7 +9,7 @@ import {
     StopPipelineAction,
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
-import {share, takeUntil} from "rxjs/internal/operators";
+import {share, take, takeUntil} from "rxjs/internal/operators";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
@@ -33,6 +33,8 @@ import {LoadAgentsAction} from "@/app/agents/agents.actions";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {getAgents} from "@/app/agents/agents.reducer";
 import {AppConfig, selectAppConfig} from "@/app/app.config";
+import {Title} from "@angular/platform-browser";
+import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: "pipeline-editor",
@@ -106,7 +108,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public isLoadingDatasetsBefore$: Observable<boolean>;
     public loadingDatasetsErrorBefore$: Observable<boolean>;
 
-    public applicationConf$:Observable<AppConfig>;
+    public applicationConf$: Observable<AppConfig>;
 
     private showBigLoadingViewOnLoading = true;
     private selectedBlockId: string;
@@ -116,7 +118,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private inputDatasets$: Observable<Map<string, Dataset[]>>;
     private agents$: Observable<Agent[]>;
 
-    constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
+
+    constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter, private titleService: Title) {
         this.outputDatasets$ = this.store.pipe(select(getOutputDatasetMap));
         this.inputDatasets$ = this.store.pipe(select(getInputDatasetMap));
     }
@@ -144,6 +147,19 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
+
+        let title: string = "KEYSCORE";
+
+        this.pipeline$.pipe(takeUntil(this.alive)).subscribe(model => {
+            if(model) {
+                const label = model.pipelineBlueprint.metadata.labels.find(label => label.name === 'pipeline.name');
+                if (label) {
+                    title = (label.value as TextValue).value + " - KEYSCORE";
+                }
+            }
+            this.titleService.setTitle(title);
+        });
+
         this.agents$ = this.store.pipe(select(getAgents), takeUntil(this.alive));
 
         this.applicationConf$ = this.store.pipe(select(selectAppConfig));
@@ -173,6 +189,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
+        this.titleService.setTitle("KEYSCORE");
         this.alive.next();
         this.alive.complete();
     }
