@@ -98,7 +98,7 @@ import {ConfirmButtonComponent} from "@keyscore-manager-material/src/main/compon
         NgxMatSelectSearchModule,
     ],
     declarations: [
-        ConfirmButtonComponent
+        ConfirmButtonComponent,
     ]
 })
 export class MaterialModule {
