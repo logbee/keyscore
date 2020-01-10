@@ -5,44 +5,12 @@ import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatButtonModule} from "@angular/material/button";
 import {action} from '@storybook/addon-actions';
-import {Component} from "@angular/core";
 import {MatIconModule} from "@angular/material/icon";
-
-@Component({
-    selector: "",
-    template: `
-        <confirm-button>Confirm</confirm-button>
-
-        <div style="margin-top: 25px"></div>
-
-        <confirm-button kind="accept">Accept</confirm-button>
-
-        <div style="margin-top: 25px"></div>
-
-        <confirm-button kind="caution">Caution</confirm-button>
-
-        <div style="margin-top: 25px"></div>
-
-        <confirm-button><mat-icon>edit</mat-icon></confirm-button>
-
-        <div style="margin-top: 25px"></div>
-
-        <confirm-button kind="accept"><mat-icon>play_arrow</mat-icon></confirm-button>
-
-        <div style="margin-top: 25px"></div>
-
-        <confirm-button kind="caution"><mat-icon>delete</mat-icon></confirm-button>
-    `,
-})
-class ConfirmButtonCollectionComponent {
-
-}
 
 storiesOf('Material', module).addDecorator(
     moduleMetadata({
         declarations: [
             ConfirmButtonComponent,
-            ConfirmButtonCollectionComponent
         ],
         imports: [
             BrowserAnimationsModule,
@@ -51,10 +19,32 @@ storiesOf('Material', module).addDecorator(
             CommonModule,
         ]
     }))
-    .add("ConfirmButton", () => ({
-        component: ConfirmButtonCollectionComponent,
-        // requiresComponentDeclaration: false, TODO: Enable after update of storybook >= 5.1, Fixes https://github.com/storybookjs/storybook/issues/5542
+    .add("Confirm Button", () => ({
+        template: `
+            <div>
+                <confirm-button (confirmed)="confirm($event)">Confirm</confirm-button>
+                <span style="margin-left: 25px"></span>
+                <confirm-button (confirmed)="edit($event)"><mat-icon>edit</mat-icon></confirm-button>
+            </div>
+            <div style="margin-top: 25px"></div>
+            <div>
+                <confirm-button kind="accept" (confirmed)="accept($event)">Accept</confirm-button>
+                <span style="margin-left: 25px"></span>
+                <confirm-button kind="accept" (confirmed)="play($event)"><mat-icon>play_arrow</mat-icon></confirm-button>
+            </div>
+            <div style="margin-top: 25px"></div>
+            <div>
+                <confirm-button kind="caution" (confirmed)="caution($event)">Caution</confirm-button>
+                <span style="margin-left: 25px"></span>
+                <confirm-button kind="caution" (confirmed)="delete($event)"><mat-icon>delete</mat-icon></confirm-button>
+            </div>
+        `,
         props: {
-            confirmed: action('Confirmed')
+            confirm: action('confirm'),
+            accept: action('accept'),
+            caution: action('caution'),
+            edit: action('edit'),
+            play: action('play'),
+            delete: action('delete'),
         },
     }));

@@ -10,7 +10,7 @@ import {takeUntil} from 'rxjs/operators';
                 [style.background-position]="'right bottom'"
                 [style.background-size]="'200% 100%'"
                 [style.background-position-x]="-this.confirmation + '%'"
-                (mousedown)="confirming()"
+                (mousedown)="confirming($event)"
                 (mouseup)="abort()"
                 (mouseleave)="abort()">
             <ng-content></ng-content>
@@ -41,17 +41,21 @@ export class ConfirmButtonComponent implements OnDestroy {
         }
     }
 
-    private confirming(): void {
-        timer(100,100)
-            .pipe(takeUntil(this.abort$))
-            .subscribe(tick => {
-                if (this.confirmation < 100) {
-                    this.confirmation = 20 + tick * 10;
-                }
-                else {
-                    this.confirm()
-                }
-            }, null, () => this.confirmation = 0);
+    private confirming(event: MouseEvent): void {
+        if (event.ctrlKey) {
+            this.confirm();
+        }
+        else {
+            timer(50, 50)
+                .pipe(takeUntil(this.abort$))
+                .subscribe(tick => {
+                    if (this.confirmation < 100) {
+                        this.confirmation = 20 + tick * 10;
+                    } else {
+                        this.confirm()
+                    }
+                }, null, () => this.confirmation = 0);
+        }
     }
 
     private confirm(): void {
