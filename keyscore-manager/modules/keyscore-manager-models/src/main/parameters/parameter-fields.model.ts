@@ -94,7 +94,7 @@ export interface FieldDirectiveDescriptorWithLocales {
 
 
 export enum PatternType {
-    None = "None", RegEx = "RegEx", Glob = "Glob"
+    ExactMatch = "ExactMatch", RegEx = "RegEx", Glob = "Glob"
 }
 
 

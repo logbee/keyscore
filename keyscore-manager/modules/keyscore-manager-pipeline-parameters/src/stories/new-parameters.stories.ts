@@ -438,7 +438,7 @@ storiesOf('Parameters/FieldNamePatternParameter', module)
         props: {
             descriptor: new FieldNamePatternParameterDescriptor({id: "myFieldNamePatternParameter"},
                 "Field Name Pattern", "", "", FieldNameHint.PresentField, [
-                    PatternTypeChoice.fromPatternType(PatternType.None),
+                    PatternTypeChoice.fromPatternType(PatternType.ExactMatch),
                     PatternTypeChoice.fromPatternType(PatternType.RegEx),
                     PatternTypeChoice.fromPatternType(PatternType.Glob)
                 ], true)

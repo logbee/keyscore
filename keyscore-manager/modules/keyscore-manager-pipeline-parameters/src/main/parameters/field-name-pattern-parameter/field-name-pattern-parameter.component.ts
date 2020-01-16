@@ -1,8 +1,15 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {FieldNamePatternParameterDescriptor, FieldNamePatternParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
-import {FieldNameHint, PatternType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
-
+import {
+    FieldNamePatternParameter,
+    FieldNamePatternParameterDescriptor,
+    PatternTypeChoice
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
+import {
+    FieldNameHint,
+    PatternType
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import * as _ from 'lodash'
 
 @Component({
     selector: 'parameter-field-name-pattern',
@@ -19,24 +26,27 @@ import {FieldNameHint, PatternType} from "@/../modules/keyscore-manager-models/s
                         (click)="fieldName.value='';onChange('',patternType.value);fieldName.focus($event)">
                     <mat-icon>close</mat-icon>
                 </button>
-                <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField" translate [translateParams]="{hint:descriptor.hint}">
+                <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField" translate
+                          [translateParams]="{hint:descriptor.hint}">
                     PARAMETER.FIELD_NAME_HINT
                 </mat-hint>
             </mat-form-field>
             <mat-form-field fxFlex>
                 <mat-label>Pattern</mat-label>
-                <mat-select #patternType (selectionChange)="onChange(fieldName.value, patternType.value)">
+                <mat-select #patternType [compareWith]="comparePatternTypes" [value]="parameter.patternType"
+                            (selectionChange)="onChange(fieldName.value, patternType.value)">
                     <mat-option *ngFor="let pattern of descriptor.supports" [value]="pattern.type">
                         {{pattern.displayName}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
-        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)" translate [translateParams]="{name:descriptor.displayName}">
+        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)"
+           translate [translateParams]="{name:descriptor.displayName}">
             PARAMETER.IS_REQUIRED
         </p>
     `,
-    styleUrls:['../../style/parameter-module-style.scss']
+    styleUrls: ['../../style/parameter-module-style.scss']
 
 })
 export class FieldNamePatternParameterComponent extends ParameterComponent<FieldNamePatternParameterDescriptor, FieldNamePatternParameter> {
@@ -53,4 +63,9 @@ export class FieldNamePatternParameterComponent extends ParameterComponent<Field
         console.log("changed: ", parameter);
         this.emit(parameter)
     }
+
+    private comparePatternTypes(p0: PatternTypeChoice, p1: PatternTypeChoice) {
+        return p0.type === p1.type;
+    }
+
 }

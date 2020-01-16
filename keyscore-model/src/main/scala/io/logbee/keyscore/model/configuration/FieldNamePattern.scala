@@ -10,7 +10,7 @@ class FieldNamePattern(val pattern: String, val patternType: PatternType) {
 
   def matches(name: String): Boolean = patternType match {
     case PatternType.RegEx => pattern.r.pattern.matcher(name).matches()
-    case PatternType.None => pattern.equals(name)
+    case PatternType.ExactMatch => pattern.equals(name)
     case _ => false
   }
 }

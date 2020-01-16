@@ -124,13 +124,13 @@ message FieldNamePatternParameterDescriptor {
     ParameterInfo info = 2;
     string defaultValue = 3;
     FieldNameHint hint = 4;
-    repeated PatternType supports = 5;
-    bool mandatory = 6;
+    bool mandatory = 5;
     enum PatternType {
-        None = 0;
+        ExactMatch = 0;
         RegEx = 1;
         Glob = 2;
     }
+    repeated PatternType supports = 6;
 }
 // end::FieldNameParameterDescriptor[]
 

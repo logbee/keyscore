@@ -32,10 +32,11 @@ import {
 import {
     Choice,
     ChoiceWithLocales,
-    ParameterDescriptorWithLocales,
     FieldDirectiveDescriptorWithLocales,
+    ParameterDescriptorWithLocales,
     ParameterInfo,
     ParameterInfoWithLocales,
+    PatternType,
     StringValidator,
     StringValidatorWithLocales
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
@@ -50,7 +51,6 @@ import {
     FieldDirectiveDescriptor,
     FieldDirectiveSequenceParameterDescriptor
 } from "@keyscore-manager-models/src/main/parameters/directive.model"
-import set = Reflect.set;
 
 @Injectable({providedIn: 'root'})
 export class DeserializerService {
@@ -190,6 +190,9 @@ export class DeserializerService {
                     parameterDescriptor.defaultValue, parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
                 const supports = parameterDescriptor.supports.map(pattern => PatternTypeChoice.fromPatternType(pattern));
+                if (!supports.length) {
+                    supports.push(PatternTypeChoice.fromPatternType(PatternType.ExactMatch));
+                }
                 return new FieldNamePatternParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, supports, parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.ParameterGroupDescriptor: {
                 const parameterDescriptors =

@@ -17,11 +17,11 @@ export class PatternTypeChoice {
     public static fromPatternType(type: PatternType): PatternTypeChoice {
         switch (type) {
             case PatternType.RegEx:
-                return new PatternTypeChoice(type, "Regular Expression");
+                return new PatternTypeChoice(PatternType.RegEx, "Regular Expression");
             case PatternType.Glob:
-                return new PatternTypeChoice(type, "Glob Expression");
+                return new PatternTypeChoice(PatternType.Glob, "Glob Expression");
             default:
-                return new PatternTypeChoice(PatternType.None, "None");
+                return new PatternTypeChoice(PatternType.ExactMatch, "Exact Match");
 
         }
     }
