@@ -33,7 +33,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with Inside with TestS
               FieldNamePatternParameter(
                 TextMutatorLogic.fieldNamePatternParameter.ref,
                 value = "message",
-                patternType = PatternType.None
+                patternType = PatternType.ExactMatch
               ),
             )),
             directives = Seq.empty
@@ -62,7 +62,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with Inside with TestS
               FieldNamePatternParameter(
                 TextMutatorLogic.fieldNamePatternParameter.ref,
                 value = "message",
-                patternType = PatternType.None
+                patternType = PatternType.ExactMatch
               ),
               BooleanParameter(TextMutatorLogic.sequenceInplaceParameter.ref, true),
             )),
@@ -92,7 +92,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with Inside with TestS
               FieldNamePatternParameter(
                 TextMutatorLogic.fieldNamePatternParameter.ref,
                 value = "message",
-                patternType = PatternType.None
+                patternType = PatternType.ExactMatch
               ),
               BooleanParameter(TextMutatorLogic.sequenceInplaceParameter.ref, false),
               FieldNameParameter(TextMutatorLogic.mutatedFieldName.ref, "mutated_message")
