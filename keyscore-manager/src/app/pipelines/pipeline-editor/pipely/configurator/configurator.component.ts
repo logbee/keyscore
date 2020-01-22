@@ -15,6 +15,7 @@ import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {map, startWith, takeUntil} from "rxjs/operators";
 import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-form.component"
 import {JSONCLASS_GROUP_PARAM} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 @Component({
     selector: "configurator",
@@ -189,11 +190,17 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.parameterMap$.next(null);
             return;
         }
-        const parameterTuples: [Parameter, ParameterDescriptor][] =
-            _.zip(config.conf.parameterSet.parameters, config.descriptor.parameters);
+        const parameters: Parameter[] = config.conf.parameterSet.parameters;
+        const descriptors: ParameterDescriptor[] = config.descriptor.parameters;
+
         let parameterMap: ParameterMap = {parameters: {}};
-        parameterTuples.forEach(([parameter, descriptor]) =>
-            parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
+
+        descriptors.forEach(descriptor => {
+            const parameter = parameters.find(parameter => parameter.ref === descriptor.ref);
+            if (parameter) {
+                parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor];
+            }
+        });
 
         this.parameterMap$.next({id: config.uuid, parameters: parameterMap});
     }
