@@ -13,8 +13,8 @@ import javax.inject.Inject
 
 class ScalaPBPlugin implements Plugin<Project> {
 
-    private final FileResolver fileResolver
     private final ObjectFactory objectFactory
+    private final FileResolver fileResolver
 
     @Inject
     ScalaPBPlugin(ObjectFactory objectFactory, FileResolver fileResolver) {
@@ -27,19 +27,21 @@ class ScalaPBPlugin implements Plugin<Project> {
         project.extensions.create("scalapb", ScalaPBPluginExtension.class)
 
         project.getSourceSets().all { sourceSet ->
+            if (sourceSet.getExtensions().findByName("proto") == null) {
 
-            SourceDirectorySet sourceDirectory = objectFactory.sourceDirectorySet(sourceSet.name, String.format("%s ScalaPB source", sourceSet.name))
-            sourceDirectory.srcDir("src/${sourceSet.name}/proto")
-            sourceDirectory.getFilter().include("**/*.proto");
+                final SourceDirectorySet sourceDirectory = objectFactory.sourceDirectorySet(sourceSet.name, String.format("%s ScalaPB source", sourceSet.name))
+                sourceDirectory.srcDir("src/${sourceSet.name}/proto")
+                sourceDirectory.getFilter().include("**/*.proto")
 
-            sourceSet.extensions.add('proto', sourceDirectory)
+                sourceSet.extensions.add('proto', sourceDirectory)
+            }
         }
 
         project.getSourceSets().each { sourceSet ->
             Task compileScala = project.tasks.getByName(sourceSet.getTaskName("compile", "Scala"))
             Task processResourcesTask = project.tasks.getByName(sourceSet.getTaskName('process', 'resources'))
             File outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
-            Set<File> protoDirs = sourceSet.proto.srcDirs.findAll{dir -> dir.exists()}
+            Set<File> protoDirs = sourceSet.extensions.getByName("proto").srcDirs.findAll{dir -> dir.exists()}
             Set<File> protoFiles = protoDirs.collect { dir ->
                 project.fileTree(dir).files.findAll { file ->
                     file.name.endsWith(".proto")
