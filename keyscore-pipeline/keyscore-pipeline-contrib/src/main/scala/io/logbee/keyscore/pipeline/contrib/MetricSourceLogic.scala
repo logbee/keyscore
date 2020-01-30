@@ -147,7 +147,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
-    scrapeMetrics()
+    retrieveMetrics()
     cancellable = system.scheduler.schedule(20 seconds, 5 seconds)(checkLastTimePushed())
   }
 
@@ -172,7 +172,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       tryPush()
     }
     else {
-      scrapeMetrics()
+      retrieveMetrics()
     }
   }
 
@@ -193,7 +193,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     lastTimePushed = System.currentTimeMillis()
   }
 
-  private def scrapeMetrics(): Unit = {
+  private def retrieveMetrics(): Unit = {
     ids
       .map(_.trim)
       .map(id => {
