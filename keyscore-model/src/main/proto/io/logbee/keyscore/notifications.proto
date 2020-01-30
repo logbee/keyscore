@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "io/logbee/keyscore/data.proto";
+import "io/logbee/keyscore/localization.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model.notifications"
+    flat_package: true
+};
+
+message NotificationRef {
+    string uuid = 1 [(scalapb.field).no_box = true];
+}
+
+message NotificationDescriptor {
+    NotificationRef ref = 1 [(scalapb.field).no_box = true];
+//    TextRef displayName = 2 [(scalapb.field).no_box = true];
+//    TextRef description = 3 [(scalapb.field).no_box = true];
+    TextRef message = 4 [(scalapb.field).no_box = true];
+    Importance importance = 5;
+}
+
+message Notification {
+    NotificationRef ref = 1 [(scalapb.field).no_box = true];
+    repeated Field fields = 2;
+//    repeated Dataset datasets = 3;
+}
+
+message NotificationsCollection {
+    repeated Notification notifications = 3 [(scalapb.field).collection_type="collection.immutable.List"];
+}

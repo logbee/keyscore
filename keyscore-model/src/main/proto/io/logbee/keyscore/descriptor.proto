@@ -4,6 +4,7 @@ import "scalapb/scalapb.proto";
 import "io/logbee/keyscore/data.proto";
 import "io/logbee/keyscore/localization.proto";
 import "io/logbee/keyscore/metrics.proto";
+import "io/logbee/keyscore/notifications.proto";
 import "io/logbee/keyscore/parameter-descriptor.proto";
 
 option (scalapb.options) = {
@@ -44,7 +45,8 @@ message SourceDescriptor {
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     repeated MetricDescriptor metrics = 9;
-    OutputDescriptor out = 10;
+    repeated NotificationDescriptor notifications = 10;
+    OutputDescriptor out = 11;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -58,7 +60,8 @@ message SinkDescriptor {
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     repeated MetricDescriptor metrics = 9;
-    InputDescriptor in = 10;
+    repeated NotificationDescriptor notifications = 10;
+    InputDescriptor in = 11;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -72,8 +75,9 @@ message FilterDescriptor {
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     repeated MetricDescriptor metrics = 9;
-    InputDescriptor in = 10;
-    OutputDescriptor out = 11;
+    repeated NotificationDescriptor notifications = 10;
+    InputDescriptor in = 11;
+    OutputDescriptor out = 12;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -87,11 +91,12 @@ message BranchDescriptor {
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     repeated MetricDescriptor metrics = 9;
-    InputDescriptor in = 10;
-    OutputDescriptor left = 11;
-    OutputDescriptor right = 12;
-    Icon icon = 13;
-    Maturity maturity = 14;
+    repeated NotificationDescriptor notifications = 10;
+    InputDescriptor in = 11;
+    OutputDescriptor left = 12;
+    OutputDescriptor right = 13;
+    Icon icon = 14;
+    Maturity maturity = 15;
 }
 // end::BranchDescriptor[]
 
@@ -103,11 +108,12 @@ message MergeDescriptor {
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     repeated MetricDescriptor metrics = 9;
-    InputDescriptor left = 10;
-    InputDescriptor right = 11;
-    OutputDescriptor out = 12;
-    Icon icon = 13;
-    Maturity maturity = 14;
+    repeated NotificationDescriptor notifications = 10;
+    InputDescriptor left = 11;
+    InputDescriptor right = 12;
+    OutputDescriptor out = 13;
+    Icon icon = 14;
+    Maturity maturity = 15;
 }
 // end::MergeDescriptor[]
 
