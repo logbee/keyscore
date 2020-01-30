@@ -27,5 +27,6 @@ include 'test:elasticsearch'
 include 'test:kafka'
 
 include 'doc'
+include 'examples'
 
 include 'keyscore-manager'

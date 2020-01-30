@@ -1,0 +1,26 @@
+
+task build {
+    group("Build")
+}
+
+projectDir.listFiles().findAll { it.isDirectory() && it.name.contains("example") }.each { exampleDir ->
+
+    def example = exampleDir.name
+    def taskName = "zip${example.split('-').inject("", { result, part -> result + part.substring(0, 1).toUpperCase() + part.substring(1) })}"
+
+    def zipTask = tasks.register(taskName, Zip.class, { task ->
+        task.group("Build")
+        task.description("Creates a zip archive from '$example'.")
+        task.archiveName "${rootProject.name}-$example-${rootProject.version}.zip"
+        task.destinationDir new File(buildDir, "examples")
+        task.from fileTree(example)
+        task.into example
+    })
+
+    tasks['build'].inputs.files(zipTask)
+}
+
+task clean(type: Delete) {
+    group("Build")
+    delete buildDir
+}
