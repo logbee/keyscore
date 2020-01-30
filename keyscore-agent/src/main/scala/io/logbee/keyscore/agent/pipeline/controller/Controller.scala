@@ -7,6 +7,7 @@ import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,5 +53,7 @@ abstract class Controller {
 
   def clear(): Future[FilterState]
 
-  def scrape(): Future[MetricsCollection]
+  def scrapeMetrics(): Future[MetricsCollection]
+
+  def scrapeNotifications(): Future[NotificationsCollection]
 }

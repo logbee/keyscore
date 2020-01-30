@@ -4,7 +4,7 @@ import "scalapb/scalapb.proto";
 import "io/logbee/keyscore/metrics.proto";
 
 option (scalapb.options) = {
-    package_name: "io.logbee.keyscore.commons.metrics"
+    package_name: "io.logbee.keyscore.commons.collectors.metrics"
     flat_package: true
 };
 

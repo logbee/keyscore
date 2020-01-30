@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneId}
 
 import com.google.protobuf.timestamp.Timestamp
-import io.logbee.keyscore.commons.metrics.MetricsQuery
+import io.logbee.keyscore.commons.collectors.metrics.MetricsQuery
 
 trait BaseMetricsQuery {
   this: MetricsQuery =>

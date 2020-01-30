@@ -5,6 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
 
 import scala.concurrent.{Future, Promise}
@@ -28,8 +29,12 @@ class DefaultLogicProxy(val logic: AbstractLogic[_]) extends LogicProxy {
     promise.success(logic.state())
   })
 
-  private val scrapeCallback = logic.getAsyncCallback[Promise[MetricsCollection]]({ promise =>
-    promise.success(logic.scrape())
+  private val scrapeMetricsCallback = logic.getAsyncCallback[Promise[MetricsCollection]]({ promise =>
+    promise.success(logic.scrapeMetrics())
+  })
+
+  private val scrapeNotificationsCallback = logic.getAsyncCallback[Promise[NotificationsCollection]]({ promise =>
+    promise.success(logic.scrapeNotifications())
   })
 
   override val id: UUID = logic.parameters.uuid
@@ -47,9 +52,15 @@ class DefaultLogicProxy(val logic: AbstractLogic[_]) extends LogicProxy {
     promise.future
   }
 
-  override def scrape(labels: Set[Label] = Set.empty): Future[MetricsCollection] = {
+  override def scrapeMetrics(labels: Set[Label] = Set.empty): Future[MetricsCollection] = {
     val promise = Promise[MetricsCollection]
-    scrapeCallback.invoke(promise)
+    scrapeMetricsCallback.invoke(promise)
+    promise.future
+  }
+
+  override def scrapeNotifications: Future[NotificationsCollection] = {
+    val promise = Promise[NotificationsCollection]
+    scrapeNotificationsCallback.invoke(promise)
     promise.future
   }
 }

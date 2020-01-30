@@ -6,7 +6,7 @@ import akka.actor.Cancellable
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.SourceShape
-import io.logbee.keyscore.commons.metrics.MetricsQuery
+import io.logbee.keyscore.commons.collectors.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset

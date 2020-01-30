@@ -1,4 +1,4 @@
-package io.logbee.keyscore.commons.metrics
+package io.logbee.keyscore.commons.collectors.metrics
 
 import java.util.UUID
 

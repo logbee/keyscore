@@ -7,6 +7,7 @@ import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline.{FilterState, MergeProxy}
 
 import scala.concurrent.Future
@@ -38,7 +39,11 @@ private class MergeController(val leftValve: ValveProxy, val rightValve: ValvePr
 
   override def state(): Future[FilterState] = ???
 
-  override def scrape(): Future[MetricsCollection] = merge.scrape()
+  override def scrapeMetrics(): Future[MetricsCollection] = merge.scrapeMetrics()
+
+  override def scrapeNotifications(): Future[NotificationsCollection] = {
+    merge.scrapeNotifications
+  }
 
   override def clear(): Future[FilterState] = ???
 }

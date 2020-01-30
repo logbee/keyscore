@@ -1,4 +1,4 @@
-package io.logbee.keyscore.commons.metrics
+package io.logbee.keyscore.commons.collectors.metrics
 
 import java.time.Duration
 import java.util.UUID
@@ -9,7 +9,7 @@ import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import com.typesafe.config.Config
 import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
 import io.logbee.keyscore.commons.ehcache.MetricsCache
-import io.logbee.keyscore.commons.metrics.MetricsManager.Configuration
+import io.logbee.keyscore.commons.collectors.metrics.MetricsManager.Configuration
 import io.logbee.keyscore.model.metrics.MetricsCollection
 
 import scala.concurrent.ExecutionContextExecutor

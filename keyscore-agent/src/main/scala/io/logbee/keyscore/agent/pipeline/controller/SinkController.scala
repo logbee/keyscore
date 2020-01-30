@@ -7,6 +7,7 @@ import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -66,11 +67,15 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
     } yield computeSinkState(inValveState, sinkState)
   }
 
-  override def scrape(): Future[MetricsCollection] = {
+  override def scrapeMetrics(): Future[MetricsCollection] = {
     for {
       inValveMetrics <- inValve.scrape(Set(Label("port", TextValue("in"))))
-      sinkMetrics <- sink.scrape(Set(Label("port", TextValue("sink"))))
+      sinkMetrics <- sink.scrapeMetrics(Set(Label("port", TextValue("sink"))))
     } yield inValveMetrics ++ sinkMetrics
+  }
+
+  override def scrapeNotifications(): Future[NotificationsCollection] = {
+    sink.scrapeNotifications
   }
 
   override def clear(): Future[FilterState] = {

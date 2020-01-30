@@ -82,7 +82,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           sink.requestNext(datasets.last)
           sink.expectNoMessage(remaining = 2 seconds)
 
-          whenReady(filter.scrape()) { mc =>
+          whenReady(filter.scrapeMetrics()) { mc =>
             mc.find(queuedEntries).get.value shouldBe 2
             mc.find(pushedEntries).get.value shouldBe 2
           }
@@ -151,7 +151,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           sink.request(1)
           source.sendNext(sample)
 
-          whenReady(filter.scrape()) { mc =>
+          whenReady(filter.scrapeMetrics()) { mc =>
             mc.find(queueMemory).get.value shouldBe expectedSize
           }
 
@@ -173,7 +173,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
           sampleDatasets.foreach(source.sendNext)
 
-          whenReady(filter.scrape()) { mc =>
+          whenReady(filter.scrapeMetrics()) { mc =>
             mc.find(queueMemory).get.value shouldBe expectedSize
           }
         }

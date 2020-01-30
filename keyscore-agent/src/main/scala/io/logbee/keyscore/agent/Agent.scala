@@ -18,7 +18,7 @@ import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider.StageLogicProvid
 import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
+import io.logbee.keyscore.commons.collectors.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.util.StartUpWatch
 import io.logbee.keyscore.commons.util.StartUpWatch.{StartUpComplete, StartUpFailed}
 import io.logbee.keyscore.model.data.Importance.High

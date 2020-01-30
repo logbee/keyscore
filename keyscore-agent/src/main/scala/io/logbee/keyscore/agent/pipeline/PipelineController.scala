@@ -9,6 +9,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline.FilterState
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -57,20 +58,24 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   }
 
   def scrape(id: UUID): Option[Future[MetricsCollection]] = {
-    controllerMap.get(id).map(_.scrape())
+    controllerMap.get(id).map(_.scrapeMetrics())
   }
 
   def scrapePipeline(): Future[Map[UUID, MetricsCollection]] = {
-    val metrics = controllerMap.map { case (id, controller) => (id, controller.scrape()) }
-    transformMap(metrics)
+    val metrics = controllerMap.map { case (id, controller) => (id, controller.scrapeMetrics()) }
+    transformMap[MetricsCollection](metrics)
   }
 
-  private def transformMap[MetricsCollections](map: Map[UUID, Future[MetricsCollection]]): Future[Map[UUID, MetricsCollection]] = {
-    val seq: Seq[Future[(UUID, MetricsCollection)]] = map.toSeq.map { case (k, v) =>
+  def scrapeNotifications(): Future[Map[UUID, NotificationsCollection]] = {
+    val notifications = controllerMap.map { case (id, controller) => (id, controller.scrapeNotifications()) }
+    transformMap[NotificationsCollection](notifications)
+  }
+
+  private def transformMap[T](map: Map[UUID, Future[T]]): Future[Map[UUID, T]] = {
+    val seq: Seq[Future[(UUID, T)]] = map.toSeq.map { case (k, v) =>
       v.map(mc => k -> mc)
     }
-
-    Future.foldLeft(seq.toList)(Map.empty[UUID, MetricsCollection])(_ + _)
+    Future.foldLeft(seq.toList)(Map.empty[UUID, T])(_ + _)
   }
 
 }

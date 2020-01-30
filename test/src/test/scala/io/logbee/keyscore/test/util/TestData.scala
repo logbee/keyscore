@@ -1,6 +1,6 @@
 package io.logbee.keyscore.test.util
 
-import io.logbee.keyscore.commons.metrics.MetricsQuery
+import io.logbee.keyscore.commons.collectors.metrics.MetricsQuery
 
 object TestData {
 

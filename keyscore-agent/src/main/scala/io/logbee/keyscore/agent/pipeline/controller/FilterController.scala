@@ -6,6 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, Valve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.notifications.NotificationsCollection
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{After, WhichValve}
 
@@ -82,12 +83,16 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     } yield  computeFilterState(inValveState, outValveState, filterState)
   }
 
-  override def scrape(): Future[MetricsCollection] = {
+  override def scrapeMetrics(): Future[MetricsCollection] = {
     for {
       inValveMetrics <- inValve.scrape(Set(Label("port", TextValue("in"))))
       outValveMetrics <- outValve.scrape(Set(Label("port", TextValue("out"))))
-      filterMetrics <- filter.scrape(Set(Label("port", TextValue("filter"))))
+      filterMetrics <- filter.scrapeMetrics(Set(Label("port", TextValue("filter"))))
     } yield inValveMetrics ++ filterMetrics ++ outValveMetrics
+  }
+
+  override def scrapeNotifications(): Future[NotificationsCollection] = {
+    filter.scrapeNotifications
   }
 
   private def determineFilterStatus(in: ValveState, out: ValveState): FilterStatus = {

@@ -13,7 +13,9 @@ import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
-import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
+import io.logbee.keyscore.commons.collectors.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
+import io.logbee.keyscore.commons.collectors.notifications.ScrapeNotifications
+import io.logbee.keyscore.commons.notifications.{ScrapeNotificationsFailure, ScrapeNotificationsSuccess}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
@@ -351,6 +353,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
           manager ! ScrapeMetricsSuccess(metrics.map { case (id, collection) => id.toString -> collection })
         case Failure(e) =>
           manager ! ScrapeMetricsFailure(pipelineID.toString, e.getMessage)
+      }
+
+    case ScrapeNotifications(manager) =>
+      controller.scrapeNotifications().onComplete {
+        case Success(notifications) =>
+          manager ! ScrapeNotificationsSuccess(notifications.map { case (id, collection) => id.toString -> collection })
+        case Failure(e) =>
+          manager ! ScrapeNotificationsFailure(pipelineID.toString, e.getMessage)
       }
 
     case RequestPipelineInstance =>

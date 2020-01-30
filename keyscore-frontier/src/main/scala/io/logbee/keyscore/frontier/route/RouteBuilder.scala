@@ -12,7 +12,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.metrics.MetricsManager
+import io.logbee.keyscore.commons.collectors.metrics.MetricsManager
 import io.logbee.keyscore.commons.util.{AppInfo, ServiceDiscovery}
 import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
