@@ -18,7 +18,7 @@ import io.logbee.keyscore.model.data.Importance.{Lower, Medium}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor, MetricsCollection}
-import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
+import io.logbee.keyscore.pipeline.api.collectors.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
 import scala.concurrent.duration._

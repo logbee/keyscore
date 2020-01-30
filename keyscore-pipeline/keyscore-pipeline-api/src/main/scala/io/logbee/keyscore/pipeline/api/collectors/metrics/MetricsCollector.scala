@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.api.metrics
+package io.logbee.keyscore.pipeline.api.collectors.metrics
 
 import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, DecimalGaugeMetricDescriptor, MetricsCollection, NumberGaugeMetricDescriptor}

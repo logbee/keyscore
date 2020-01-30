@@ -6,7 +6,7 @@ import akka.stream.{Materializer, Shape}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy, StageSupervisor}
 import io.logbee.keyscore.model.metrics.MetricsCollection
-import io.logbee.keyscore.pipeline.api.metrics.{DefaultMetricsCollector, MetricsCollector}
+import io.logbee.keyscore.pipeline.api.collectors.metrics.{DefaultMetricsCollector, MetricsCollector}
 
 import scala.concurrent.{ExecutionContextExecutor, Promise}
 

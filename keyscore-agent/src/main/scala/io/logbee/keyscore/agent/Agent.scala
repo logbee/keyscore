@@ -24,7 +24,7 @@ import io.logbee.keyscore.commons.util.StartUpWatch.{StartUpComplete, StartUpFai
 import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{DecimalGaugeMetricDescriptor, MetricsCollection, NumberGaugeMetricDescriptor}
-import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
+import io.logbee.keyscore.pipeline.api.collectors.metrics.DefaultMetricsCollector
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

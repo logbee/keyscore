@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.api.metrics
+package io.logbee.keyscore.pipeline.api.collectors.metrics
 
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model.data.{Label, TimestampValue}
@@ -8,7 +8,7 @@ import scala.collection.mutable
 
 class DefaultMetricsCollector() extends MetricsCollector {
 
-  private val metrics = mutable.HashMap.empty[String, Metric]
+  private val metrics: mutable.Map[String, Metric] = mutable.HashMap.empty[String, Metric]
   private var lastScape = System.currentTimeMillis()
 
   override def collect(descriptor: CounterMetricDescriptor): CounterMetricCollector = new CounterMetricCollector {
@@ -144,15 +144,16 @@ class DefaultMetricsCollector() extends MetricsCollector {
     TimestampValue(now.getSeconds, now.getNanos)
   }
 
-  private def calcDelta: Long = {
-    val current = System.currentTimeMillis()
-    val delta = current - lastScape
-    lastScape = current
-    delta
+  private def calcDelta(lastScape: Long): (Long,Long) = {
+    val current: Long = System.currentTimeMillis()
+    val delta: Long = current - lastScape
+    (current, delta)
   }
 
   private def updateMetrics(): Unit = {
-    val delta = calcDelta
+    val cd = calcDelta(lastScape)
+    val delta = cd._1
+    lastScape = cd._2
 
     metrics.foreach {
       case (name, metric: CounterMetric) => metrics.update(name, metric.withTimestamp(__v = now).withTimedelta(__v = delta))
