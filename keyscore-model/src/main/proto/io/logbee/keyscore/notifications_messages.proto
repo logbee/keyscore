@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "io/logbee/keyscore/notifications.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.commons.notifications"
+    flat_package: true
+};
+
+message ScrapeNotificationsSuccess {
+    map<string, NotificationsCollection> notifications = 1;
+}
+
+message ScrapeNotificationsFailure {
+    string id = 1;
+    string cause = 2;
+}
+
+message NotificationsQuery {
+    int64 limit = 1;
+    string earliest = 3;
+    string latest = 4;
+    string format = 6;
+}

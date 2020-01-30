@@ -23,8 +23,9 @@ message NotificationDescriptor {
 
 message Notification {
     NotificationRef ref = 1 [(scalapb.field).no_box = true];
-    repeated Field fields = 2;
-//    repeated Dataset datasets = 3;
+    TimestampValue timestamp = 2;
+    repeated Field fields = 3;
+    //    repeated Dataset datasets = 4;
 }
 
 message NotificationsCollection {
