@@ -90,6 +90,10 @@ ext {
     ]
 
     dependency += [
+        scopt: "com.github.scopt:scopt_2.13:4.0.0-RC2"
+    ]
+
+    dependency += [
         scala_test: [
             "org.scalatest:scalatest_2.13:3.0.8",
             "org.scalamock:scalamock_2.13:4.4.0"

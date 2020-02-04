@@ -21,6 +21,8 @@ include 'keyscore-pipeline:keyscore-pipeline-testkit'
 
 include 'keyscore-test-fixtures'
 
+include 'keyscore-cli'
+
 include 'test'
 include 'test:cassandra'
 include 'test:elasticsearch'

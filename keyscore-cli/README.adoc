@@ -1,0 +1,18 @@
+= keyscore-cli =
+
+== Build ==
+
+=== Prerequisites ===
+
+. GCC toolchain and header-files:
++
+.OpenSUSE
+```sh
+sudo zypper in gcc zlib-devel
+```
+
+=== Build native-image ===
+
+```
+gradle nativeImage
+```

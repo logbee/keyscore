@@ -1,0 +1,52 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+
+    dependencies {
+        classpath "de.undercouch:gradle-download-task:4.0.0"
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:8.0.3"
+        classpath "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-74-g5306dc5"
+    }
+}
+
+apply plugin: 'scala'
+apply plugin: "com.palantir.graal"
+
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile dependency.scala_lang
+    compile dependency.scopt
+
+    testCompile dependency.scala_test
+    testCompile dependency.junit
+}
+
+jar {
+    exclude('**/.keep')
+    manifest.attributes([
+            'Main-Class'                  : 'io.logbee.keyscore.cli.Cli',
+            'Implementation-Title'        : project.name,
+            'Implementation-Version'      : version,
+            'Implementation-Revision'     : revision,
+            'Implementation-Revision-Date': revisionDate,
+            'Implementation-Build-Date'   : buildDate,
+            'Implementation-Vendor'       : 'logbee.io',
+    ])
+}
+
+graal {
+    graalVersion "19.2.1"
+    mainClass "io.logbee.keyscore.cli.Cli"
+    outputName 'keyscorectl'
+}
