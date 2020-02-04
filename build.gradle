@@ -245,6 +245,10 @@ configure ([
         maven { url "http://rubygems-proxy.torquebox.org/releases" }
     }
 
+    configurations {
+        "default"
+    }
+
     dependencies {
         gems 'rubygems:asciidoctor-diagram:1.5.12'
     }
@@ -292,6 +296,10 @@ configure ([
             'stylesheet': 'resources/keyscore.css',
             'linkcss': true,
         ])
+    }
+
+    artifacts {
+        "default" new File(asciidoctor.getOutputDir(), 'html5')
     }
 
     distributions {

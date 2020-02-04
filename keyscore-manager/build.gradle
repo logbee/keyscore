@@ -19,6 +19,14 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 apply plugin: 'com.github.node-gradle.node'
 
+configurations {
+    documentation
+}
+
+dependencies {
+    documentation project(':doc')
+}
+
 ext {
     dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
     nodeVersion = '10.16.0'
@@ -72,6 +80,9 @@ distributions {
                 from(copyResources.outputs)
                 from(webpack)
                 from(manifest)
+                from(configurations.documentation) {
+                    into 'doc'
+                }
             }
         }
     }
