@@ -13,12 +13,16 @@ import {Subscription} from "rxjs";
 
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 import {
-    ListParameterDescriptor,
-    ListParameter
+    ListParameter,
+    Parameter,
+    ParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    ListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {forEach} from "@angular/router/src/utils/collection";
 
 
 @Component({
@@ -201,13 +205,14 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
 
     private initValueParameters() {
         this._valueParameter = [];
-        this.parameter.value.forEach(val => {
+        ((this.parameter.value) as any[]).forEach(val => {
             this._valueParameter.push(this.parameterFactory.parameterDescriptorToParameter(this.descriptor.descriptor, val))
         })
     }
 
     private emitChanges() {
-        this.emit(this.parameterFactory.parameterDescriptorToParameter(this.descriptor, this.values));
+        const param = this.parameterFactory.parameterDescriptorToParameter(this.descriptor, this.values);
+        this.emit(param as ListParameter);
     }
 
     private unsubscribeListItems() {

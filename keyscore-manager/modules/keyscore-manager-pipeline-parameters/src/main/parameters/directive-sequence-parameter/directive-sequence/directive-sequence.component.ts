@@ -1,11 +1,12 @@
 import {
+    AfterContentInit,
     AfterViewInit,
-    Component,
+    Component, ElementRef,
     EventEmitter,
     Input,
     OnDestroy,
-    Output,
-    ViewChild,
+    Output, QueryList,
+    ViewChild, ViewChildren,
     ViewContainerRef
 } from "@angular/core";
 import {
@@ -40,14 +41,16 @@ import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src
                                         [expandedHeight]="expansionHeight"
                                         fxLayout="row-reverse" fxLayoutGap="15px"
                                         fxLayoutAlign="space-between center">
-
-                <div fxLayout="column" class="parameter-wrapper" (click)="$event.stopPropagation()">
-                    <ng-template #parameterContainer></ng-template>
+                <div fxLayout="row" fxLayoutAlign="space-between center" class="directive-header-wrapper">
+                    <div fxLayout="column" class="parameter-wrapper-ds" (click)="$event.stopPropagation()">
+                        <ng-template #parameterContainer></ng-template>
+                    </div>
+                    <button mat-button matSuffix mat-icon-button aria-label="delete directive sequence"
+                            fxFlexAlign="center"
+                            (click)="delete($event)">
+                        <mat-icon color="warn">delete</mat-icon>
+                    </button>
                 </div>
-                <button mat-button matSuffix mat-icon-button aria-label="delete directive sequence" fxFlexAlign="center"
-                        (click)="delete($event)">
-                    <mat-icon color="warn">delete</mat-icon>
-                </button>
             </mat-expansion-panel-header>
             <div class="sequence-body" fxLayout="column" fxLayoutGap="8px">
                 <mat-divider></mat-divider>
@@ -116,6 +119,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
     private _menuItems: MenuItem[] = [];
 
     private _parameterComponents: Map<string, ParameterComponent<ParameterDescriptor, Parameter>> = new Map();
+    private _expansionHeight = 0;
 
     constructor(private _parameterComponentFactory: ParameterComponentFactoryService, private _parameterFactory: ParameterFactoryService) {
 

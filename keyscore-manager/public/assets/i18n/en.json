@@ -60,7 +60,7 @@
     "LIST_MIN":"{{name}} needs at least {{min}} elements.",
     "LIST_MAX_REACHED":"You reached the maximum number of elements. {{name}} allows a maximum of {{max}} elements.",
     "FIELD_NAME":"Field Name",
-    "FIELD_NAME_HINT":"You should choose a {{hint}}",
+    "FIELD_NAME_HINT":"Choose a {{hint}}",
     "FULFILL_PATTERN":"Your input has to fulfill the following pattern: {{pattern}}",
     "IS_REQUIRED":"{{name}} is required.",
     "CHOICE_MIN_SELECTION_WARNING":"{{name}} expects at least {{min}} selections.",

@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
 import {FieldValueType, ParameterInfo} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {
@@ -57,13 +61,12 @@ export class FieldDirectiveSequenceParameterDescriptor extends ParameterDescript
     }
 }
 
-export class FieldDirectiveSequenceParameter extends Parameter {
+export class FieldDirectiveSequenceParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_DIRECTIVE_SEQ_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: FieldDirectiveSequenceConfiguration[]
     ) {
-        super(ref,value);
     }
 }

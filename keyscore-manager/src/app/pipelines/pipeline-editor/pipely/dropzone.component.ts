@@ -13,7 +13,7 @@ import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 @Component({
     selector: "dropzone",
     template: `
-        <div >
+        <div>
             <ng-template #dropzoneContainer></ng-template>
         </div>
 
@@ -25,7 +25,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     @Input() dropzoneModel: DropzoneModel;
     @Input() logic: DropzoneLogic;
     @Input() subComponent: DropzoneSubcomponent;
-    @Input() workspace:Workspace;
+    @Input() workspace: Workspace;
 
     @HostBinding('class.col-12') isCol12: boolean;
     @HostBinding('class.p-0') isP0: boolean;
@@ -34,14 +34,14 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
 
 
-    private isDroppableSubject$:Subject<boolean> = new BehaviorSubject(false);
-    public isDroppable$:Observable<boolean> = this.isDroppableSubject$.asObservable();
+    private isDroppableSubject$: Subject<boolean> = new BehaviorSubject(false);
+    public isDroppable$: Observable<boolean> = this.isDroppableSubject$.asObservable();
 
 
     private id: string;
     private occupied: boolean = false;
 
-    constructor(public draggableFactory:DraggableFactory) {
+    constructor(public draggableFactory: DraggableFactory) {
         this.isCol12 = true;
         this.isP0 = true;
         this.id = uuid();
@@ -100,7 +100,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
 
     getRectangle(): Rectangle {
-        const clientRect:ClientRect = this.getDropzoneElement().nativeElement.getBoundingClientRect();
+        const clientRect: ClientRect = this.getDropzoneElement().nativeElement.getBoundingClientRect();
         return {
             top: clientRect.top,
             left: clientRect.left,
@@ -117,7 +117,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
             left: rect.left - this.dropzoneModel.dropzoneRadius,
             right: rect.right + this.dropzoneModel.dropzoneRadius,
             bottom: rect.bottom + this.dropzoneModel.dropzoneRadius,
-            width: rect.right + 2*this.dropzoneModel.dropzoneRadius - rect.left
+            width: rect.right + 2 * this.dropzoneModel.dropzoneRadius - rect.left
         };
     }
 
@@ -133,7 +133,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         this.occupied = false;
     }
 
-    detachNext(){
+    detachNext() {
         this.clearDropzone();
         this.getOwner().removeNextFromModel();
     }
@@ -146,8 +146,11 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         return this.subComponent.dropzoneElement;
     }
 
-    getSubComponent():DropzoneSubcomponent{
+    getSubComponent(): DropzoneSubcomponent {
         return this.subComponent;
     }
 
+    clearViewContainer() {
+        this.subComponent.draggableContainer.clear();
+    }
 }

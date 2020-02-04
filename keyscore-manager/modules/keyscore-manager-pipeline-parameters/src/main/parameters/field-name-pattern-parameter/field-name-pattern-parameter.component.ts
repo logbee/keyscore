@@ -15,7 +15,7 @@ import * as _ from 'lodash'
     selector: 'parameter-field-name-pattern',
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="80">
+            <mat-form-field fxFlex="50">
                 <ks-autocomplete-input #fieldName [options]="autoCompleteDataList"
                                        [placeholder]="'Field Name / Pattern'"
                                        [value]="parameter.value"
@@ -31,9 +31,9 @@ import * as _ from 'lodash'
                     PARAMETER.FIELD_NAME_HINT
                 </mat-hint>
             </mat-form-field>
-            <mat-form-field fxFlex>
+            <mat-form-field fxFlex="50">
                 <mat-label>Pattern</mat-label>
-                <mat-select #patternType [compareWith]="comparePatternTypes" [value]="parameter.patternType"
+                <mat-select #patternType  [value]="parameter.patternType"
                             (selectionChange)="onChange(fieldName.value, patternType.value)">
                     <mat-option *ngFor="let pattern of descriptor.supports" [value]="pattern.type">
                         {{pattern.displayName}}
@@ -60,7 +60,6 @@ export class FieldNamePatternParameterComponent extends ParameterComponent<Field
 
     private onChange(fieldName: string, patternType: PatternType): void {
         const parameter = new FieldNamePatternParameter(this.descriptor.ref, fieldName, patternType);
-        console.log("changed: ", parameter);
         this.emit(parameter)
     }
 

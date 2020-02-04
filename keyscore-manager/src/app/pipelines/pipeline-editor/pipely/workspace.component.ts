@@ -65,8 +65,8 @@ import {AppConfig} from "@/app/app.config";
                     </div>
                 </div>
 
-                <configurator fxFlex
-                              [pipelineMetaData]="pipelineMetaData"
+                <configurator fxFlex="25"
+                              [pipelineMetaData]="pipelineMetaData$ | async"
                               [agents]="agents"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
@@ -83,7 +83,18 @@ import {AppConfig} from "@/app/app.config";
 
 
 export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Workspace {
-    @Input() pipeline: EditingPipelineModel;
+    @Input() set pipeline(val: EditingPipelineModel) {
+        if (val) {
+            this._pipeline = val;
+            this.pipelineUpdate();
+        }
+    };
+
+    get pipeline(): EditingPipelineModel {
+        return this._pipeline;
+    }
+
+    private _pipeline: EditingPipelineModel;
     @Input() agents: Agent[];
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
@@ -156,7 +167,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
     private selectedBlockForDataTable$: BehaviorSubject<string>;
-    private pipelineMetaData: { name: string, description: string, selectedAgent: string };
+    private pipelineMetaData$: BehaviorSubject<{ name: string, description: string, selectedAgent: string }> = new BehaviorSubject(null);
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
 
@@ -371,7 +382,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         if (label) {
             label.value = new TextValue(value, new MimeType("text", "plain"))
         } else {
-            this.pipeline.pipelineBlueprint.metadata.labels.push({name: name, value: new TextValue(value, MimeType.TEXT_PLAIN)})
+            this.pipeline.pipelineBlueprint.metadata.labels.push({
+                name: name,
+                value: new TextValue(value, MimeType.TEXT_PLAIN)
+            })
         }
     }
 
@@ -468,6 +482,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             }
         }));
 
+        this.pipelineUpdate();
+
+
+    }
+
+    private pipelineUpdate() {
+        if (!this.workspaceDropzone) return;
+
+        this.workspaceDropzone.clearViewContainer();
+
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
@@ -476,13 +500,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         if (selectedAgentLabel) {
             pipelineSelectedAgent = (selectedAgentLabel.value as TextValue).value;
         }
-        this.pipelineMetaData = {
+        this.pipelineMetaData$.next({
             name: pipelineName,
             description: pipelineDescription,
             selectedAgent: pipelineSelectedAgent
-        };
-
-
+        });
     }
 
     private buildEditPipeline() {
@@ -538,5 +560,3 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         this.cd.detectChanges();
     }
 }
-
-

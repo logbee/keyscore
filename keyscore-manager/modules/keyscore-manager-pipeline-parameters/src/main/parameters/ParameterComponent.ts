@@ -1,5 +1,8 @@
-import {EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output} from "@angular/core";
+import {Component, ElementRef, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output} from "@angular/core";
 
+@Component({
+    selector: 'parameter',
+})
 export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     @Input() public descriptor: D;
@@ -8,15 +11,18 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     @Input() public autoCompleteDataList: string[];
 
-    @Input() public label:string;
+    @Input() public label: string;
 
-    @Input() public showLabel:boolean = true;
+    @Input() public showLabel: boolean = true;
 
     @Output('parameter') public emitter = new EventEmitter<P>();
 
     @Output() public keyUpEnterEvent = new EventEmitter<Event>();
 
     //@HostBinding('style.width') width = '100%';
+
+    constructor() {
+    }
 
     get value(): P {
         return this.parameter;
@@ -30,11 +36,15 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
         this.onDestroy();
     }
 
-    public clear(): void{
+    public clear(): void {
     }
 
-    public focus(event:Event):void{
+    public focus(event: Event): void {
 
+    }
+
+    public isVisible(): boolean {
+        return true;
     }
 
     protected emit(parameter: P): void {

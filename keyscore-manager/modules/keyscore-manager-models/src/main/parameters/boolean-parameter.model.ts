@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export const JSONCLASS_BOOLEAN_PARAM = "io.logbee.keyscore.model.configuration.BooleanParameter";
@@ -18,13 +22,12 @@ export class BooleanParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class BooleanParameter extends Parameter {
+export class BooleanParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_BOOLEAN_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: boolean
     ) {
-        super(ref, value);
     }
 }

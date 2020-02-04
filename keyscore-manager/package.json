@@ -116,12 +116,21 @@
     "setupTestFrameworkScriptFile": "./src/setup-jest.ts",
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
-      "\\.(css|less|scss)$": "<rootDir>/__mocks__/styleMock.js",
+      ".*\\.(css|less|scss)$": "<rootDir>/__mocks__/styleMock.js",
       "^src/(.*)": "<rootDir>/src/$1",
       "^app/(.*)": "<rootDir>/src/app/$1",
+      "^@/(.*)": "<rootDir>/src/$1",
+      "^@keyscore-manager-pipeline-parameters/(.*)": "<rootDir>/modules/keyscore-manager-pipeline-parameters/$1",
+      "^@keyscore-manager-models/(.*)": "<rootDir>/modules/keyscore-manager-models/$1",
+      "^@keyscore-manager-material/(.*)": "<rootDir>/modules/keyscore-manager-material/$1",
       "^assets/(.*)": "<rootDir>/src/assets/$1",
       "^environments/(.*)": "<rootDir>/src/environments/$1"
     },
+    "moduleDirectories": [
+      "node_modules",
+      "src",
+      "modules"
+    ],
     "moduleFileExtensions": [
       "ts",
       "js",

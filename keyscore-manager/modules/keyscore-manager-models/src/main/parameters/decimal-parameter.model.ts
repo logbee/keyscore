@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {NumberRange} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
@@ -22,13 +26,12 @@ export class DecimalParameterDescriptor extends ParameterDescriptor {
 
 }
 
-export class DecimalParameter extends Parameter {
+export class DecimalParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_DECIMAL_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: number
     ) {
-        super(ref, value);
     }
 }

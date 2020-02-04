@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {NumberRange} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
@@ -20,13 +24,12 @@ export class NumberParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class NumberParameter extends Parameter {
+export class NumberParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_NUMBER_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: number
     ) {
-        super(ref, value);
     }
 }

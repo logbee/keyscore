@@ -1,11 +1,11 @@
 
 import {
-    ListParameter,
     ListParameterDescriptor
 } from "@keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 import {FieldParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
+import {Serializable} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 
 
 export const JSONCLASS_FIELDLIST_PARAM = "io.logbee.keyscore.model.configuration.FieldListParameter";
@@ -26,13 +26,12 @@ export class FieldListParameterDescriptor extends ListParameterDescriptor {
     }
 }
 
-export class FieldListParameter extends ListParameter {
-    public jsonClass = JSONCLASS_FIELDLIST_PARAM;
+export class FieldListParameter implements Serializable {
+    public readonly jsonClass = JSONCLASS_FIELDLIST_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: Field[]
     ) {
-        super(ref, value);
     }
 }

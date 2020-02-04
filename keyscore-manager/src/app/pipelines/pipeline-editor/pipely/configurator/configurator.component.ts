@@ -86,7 +86,30 @@ import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() pipelineMetaData: { name: string, description: string, selectedAgent: string } = {
+    @Input() set pipelineMetaData(val: { name: string, description: string, selectedAgent: string }) {
+        this.pipelineForm = new FormGroup({
+            'pipeline.name': new FormControl(val.name ),
+            'pipeline.description': new FormControl(val.description),
+            'pipeline.selectedAgent': new FormControl(val.selectedAgent)
+        });
+
+        this.unsubscribeForm$.next();
+
+        this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribeForm$)).subscribe(formValues => {
+            this.onSavePipelineMetaData.emit({
+                name: formValues['pipeline.name'],
+                description: formValues['pipeline.description'],
+                selectedAgent: formValues['pipeline.selectedAgent']
+            });
+        });
+
+    }
+
+    get pipelineMetaData() {
+        return this._pipelineMetaData;
+    }
+
+    private _pipelineMetaData: { name: string, description: string, selectedAgent: string } = {
         name: "",
         description: "",
         selectedAgent: ""
@@ -130,7 +153,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     private _config: Configuration;
 
     form: FormGroup;
-    pipelineForm: FormGroup;
+    pipelineForm: FormGroup = new FormGroup({
+        'pipeline.name': new FormControl(''),
+        'pipeline.description': new FormControl(''),
+        'pipeline.selectedAgent': new FormControl('')
+    });
 
     filteredAgentsControl: FormControl = new FormControl();
     filteredAgents$: Observable<Agent[]>;
@@ -138,6 +165,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     parameterMap$: BehaviorSubject<{ id: string, parameters: ParameterMap }> = new BehaviorSubject(null);
 
     unsubscribe$: Subject<void> = new Subject();
+    unsubscribeForm$: Subject<void> = new Subject();
 
     constructor() {
     }
@@ -148,27 +176,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.createParameterMap(config);
         });
 
-
-        this.pipelineForm = new FormGroup({
-            'pipeline.name': new FormControl(this.pipelineMetaData.name),
-            'pipeline.description': new FormControl(this.pipelineMetaData.description),
-            'pipeline.selectedAgent': new FormControl(this.pipelineMetaData.selectedAgent)
-        });
-
-        this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
-            this.onSavePipelineMetaData.emit({
-                name: val['pipeline.name'],
-                description: val['pipeline.description'],
-                selectedAgent: val['pipeline.selectedAgent']
-            });
-        });
-
         this.filteredAgents$ = this.filteredAgentsControl.valueChanges.pipe(
             startWith(''),
             map((val: string) => this.filterAgents(val)),
             takeUntil(this.unsubscribe$)
         )
-
 
     }
 
@@ -195,8 +207,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
         let parameterMap: ParameterMap = {parameters: {}};
 
+
         descriptors.forEach(descriptor => {
-            const parameter = parameters.find(parameter => parameter.ref === descriptor.ref);
+            const parameter = parameters.find(parameter => parameter.ref.id === descriptor.ref.id);
             if (parameter) {
                 parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor];
             }
@@ -217,6 +230,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
+        this.unsubscribeForm$.next();
+        this.unsubscribeForm$.complete();
     }
 
     private showMaturityIcon(maturity: Maturity): boolean {

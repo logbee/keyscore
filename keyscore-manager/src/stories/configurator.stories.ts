@@ -18,10 +18,23 @@ import {
     FieldListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
-import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {MimeType, TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {FieldParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
-import {FieldNameHint, FieldValueType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {
+    FieldNameHint,
+    FieldValueType,
+    PatternType
+} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {IconModule} from "@/app/icon.module";
+import {
+    FieldDirectiveDescriptor,
+    FieldDirectiveSequenceParameter,
+    FieldDirectiveSequenceParameterDescriptor
+} from "@keyscore-manager-models/src/main/parameters/directive.model";
+import {
+    FieldNamePatternParameterDescriptor,
+    PatternTypeChoice
+} from "@keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 
 storiesOf('Configurator', module)
     .addDecorator(
@@ -53,7 +66,7 @@ storiesOf('Configurator', module)
                     parent: null,
                     parameterSet: {
                         parameters: [new TextListParameter({id: 'testTextList'}, ['test1', 'test2']),
-                            new FieldListParameter({id: 'testFieldList'}, [new Field('message',new TextValue('haha', new MimeType("text", "plain")))])
+                            new FieldListParameter({id: 'testFieldList'}, [new Field('message', new TextValue('haha', new MimeType("text", "plain")))])
                         ]
                     }
                 },
@@ -66,9 +79,9 @@ storiesOf('Configurator', module)
                     parameters: [new TextListParameterDescriptor({id: 'testTextList'}, 'Test Text List', '',
                         new TextParameterDescriptor({id: 'testItem'}, 'item', '', '', null, false),
                         0, 0),
-                    new FieldListParameterDescriptor({id:'testFieldList'},'Test Field List','',
-                        new FieldParameterDescriptor({id:'testFieldItem'},'haha','','',FieldNameHint.AnyField,null,FieldValueType.Text,false),
-                        0,0)
+                        new FieldListParameterDescriptor({id: 'testFieldList'}, 'Test Field List', '',
+                            new FieldParameterDescriptor({id: 'testFieldItem'}, 'haha', '', '', FieldNameHint.AnyField, null, FieldValueType.Text, false),
+                            0, 0)
                     ],
                     categories: [],
                     maturity: "Official"
@@ -76,4 +89,44 @@ storiesOf('Configurator', module)
                 uuid: '18e8cec1-3500-4de3-965a-deea215a24c4'
             }
         }
-    }));
+    })).add("with directives", () => ({
+    component: ConfiguratorComponent,
+    props: {
+        config: {
+            conf: {
+                ref: {uuid: 'testFilter'},
+                parent: null,
+                parameterSet: {
+                    parameters: [
+                        new FieldDirectiveSequenceParameter({id: 'directive'}, [])
+                    ]
+                }
+            },
+            descriptor: {
+                ref: {uuid: 'testFilter'},
+                displayName: 'testFilter',
+                description: 'some fancy description',
+                previousConnection: null,
+                nextConnection: null,
+                parameters: [
+                    new FieldDirectiveSequenceParameterDescriptor(
+                        {id: 'directive'},
+                        'Directives',
+                        '', FieldValueType.Text,
+                        [
+                            new FieldNamePatternParameterDescriptor(
+                                {id: 'fieldName'},
+                                'Fieldname', '', '',
+                                FieldNameHint.AnyField, [PatternTypeChoice.fromPatternType(PatternType.ExactMatch), PatternTypeChoice.fromPatternType(PatternType.RegEx)], false)],
+                        [
+                            new FieldDirectiveDescriptor({uuid: 'trim'}, 'Trim', 'Trim something', [], null)
+                        ],0,1500
+                    )
+                ],
+                categories: [],
+                maturity: "Official"
+            },
+            uuid: '18e8cec1-3500-4de3-965a-deea215a24c4'
+        }
+    }
+}));

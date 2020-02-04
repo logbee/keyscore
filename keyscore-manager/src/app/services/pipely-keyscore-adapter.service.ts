@@ -1,10 +1,14 @@
 import {Injectable} from "@angular/core";
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
-import {FilterDescriptor, FilterDescriptorJsonClass} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {
+    FilterDescriptor,
+    FilterDescriptorJsonClass
+} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
 @Injectable()
 export class PipelyKeyscoreAdapter {
-    resolvedParameterDescriptorToBlockDescriptor(descriptor:FilterDescriptor):BlockDescriptor{
+
+    filterDescriptorToBlockDescriptor(descriptor: FilterDescriptor): BlockDescriptor {
         let previousConnection = {
             connectableTypes: descriptor.jsonClass === FilterDescriptorJsonClass.SourceDescriptor ? [] : ['default-out'],
             connectionType: descriptor.jsonClass === FilterDescriptorJsonClass.SourceDescriptor ? 'no-connection-in' : 'default-in'
@@ -15,21 +19,21 @@ export class PipelyKeyscoreAdapter {
         };
 
         let blockDescriptor = {
-            ref:descriptor.descriptorRef,
-            displayName:descriptor.displayName,
-            description:descriptor.description,
-            previousConnection:previousConnection,
-            nextConnection:nextConnection,
-            parameters:descriptor.parameters,
-            categories:descriptor.categories,
+            ref: descriptor.descriptorRef,
+            displayName: descriptor.displayName,
+            description: descriptor.description,
+            previousConnection: previousConnection,
+            nextConnection: nextConnection,
+            parameters: descriptor.parameters,
+            categories: descriptor.categories,
             maturity: descriptor.maturity
         };
-        if(descriptor.icon){
-            return{
+        if (descriptor.icon) {
+            return {
                 ...blockDescriptor,
-                icon:descriptor.icon
+                icon: descriptor.icon
             }
-        }else{
+        } else {
             return blockDescriptor;
         }
     }

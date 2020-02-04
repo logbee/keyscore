@@ -239,6 +239,10 @@ sidemenu .mat-list-item p {
   margin-left: 0 !important;
 }
 
+.mat-form-field-infix {
+  width: 0 !important;
+}
+
 .mat-select-panel {
   width: auto !important;
   max-width: 80% !important;
@@ -267,6 +271,7 @@ mat-slide-toggle.mat-colored-always.mat-accent:not(.mat-checked):not(.mat-disabl
 .ng-animating mat-expansion-panel-header {
   height: 48px;
 }
+
 .ng-animating .mat-expansion-panel-content {
   height: 0px;
   visibility: hidden;

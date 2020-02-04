@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export const JSONCLASS_EXPRESSION_PARAM = "io.logbee.keyscore.model.configuration.ExpressionParameter";
@@ -29,7 +33,7 @@ export class ExpressionParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class ExpressionParameter extends Parameter {
+export class ExpressionParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_EXPRESSION_PARAM;
 
     constructor(
@@ -37,6 +41,5 @@ export class ExpressionParameter extends Parameter {
         readonly value: string,
         readonly choice: string
     ) {
-        super(ref, value);
     }
 }

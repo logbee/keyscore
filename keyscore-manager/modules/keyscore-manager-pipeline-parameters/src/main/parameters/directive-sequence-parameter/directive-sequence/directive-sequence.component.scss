@@ -1,5 +1,9 @@
-.parameter-wrapper {
+.parameter-wrapper-ds {
   padding: 8px;
+  width: 100%;
+}
+
+.directive-header-wrapper {
   width: 100%;
 }
 
@@ -19,16 +23,16 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.directive-draggable{
-  display:flex;
+.directive-draggable {
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  cursor:move;
+  cursor: move;
 }
 
-.directive-list{
-  display:block;
+.directive-list {
+  display: block;
 }
 
 .directive-list.cdk-drop-list-dragging .directive-draggable:not(.cdk-drag-placeholder) {

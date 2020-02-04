@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configuration";
 
@@ -50,13 +54,12 @@ export class ParameterGroupDescriptor extends ParameterDescriptor {
     }
 }
 
-export class ParameterGroup extends Parameter {
+export class ParameterGroup implements Serializable {
     public readonly jsonClass = JSONCLASS_GROUP_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: ParameterSet
     ) {
-        super(ref, value);
     }
 }

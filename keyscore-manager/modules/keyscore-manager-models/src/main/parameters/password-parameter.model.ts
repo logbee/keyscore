@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {StringValidator} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
@@ -22,13 +26,12 @@ export class PasswordParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class PasswordParameter extends Parameter {
+export class PasswordParameter implements Serializable{
     public readonly jsonClass = JSONCLASS_PASSWORD_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: string
     ) {
-        super(ref, value);
     }
 }

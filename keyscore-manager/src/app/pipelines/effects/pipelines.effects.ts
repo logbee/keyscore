@@ -97,7 +97,7 @@ export class PipelinesEffects {
                     if (pipelineBlueprint === null) {
                         return new EditPipelineFailureAction({
                             status: "404",
-                            message: `Sorry we were not able to find pipeline ${pipelineId}`
+                            message: `Sorry, we were not able to find pipeline ${pipelineId}`
                         });
                     }
                     if (pipelineBlueprint.blueprints.length > 0) {

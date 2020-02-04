@@ -61,6 +61,7 @@ export interface Dropzone {
 
     drop(mirrors: Draggable, currentDragged: Draggable): void;
 
+    clearViewContainer();
 }
 
 export interface Draggable {
@@ -119,6 +120,4 @@ export interface Draggable {
     select(select: boolean): void;
 
     isSelected(): boolean;
-
-
 }

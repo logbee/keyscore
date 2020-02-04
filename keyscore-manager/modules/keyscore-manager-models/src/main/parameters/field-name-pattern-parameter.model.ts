@@ -1,5 +1,9 @@
 import {FieldNameHint, PatternType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export const JSONCLASS_FIELDNAMEPATTERN_PARAM = "io.logbee.keyscore.model.configuration.FieldNamePatternParameter";
@@ -43,7 +47,7 @@ export class FieldNamePatternParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class FieldNamePatternParameter extends Parameter {
+export class FieldNamePatternParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_FIELDNAMEPATTERN_PARAM;
 
     constructor(
@@ -51,6 +55,5 @@ export class FieldNamePatternParameter extends Parameter {
         readonly value: string,
         readonly patternType: PatternType
     ) {
-        super(ref, value);
     }
 }

@@ -1,4 +1,8 @@
-import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    Serializable
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {FieldNameHint, StringValidator} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
@@ -21,13 +25,12 @@ export class FieldNameParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export class FieldNameParameter extends Parameter {
+export class FieldNameParameter implements Serializable {
     public readonly jsonClass = JSONCLASS_FIELDNAME_PARAM;
 
     constructor(
         readonly ref: ParameterRef,
         readonly value: string
     ) {
-        super(ref, value);
     }
 }

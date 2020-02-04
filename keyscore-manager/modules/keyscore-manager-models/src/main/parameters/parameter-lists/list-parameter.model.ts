@@ -15,12 +15,14 @@ export abstract class ListParameterDescriptor extends ParameterDescriptor {
     }
 }
 
-export abstract class ListParameter extends Parameter {
+/*export abstract class ListParameter extends Parameter {
+    public readonly jsonClass: string = "list_parameter";
+
     protected constructor(
         readonly ref: ParameterRef,
         readonly value: any[]
     ) {
         super(ref, value);
     }
-}
+}*/
 

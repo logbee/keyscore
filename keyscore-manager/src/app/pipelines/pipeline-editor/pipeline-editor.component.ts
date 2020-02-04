@@ -35,6 +35,7 @@ import {getAgents} from "@/app/agents/agents.reducer";
 import {AppConfig, selectAppConfig} from "@/app/app.config";
 import {Title} from "@angular/platform-browser";
 import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
+import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-configuration-checker.service";
 
 @Component({
     selector: "pipeline-editor",
@@ -54,7 +55,7 @@ import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
                         [isLoading]="isLoading$|async"
                         (onSave)="savePipelineSource$.next()"
                         (onRun)="runPipelineSource$.next()"
-                        (onDelete)="stopPipeline(storeEditingPipeline)"
+                        (onDelete)="stopPipeline(statePipeline)"
                         (onInspect)="inspectToggle($event)"
             ></header-bar>
 
@@ -62,7 +63,7 @@ import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
                               [saveTrigger$]="savePipeline$"
                               [inspectTrigger$]="runInspect$"
                               [agents]="agents$ | async"
-                              [pipeline]="(pipeline$ | async)"
+                              [pipeline]="editingPipeline$ | async"
                               [blockDescriptors]="blockDescriptorSource$|async"
                               [inputDatasets]="inputDatasets$|async"
                               [outputDatasets]="outputDatasets$|async"
@@ -97,8 +98,6 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public blockDescriptorSource$: BehaviorSubject<BlockDescriptor[]> = new BehaviorSubject<BlockDescriptor[]>([]);
 
-    public storeEditingPipeline: EditingPipelineModel;
-
     public errorState$: Observable<boolean>;
     public errorStatus$: Observable<string>;
     public errorMessage$: Observable<string>;
@@ -118,14 +117,17 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private inputDatasets$: Observable<Map<string, Dataset[]>>;
     private agents$: Observable<Agent[]>;
 
+    private editingPipelineSource$: BehaviorSubject<EditingPipelineModel> = new BehaviorSubject<EditingPipelineModel>(null);
+    private editingPipeline$: Observable<EditingPipelineModel> = this.editingPipelineSource$.asObservable();
+    private statePipeline: EditingPipelineModel;
 
-    constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter, private titleService: Title) {
+
+    constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter, private titleService: Title, private pipelineConfigurationChecker: PipelineConfigurationChecker) {
         this.outputDatasets$ = this.store.pipe(select(getOutputDatasetMap));
         this.inputDatasets$ = this.store.pipe(select(getInputDatasetMap));
     }
 
     inspectToggle(flag: boolean) {
-        console.log("INSPECT:", flag);
         if (flag) {
             this.previewMode = true;
             this.runInspectSource$.next(true);
@@ -149,28 +151,38 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
 
         let title: string = "KEYSCORE";
+        let filterDescriptors: FilterDescriptor[] = [];
+
+        this.filterDescriptors$.pipe(takeUntil(this.alive)).subscribe(descriptors => filterDescriptors = descriptors);
 
         this.pipeline$.pipe(takeUntil(this.alive)).subscribe(model => {
-            if(model) {
+            if (model) {
                 const label = model.pipelineBlueprint.metadata.labels.find(label => label.name === 'pipeline.name');
                 if (label) {
                     title = (label.value as TextValue).value + " - KEYSCORE";
                 }
+
+                let pipelinesFilterDescriptors: FilterDescriptor[] = filterDescriptors.filter(descriptor =>
+                    model.blueprints.some(blueprint => blueprint.descriptor.uuid === descriptor.descriptorRef.uuid)
+                );
+                const result = this.pipelineConfigurationChecker.alignConfigWithDescriptor(model, pipelinesFilterDescriptors);
+                this.editingPipelineSource$.next(result.pipeline);
             }
             this.titleService.setTitle(title);
+
+        });
+
+        this.editingPipeline$.pipe(takeUntil(this.alive)).subscribe(editPipe => {
+            this.statePipeline = editPipe;
         });
 
         this.agents$ = this.store.pipe(select(getAgents), takeUntil(this.alive));
 
         this.applicationConf$ = this.store.pipe(select(selectAppConfig));
 
-        this.pipeline$.subscribe(pipe => {
-            this.storeEditingPipeline = pipe;
-        });
-
-        this.filterDescriptors$.subscribe(descriptors => {
+        this.filterDescriptors$.pipe(takeUntil(this.alive)).subscribe(descriptors => {
             this.blockDescriptorSource$.next(descriptors.map(descriptor =>
-                this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
+                this.pipelyAdapter.filterDescriptorToBlockDescriptor(descriptor)))
         });
 
         this.errorState$ = this.store.pipe(select(isError));
@@ -222,5 +234,4 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public isSink(draggable: DraggableModel) {
         return draggable.blockDescriptor.nextConnection === undefined;
     }
-
 }

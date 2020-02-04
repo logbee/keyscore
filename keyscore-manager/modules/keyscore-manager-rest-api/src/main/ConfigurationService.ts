@@ -5,6 +5,8 @@ import {HttpClient} from "@angular/common/http";
 import {AppConfig, selectAppConfig} from "@/app/app.config";
 import {Observable} from "rxjs";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {map} from "rxjs/operators";
+import {ConfigDeserializer} from "@keyscore-manager-rest-api/src/main/config-deserializer.service";
 
 @Injectable({
     providedIn: 'root'
@@ -13,13 +15,14 @@ export class ConfigurationService {
 
     static BASE_URL: string;
 
-    constructor(private httpClient: HttpClient, private store: Store<AppState>) {
+    constructor(private httpClient: HttpClient, private store: Store<AppState>,private configDeserializer:ConfigDeserializer) {
         this.store.pipe(select(selectAppConfig)).subscribe(config =>
             ConfigurationService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources/configuration");
     }
 
     getConfiguration(id: string): Observable<Configuration> {
-        return this.httpClient.get<Configuration>(`${ConfigurationService.BASE_URL}/${id}`);
+        return this.httpClient.get<Configuration>(`${ConfigurationService.BASE_URL}/${id}`)
+            .pipe(map((config:Configuration) => this.configDeserializer.deserializeConfig(config)));
     }
 
     getAllConfigurations(): Observable<Configuration[]> {
