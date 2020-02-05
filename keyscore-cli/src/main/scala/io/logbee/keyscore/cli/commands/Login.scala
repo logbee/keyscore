@@ -11,26 +11,26 @@ class Login extends Callable[Int] {
 
   @Option(
     names = Array("-u", "--username"),
-    description = Array("Username."))
+    description = Array("Username."),
+    required = true)
   private var username: String = _
 
   @Option(
     names = Array("-p", "--password"),
-    description = Array("Password."))
+    description = Array("Password."),
+    required = true,
+    arity = "0..1",
+    interactive = true)
   private var password: String = _
 
   @Parameters(
-    description = Array("An alias to assign to this cluster."),
-    arity = "1")
+    description = Array("Cluster alias, otherwise 'default'."),
+    arity = "0..1",
+    defaultValue = "default")
   private var alias: String = _
 
-  @Parameters(
-    description = Array("URL of the cluster to login."),
-    arity = "1")
-  private var url: String = _
-
   override def call(): Int = {
-    println(s"Login to $url")
+    println(s"Login to $alias as $username:$password")
     0
   }
 }

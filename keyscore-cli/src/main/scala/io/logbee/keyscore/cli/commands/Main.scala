@@ -4,6 +4,7 @@ import java.util.concurrent.Callable
 
 import io.logbee.keyscore.cli.Cli
 import io.logbee.keyscore.cli.commands.Main.DefaultVersionProvider
+import io.logbee.keyscore.cli.commands.cluster.Cluster
 import io.logbee.keyscore.cli.util.AppInfo
 import picocli.CommandLine.Model.CommandSpec
 import picocli.CommandLine.{Command, IVersionProvider, ParameterException, Spec}
@@ -16,6 +17,7 @@ import picocli.CommandLine.{Command, IVersionProvider, ParameterException, Spec}
   versionProvider = classOf[DefaultVersionProvider],
   subcommands = Array(
     classOf[Get],
+    classOf[Cluster],
     classOf[Login],
     classOf[Logout])
 )

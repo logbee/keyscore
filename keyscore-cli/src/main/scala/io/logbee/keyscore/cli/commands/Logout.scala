@@ -6,7 +6,7 @@ import picocli.CommandLine.{Command, Option, Parameters}
 
 @Command(
   name = "logout",
-  description = Array("Login to a cluster."))
+  description = Array("Logout from a cluster."))
 class Logout extends Callable[Int] {
 
   @Option(
@@ -15,8 +15,9 @@ class Logout extends Callable[Int] {
   private var purge: Boolean = _
 
   @Parameters(
-    description = Array("An alias to assign to this cluster."),
-    arity = "1")
+    description = Array("Cluster alias, otherwise 'default'."),
+    arity = "0..1",
+    defaultValue = "default")
   private var alias: String = _
 
   override def call(): Int = {

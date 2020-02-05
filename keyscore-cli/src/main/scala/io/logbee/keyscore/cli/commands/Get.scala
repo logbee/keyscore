@@ -11,11 +11,12 @@ class Get extends Callable[Int] {
 
   @Option(
     names = Array("-c", "--cluster"),
-    description = Array("Cluster name/alias, otherwise 'default'."),
+    description = Array("Cluster alias, otherwise 'default'."),
     defaultValue = "default")
   private var cluster: String = _
 
   @Parameters(
+    index = "0",
     arity = "1"
   )
   private var entity: String = _
