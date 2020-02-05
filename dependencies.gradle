@@ -90,7 +90,7 @@ ext {
     ]
 
     dependency += [
-        scopt: "com.github.scopt:scopt_2.13:4.0.0-RC2"
+        picocli: "info.picocli:picocli:4.1.4"
     ]
 
     dependency += [

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.cli
+package io.logbee.keyscore.cli.util
 
 import java.util.jar.Attributes
 

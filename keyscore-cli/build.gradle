@@ -26,7 +26,7 @@ repositories {
 dependencies {
 
     compile dependency.scala_lang
-    compile dependency.scopt
+    compile dependency.picocli
 
     testCompile dependency.scala_test
     testCompile dependency.junit
