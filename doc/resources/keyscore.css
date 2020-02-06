@@ -59,3 +59,87 @@ a:hover {
 pre.CodeRay.highlight {
     background-color: white;
 }
+
+#welcome {
+    font-size: 1.8em;
+    margin-bottom: 30px;
+}
+
+#welcome + div h3 {
+    font-size: 1.5em;
+}
+
+/* Grid */
+.grid > ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: 1fr;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+}
+
+/* All lists inside the grid */
+.grid ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* All list-elements inside the grid */
+.grid li {
+    list-style-type: none;
+}
+
+/* Paragraphs inside the grid */
+.grid p {
+    color: #0b5567;
+    margin: 0 1.25em 0 1.25em;
+}
+
+/* All links in list-elements inside the grid */
+.grid a {
+    font-weight: bold;
+    color: #0b5567;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 100ms ease-in-out;
+}
+
+/* All Links in list-elements inside the grid - when hovered */
+.grid a:hover {
+    color: #15a9ce;
+    text-decoration: none;
+    transition: all 100ms ease-in-out;
+}
+
+/* Grid Cell */
+.grid > ul > li {
+    background: #fcfcfc;
+    border-radius: 2px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    padding-top: 10px;
+    list-style-type: none;
+}
+
+/* Grid Cell-Title */
+.grid > ul > li > p {
+    margin: 0 0 0.75em 0;
+    padding-bottom: 0.5em;
+    text-align: center;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+/* Grid Cell-Title Link */
+.grid > ul > li > p > a {
+    font-weight: bold;
+    color: #15a9ce;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 100ms ease-in-out;
+}
+
+/* Grid Cell-Title Link - when hovered */
+.grid > ul > li > p > a:hover {
+    color: #0b5567;
+    text-decoration: none;
+    transition: all 100ms ease-in-out;
+}

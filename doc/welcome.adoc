@@ -1,0 +1,37 @@
+== Welcome ==
+
+=== Documentation ===
+[.grid]
+
+* https://example.com[Getting Started]
+** https://example.com[Part 1: Workspace Setup]
+** https://example.com[Part 2: Project Setup]
+
+* https://example.com[Documentation]
+** https://example.com[Scala API]
+
+* https://example.com[FAQs]
+** https://example.com[Pipeline Development]
+** https://example.com[Block Development]
+** https://example.com[Deployment]
+** https://example.com[Tooling]
+
+* https://example.com[Tooling]
+** https://example.com[Tooling]
+
+=== Roles ===
+[.grid]
+
+* https://example.com[Pipeline Builder]
+** https://example.com[Building a Pipeline]
+
+* https://example.com[Block Developer]
+** https://example.com[Developer Setup]
+** https://example.com[Block Development]
+
+* https://example.com[Cluster Operator]
+** https://example.com[Docker Setup]
+** https://example.com[Deployment: Agent]
+** https://example.com[Deployment: Frontier]
+** https://example.com[Deployment: DB]
+** https://example.com[Deployment: Manager]

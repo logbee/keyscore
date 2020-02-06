@@ -1,3 +1,7 @@
+:toc: left
+:toc-title: Table of Contents
+:toclevels: 3
+
 = Documentation =
 
 include::userguide.adoc[leveloffset=1]
