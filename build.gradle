@@ -262,7 +262,8 @@ configure ([
         requires = ['asciidoctor-diagram']
         sourceDir = projectDir
         sources {
-            include '*.adoc'
+            include '**/*.adoc'
+            exclude '/build/*'
         }
         resources {
             from("$projectDir/resources/images/") {
@@ -296,7 +297,9 @@ configure ([
     }
 
     artifacts {
-        "default" new File(asciidoctor.getOutputDir(), 'html5')
+        add("default", new File(asciidoctor.getOutputDir(), 'html5'), { artifact ->
+            artifact.builtBy asciidoctor
+        })
     }
 
     distributions {
