@@ -183,3 +183,57 @@ pre.CodeRay.highlight {
     padding-right: 0.75em;
     text-align: right;
 }
+
+.pagenav-backward {
+    display: flex;
+    justify-content: flex-start;
+    border-top: 1px solid #e7e7e7;
+    margin: 20px 0 0 0;
+}
+
+.pagenav-backward a {
+    background-image: url("../resources/images/chevron-left.svg");
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+    padding-left: 0.75em;
+    text-align: left;
+    font-weight: bold;
+    color: #15a9ce;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 100ms ease-in-out;
+}
+
+.pagenav-backward a:hover {
+    color: #0b5567;
+    text-decoration: none;
+    transition: all 100ms ease-in-out;
+}
+
+.pagenav-forward {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #e7e7e7;
+    margin: 20px 0 0 0;
+}
+
+.pagenav-forward a {
+    background-image: url("../resources/images/chevron-right.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: contain;
+    padding-right: 0.75em;
+    text-align: right;
+    font-weight: bold;
+    color: #15a9ce;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 100ms ease-in-out;
+}
+
+.pagenav-forward a:hover {
+    color: #0b5567;
+    text-decoration: none;
+    transition: all 100ms ease-in-out;
+}
