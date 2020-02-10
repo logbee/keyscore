@@ -89,7 +89,7 @@ object TextMutatorLogic extends Described {
       description = TextRef("textmutator.fieldName.description")
     ),
     hint = PresentField,
-    supports = Seq(PatternType.RegEx),
+    supports = Seq(PatternType.RegEx, PatternType.ExactMatch),
     mandatory = true
   )
 
@@ -182,10 +182,15 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             result
         }
 
+        val mutatedFieldName = sequenceConfiguration.parameters.findValue(TextMutatorLogic.conditionalInplaceParameters) match {
+          case Some(parameterSet) => parameterSet.findValue(TextMutatorLogic.mutatedFieldName)
+          case _ => None
+        }
+
         val config = (
           sequenceConfiguration.parameters.findValue(TextMutatorLogic.fieldNamePatternParameter),
           sequenceConfiguration.parameters.getValueOrDefault(TextMutatorLogic.sequenceInplaceParameter, TextMutatorLogic.sequenceInplaceParameter.defaultValue),
-          sequenceConfiguration.parameters.findValue(TextMutatorLogic.mutatedFieldName),
+          mutatedFieldName
         )
         config match {
           case (Some(pattern), false, Some(name)) if directives.nonEmpty =>
@@ -207,7 +212,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         case (records, (record, sequences)) =>
           records += sequences.foldLeft(record) { case (record, sequence) =>
             record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
-              case (fields, field @ Field(fieldName, TextValue(_, _))) if sequence.fieldNamePattern.matches(fieldName) =>
+              case (fields, field@Field(fieldName, TextValue(_, _))) if sequence.fieldNamePattern.matches(fieldName) =>
                 val mutated = sequence.directives.foldLeft(field) { case (field, directive) =>
                   directive.invoke(field)(0)
                 }
