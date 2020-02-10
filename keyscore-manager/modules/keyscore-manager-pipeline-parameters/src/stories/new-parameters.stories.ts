@@ -117,6 +117,9 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
 import {AddDirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/add-directive/add-directive.component";
 import {IconEncoding, IconFormat} from "@keyscore-manager-models/src/main/descriptors/Icon";
 import {DirectiveSequenceParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence-parameter.component";
+import {ParameterErrorWrapperComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-error-wrapper.component";
+import { boolean, number, text, withKnobs } from '@storybook/addon-knobs';
+
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
@@ -150,13 +153,13 @@ storiesOf('Parameters/ExpressionParameter', module)
                         provide: TranslateLoader,
                         useValue: staticTranslateLoader
                     }
-                })
-                // ExpressionParameterModule
+                }),
+                ExpressionParameterModule
             ],
             providers: []
-        }))
-    .add("with three expression types", () => ({
-        component: ExpressionParameterComponent,
+        })).addDecorator(withKnobs)
+    .add("with three expression types and error", () => ({
+        component: ParameterErrorWrapperComponent,
         props: {
             descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
                 "Field Pattern", "", "", true, [
@@ -166,10 +169,11 @@ storiesOf('Parameters/ExpressionParameter', module)
                 ])
             ,
             parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
-            emitter: action('Value Change')
+            wasUpdated:boolean('wasUpdated',true),
+            onValueChange: action('Value Change')
         }
     })).add("with one expression type", () => ({
-    component: ExpressionParameterComponent,
+    component: ParameterErrorWrapperComponent,
     props: {
         descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
             "Field Pattern", "", "", true, [
@@ -177,7 +181,7 @@ storiesOf('Parameters/ExpressionParameter', module)
             ])
         ,
         parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
-        emitter: action('Value Change')
+        onValueChange: action('Value Change')
     }
 }));
 

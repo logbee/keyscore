@@ -31,7 +31,8 @@
     "AGENTS": "Agents",
     "DASHBOARD": "Dashboard",
     "PIPELINES": "Pipelines",
-    "RESOURCES": "Resources"
+    "RESOURCES": "Resources",
+    "DOCUMENTATION": "Help"
   },
   "SETTINGS": {
     "TITLE": "Settings",

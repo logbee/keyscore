@@ -19,7 +19,7 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     @Output() public keyUpEnterEvent = new EventEmitter<Event>();
 
-    //@HostBinding('style.width') width = '100%';
+    @HostBinding('style.width') width = '100%';
 
     constructor() {
     }
@@ -56,5 +56,4 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     protected onDestroy(): void {
     }
-
 }

@@ -21,6 +21,7 @@ import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/ma
 import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
 import {PasswordParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.module";
 import {DirectiveSequenceParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence-parameter.module";
+import {ParameterErrorWrapperComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-error-wrapper.component";
 
 
 @NgModule({
@@ -48,7 +49,11 @@ import {DirectiveSequenceParameterModule} from "@keyscore-manager-pipeline-param
         ParameterGroupModule
     ],
     declarations: [
-        ParameterFormComponent
+        ParameterFormComponent,
+        ParameterErrorWrapperComponent
+    ],
+    entryComponents: [
+        ParameterErrorWrapperComponent
     ],
     exports: [
         ParameterFormComponent

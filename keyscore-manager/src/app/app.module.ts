@@ -42,7 +42,6 @@ let routes: Routes = [
     {path: "agent", loadChildren: () => AgentsModule},
     {path: "pipelines", loadChildren: () => PipelinesModule},
     {path: "settings", component: SettingsComponent, canActivate:[AppAuthGuard]},
-    {path: "resources", loadChildren: () => ResourcesModule},
     {path: "unauthorized", component: UnauthorizedComponent}
 ];
 

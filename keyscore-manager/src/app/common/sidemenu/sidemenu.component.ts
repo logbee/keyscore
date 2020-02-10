@@ -49,14 +49,14 @@ import {AppState} from "@/app/app.component";
                         <mat-icon svgIcon="pipelines-nav"></mat-icon>
                     </a>
 
-                    <a *ngIf="isExpanded" mat-list-item routerLink="/resources" routerLinkActive="active">
-                        <p matLine>{{'APPCOMPONENT.RESOURCES' | translate}}</p>
-                        <mat-icon svgIcon="resources-nav"></mat-icon>
+                    <a *ngIf="isExpanded" mat-list-item href="/doc/index.html" target="_blank">
+                        <p matLine>{{'APPCOMPONENT.DOCUMENTATION' | translate}}</p>
+                        <mat-icon svgIcon="documentation-nav"></mat-icon>
                     </a>
 
-                    <a *ngIf="!isExpanded" mat-list-item routerLink="/resources" routerLinkActive="active"
-                       matTooltip="{{'APPCOMPONENT.RESOURCES' | translate}}" matTooltipPosition="right">
-                        <mat-icon svgIcon="resources-nav"></mat-icon>
+                    <a *ngIf="!isExpanded" mat-list-item href="/doc/index.html" target="_blank"
+                       matTooltip="{{'APPCOMPONENT.DOCUMENTATION' | translate}}" matTooltipPosition="right">
+                        <mat-icon svgIcon="documentation-nav"></mat-icon>
                     </a>
 
                 </mat-nav-list>

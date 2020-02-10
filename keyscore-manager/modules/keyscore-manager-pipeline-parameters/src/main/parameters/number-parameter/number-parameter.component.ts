@@ -38,7 +38,6 @@ export class NumberParameterComponent extends ParameterComponent<NumberParameter
 
     private onChange(value: string): void {
         const parameter = new NumberParameter(this.ref, Number(value));
-        console.log("changed: ", parameter);
         this.emit(parameter)
     }
 }

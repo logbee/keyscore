@@ -68,10 +68,10 @@ EXPOSE 80
 2.  Change the web-server's configuration. We provide a custom NGINX configuration by copying it into the
     Docker image. The listing <<manager-nginx-config, below>> shows the NGINX configuration we use.
 
-2.  Copy the web-content of the zip-distribution into the Docker image. In the example above everything is copied
+3.  Copy the web-content of the zip-distribution into the Docker image. In the example above everything is copied
     to `/usr/share/nginx/html/`.
 
-3.  At the end, specify the command to run the web-server.
+4.  At the end, specify the command to run the web-server.
 
 include::{root_doc}/docker.adoc[tags=docker-tiny-note]
 

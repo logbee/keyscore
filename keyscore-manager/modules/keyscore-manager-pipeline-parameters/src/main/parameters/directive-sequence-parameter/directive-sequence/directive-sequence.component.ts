@@ -32,6 +32,7 @@ import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main
 import {ParameterDescriptorJsonClass} from '@keyscore-manager-models/src/main/parameters/parameter.model'
 import {ParameterGroupDescriptor} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
 import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
+import {ContentChildren} from "@angular/core/src/metadata/di";
 
 @Component({
     selector: 'ks-directive-sequence',

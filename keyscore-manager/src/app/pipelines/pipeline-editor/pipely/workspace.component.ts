@@ -39,6 +39,8 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
 import {AppConfig} from "@/app/app.config";
+import {ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
 
 
 @Component({
@@ -68,6 +70,7 @@ import {AppConfig} from "@/app/app.config";
                 <configurator fxFlex="25"
                               [pipelineMetaData]="pipelineMetaData$ | async"
                               [agents]="agents"
+                              [changedParameters]="_selectedBlockChangedParameterRefs$ | async"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
                                 descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor,
@@ -95,6 +98,15 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     }
 
     private _pipeline: EditingPipelineModel;
+
+    @Input() set changedParameters(val: Map<string, ParameterDescriptor[]>) {
+        this._changedParameters = val;
+
+    }
+
+    private _changedParameters: Map<string, ParameterDescriptor[]> = new Map();
+    private _selectedBlockChangedParameterRefs$: BehaviorSubject<ParameterRef[]> = new BehaviorSubject([]);
+
     @Input() agents: Agent[];
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
@@ -482,13 +494,30 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             }
         }));
 
+        this.selectedDraggableSource.pipe(takeUntil(this.isAlive$)).subscribe(draggable => {
+                console.log("SELECTEDDRAGGABLEPIPE");
+                console.log("CHANGEMAP:", this._changedParameters);
+                let selectedBlockChangedParameterRefs = [];
+                if (draggable) {
+                    console.log("DRAGGABLE BLUEPRINT REF: ", draggable.getDraggableModel().blueprintRef.uuid);
+                    console.log("DRAGGABLE Descriptor REF: ", draggable.getDraggableModel().blockDescriptor.ref.uuid);
+                    const selectedBlockChangedParameters: ParameterDescriptor[] = this._changedParameters.get(draggable.getDraggableModel().blueprintRef.uuid);
+                    if (selectedBlockChangedParameters) {
+                        selectedBlockChangedParameterRefs = selectedBlockChangedParameters.map(descriptor => descriptor.ref);
+                    }
+                }
+                console.log("SELECTEDDRAGGABLEAFTER: ", selectedBlockChangedParameterRefs);
+                this._selectedBlockChangedParameterRefs$.next(selectedBlockChangedParameterRefs);
+            }
+        );
+
         this.pipelineUpdate();
 
 
     }
 
     private pipelineUpdate() {
-        if (!this.workspaceDropzone) return;
+        if (!this.workspaceDropzone || !this.pipeline) return;
 
         this.workspaceDropzone.clearViewContainer();
 

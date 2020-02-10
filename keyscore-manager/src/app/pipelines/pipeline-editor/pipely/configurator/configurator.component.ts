@@ -15,7 +15,7 @@ import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {map, startWith, takeUntil} from "rxjs/operators";
 import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-form.component"
 import {JSONCLASS_GROUP_PARAM} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
-import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
 
 @Component({
     selector: "configurator",
@@ -73,8 +73,10 @@ import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
                         <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
                         <div class="configurator-body">
-                            <parameter-form #parameterForm [config]="parameterMap$|async"
+                            <parameter-form #parameterForm
                                             [autoCompleteDataList]="autoCompleteOptions"
+                                            [changedParameters]="_changedParameters$ | async"
+                                            [config]="parameterMap$|async"
                                             (onValueChange)="saveConfiguration($event)"></parameter-form>
                         </div>
                     </div>
@@ -87,35 +89,29 @@ import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() set pipelineMetaData(val: { name: string, description: string, selectedAgent: string }) {
-        this.pipelineForm = new FormGroup({
-            'pipeline.name': new FormControl(val.name ),
-            'pipeline.description': new FormControl(val.description),
-            'pipeline.selectedAgent': new FormControl(val.selectedAgent)
-        });
-
-        this.unsubscribeForm$.next();
-
-        this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribeForm$)).subscribe(formValues => {
-            this.onSavePipelineMetaData.emit({
-                name: formValues['pipeline.name'],
-                description: formValues['pipeline.description'],
-                selectedAgent: formValues['pipeline.selectedAgent']
-            });
-        });
-
+        if (val) {
+            this.pipelineForm.setValue({
+                'pipeline.name': val.name,
+                'pipeline.description': val.description,
+                'pipeline.selectedAgent': val.selectedAgent
+            })
+        } else {
+            this.pipelineForm.setValue({
+                'pipeline.name': '',
+                'pipeline.description': '',
+                'pipeline.selectedAgent': ''
+            })
+        }
     }
 
-    get pipelineMetaData() {
-        return this._pipelineMetaData;
-    }
-
-    private _pipelineMetaData: { name: string, description: string, selectedAgent: string } = {
-        name: "",
-        description: "",
-        selectedAgent: ""
-    };
 
     @Input() agents: Agent[];
+
+    @Input() set changedParameters(val: ParameterRef[]) {
+        this._changedParameters$.next(val);
+    }
+
+    private _changedParameters$: BehaviorSubject<ParameterRef[]> = new BehaviorSubject<ParameterRef[]>([]);
 
     @Input() enableSelectAgent: boolean;
 
@@ -180,7 +176,15 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             startWith(''),
             map((val: string) => this.filterAgents(val)),
             takeUntil(this.unsubscribe$)
-        )
+        );
+
+        this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(formValues => {
+            this.onSavePipelineMetaData.emit({
+                name: formValues['pipeline.name'],
+                description: formValues['pipeline.description'],
+                selectedAgent: formValues['pipeline.selectedAgent']
+            });
+        });
 
     }
 

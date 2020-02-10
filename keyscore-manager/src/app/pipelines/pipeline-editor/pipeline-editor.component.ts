@@ -1,7 +1,7 @@
 import {Location} from "@angular/common";
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {BehaviorSubject, combineLatest, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {
     LoadFilterDescriptorsAction,
@@ -9,7 +9,7 @@ import {
     StopPipelineAction,
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
-import {share, take, takeUntil} from "rxjs/internal/operators";
+import {map, share, take, takeUntil, tap} from "rxjs/internal/operators";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
@@ -36,6 +36,10 @@ import {AppConfig, selectAppConfig} from "@/app/app.config";
 import {Title} from "@angular/platform-browser";
 import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
 import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-configuration-checker.service";
+import {ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {setTabTitleFromPipeline} from "@/app/pipelines/pipeline-editor/rxjs-operators/set-tab-title-from-pipeline.operator";
+import {filterDescriptorsNotInPipeline} from "@/app/pipelines/pipeline-editor/rxjs-operators/filter-descriptors-not-in-pipeline.operator";
+import {alignPipelineConfigWithDescriptors} from "@/app/pipelines/pipeline-editor/rxjs-operators/align-pipeline-config-with-descriptors.operator";
 
 @Component({
     selector: "pipeline-editor",
@@ -64,6 +68,7 @@ import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-co
                               [inspectTrigger$]="runInspect$"
                               [agents]="agents$ | async"
                               [pipeline]="editingPipeline$ | async"
+                              [changedParameters]="changedParameters$ | async"
                               [blockDescriptors]="blockDescriptorSource$|async"
                               [inputDatasets]="inputDatasets$|async"
                               [outputDatasets]="outputDatasets$|async"
@@ -120,6 +125,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private editingPipelineSource$: BehaviorSubject<EditingPipelineModel> = new BehaviorSubject<EditingPipelineModel>(null);
     private editingPipeline$: Observable<EditingPipelineModel> = this.editingPipelineSource$.asObservable();
     private statePipeline: EditingPipelineModel;
+    private changedParameters$: BehaviorSubject<Map<string, ParameterDescriptor[]>> = new BehaviorSubject<Map<string, ParameterDescriptor[]>>(new Map());
 
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter, private titleService: Title, private pipelineConfigurationChecker: PipelineConfigurationChecker) {
@@ -150,27 +156,18 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
 
-        let title: string = "KEYSCORE";
-        let filterDescriptors: FilterDescriptor[] = [];
 
-        this.filterDescriptors$.pipe(takeUntil(this.alive)).subscribe(descriptors => filterDescriptors = descriptors);
+        const pipeline$ = this.pipeline$.pipe(setTabTitleFromPipeline(this.titleService));
 
-        this.pipeline$.pipe(takeUntil(this.alive)).subscribe(model => {
-            if (model) {
-                const label = model.pipelineBlueprint.metadata.labels.find(label => label.name === 'pipeline.name');
-                if (label) {
-                    title = (label.value as TextValue).value + " - KEYSCORE";
-                }
-
-                let pipelinesFilterDescriptors: FilterDescriptor[] = filterDescriptors.filter(descriptor =>
-                    model.blueprints.some(blueprint => blueprint.descriptor.uuid === descriptor.descriptorRef.uuid)
-                );
-                const result = this.pipelineConfigurationChecker.alignConfigWithDescriptor(model, pipelinesFilterDescriptors);
+        const pipelineAndDescriptor$ = combineLatest(pipeline$, this.filterDescriptors$);
+        pipelineAndDescriptor$.pipe(
+            filterDescriptorsNotInPipeline(),
+            alignPipelineConfigWithDescriptors(this.pipelineConfigurationChecker),
+            takeUntil(this.alive))
+            .subscribe((result) => {
                 this.editingPipelineSource$.next(result.pipeline);
-            }
-            this.titleService.setTitle(title);
-
-        });
+                this.changedParameters$.next(result.updatedParameters);
+            });
 
         this.editingPipeline$.pipe(takeUntil(this.alive)).subscribe(editPipe => {
             this.statePipeline = editPipe;
@@ -194,6 +191,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.isLoadingDatasetsBefore$ = this.store.pipe(select(getIsLoadingDatasetsBefore));
         this.loadingDatasetsErrorBefore$ = this.store.pipe(select(getLoadingErrorBefore));
     }
+
 
     public triggerDataSourceCreation() {
         this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "before", this.amount));
