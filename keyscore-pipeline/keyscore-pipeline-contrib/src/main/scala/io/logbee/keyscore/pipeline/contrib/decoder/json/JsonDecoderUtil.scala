@@ -9,37 +9,37 @@ import scala.util.{Success, Try}
 
 object JsonDecoderUtil {
 
-  def extract(node: JValue, path: List[String] = List.empty, fields: List[Field] = List.empty): List[Field] = {
+  def extract(node: JValue, path: List[String] = List.empty, fields: List[Field] = List.empty, delimiter: String = "."): List[Field] = {
     node match {
       case obj: JObject =>
         obj.obj.foldLeft(fields) {
           case (fields, (name, jValue)) =>
-            extract(jValue, path :+ name, fields)
+            extract(jValue, path :+ name, fields, delimiter)
         }
 
       case JArray(elements) =>
         elements.zipWithIndex.foldLeft(fields) {
           case (fields, (jValue, index)) =>
-            extract(jValue, path :+ index.toString, fields)
+            extract(jValue, path :+ index.toString, fields, delimiter)
         }
 
       case JBool(value) =>
-        fields :+ Field(path.mkString("."), BooleanValue(value))
+        fields :+ Field(path.mkString(delimiter), BooleanValue(value))
 
       case JInt(value) =>
-        fields :+ Field(path.mkString("."), NumberValue(value.toLong))
+        fields :+ Field(path.mkString(delimiter), NumberValue(value.toLong))
 
       case JLong(value) =>
-        fields :+ Field(path.mkString("."), NumberValue(value.toLong))
+        fields :+ Field(path.mkString(delimiter), NumberValue(value.toLong))
 
       case JDouble(value) =>
-        fields :+ Field(path.mkString("."), DecimalValue(value))
+        fields :+ Field(path.mkString(delimiter), DecimalValue(value))
 
       case JDecimal(value) =>
-        fields :+ Field(path.mkString("."), DecimalValue(value.toDouble))
+        fields :+ Field(path.mkString(delimiter), DecimalValue(value.toDouble))
 
       case JString(value) =>
-        fields :+ Field(path.mkString("."), TextValue(value))
+        fields :+ Field(path.mkString(delimiter), TextValue(value))
 
       case _ =>
         fields

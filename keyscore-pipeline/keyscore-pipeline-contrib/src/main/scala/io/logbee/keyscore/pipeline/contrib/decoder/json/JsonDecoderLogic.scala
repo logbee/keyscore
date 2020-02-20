@@ -29,6 +29,16 @@ object JsonDecoderLogic extends Described {
     mandatory = true
   )
 
+  val delimiterParameter = TextParameterDescriptor(
+    ref = "delimiter",
+    info = ParameterInfo(
+      displayName = TextRef("delimiter.displayName"),
+      description = TextRef("delimiter.description")
+    ),
+    defaultValue = ".",
+    mandatory = false
+  )
+
   val removeSourceFieldParameter = BooleanParameterDescriptor(
     ref = "removeSourceField",
     info = ParameterInfo(
@@ -46,7 +56,11 @@ object JsonDecoderLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(DECODING, JSON),
-      parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter),
+      parameters = Seq(
+        sourceFieldNameParameter,
+        delimiterParameter,
+        removeSourceFieldParameter
+      ),
       icon = Icon.fromClass(classOf[JsonDecoderLogic]),
       maturity = Maturity.Stable
     ),
@@ -60,6 +74,7 @@ object JsonDecoderLogic extends Described {
 class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var sourceFieldName = JsonDecoderLogic.sourceFieldNameParameter.defaultValue
+  private var delimiter = JsonDecoderLogic.delimiterParameter.defaultValue
   private var removeSourceField = JsonDecoderLogic.removeSourceFieldParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
@@ -68,6 +83,7 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
     sourceFieldName = configuration.getValueOrDefault(JsonDecoderLogic.sourceFieldNameParameter, sourceFieldName)
+    delimiter = configuration.getValueOrDefault(JsonDecoderLogic.delimiterParameter, delimiter)
     removeSourceField = configuration.getValueOrDefault(JsonDecoderLogic.removeSourceFieldParameter, removeSourceField)
   }
 
@@ -84,8 +100,8 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         if (sourceField.isDefined && sourceField.get.isTextField) {
           try {
             result ++= (parse(sourceField.get.toTextField.value) match {
-              case obj @ JObject(_) => List(Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
-              case JArray(arr) => arr.map(obj => Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
+              case obj @ JObject(_) => List(Record(JsonDecoderUtil.extract(obj, List.empty, List.empty, delimiter)))
+              case JArray(arr) => arr.map(obj => Record(JsonDecoderUtil.extract(obj, List.empty, List.empty, delimiter)))
               case _ => List.empty
             })
   
