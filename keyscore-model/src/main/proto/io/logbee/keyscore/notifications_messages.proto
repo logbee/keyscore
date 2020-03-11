@@ -18,6 +18,7 @@ message ScrapeNotificationsFailure {
 }
 
 message NotificationsQuery {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.notifications.BaseNotificationsQuery";
     int64 limit = 1;
     string earliest = 3;
     string latest = 4;

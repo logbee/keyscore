@@ -129,7 +129,7 @@ class NotificationsCache(val configuration: Configuration) extends Cache {
   def getNewest(id: UUID): Option[NotificationsCollection] = {
     idToValues.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._2)) match {
-        case mc: NotificationsCollection => Some(mc)
+        case nc: NotificationsCollection => Some(nc)
         case _ => None
       }
       case None => None
@@ -139,7 +139,7 @@ class NotificationsCache(val configuration: Configuration) extends Cache {
   def getOldest(id: UUID): Option[NotificationsCollection] = {
     idToValues.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._1)) match {
-        case mc: NotificationsCollection => Some(mc)
+        case nc: NotificationsCollection => Some(nc)
         case _ => None
       }
       case None => None

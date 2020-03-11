@@ -16,7 +16,7 @@ import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, Req
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
 import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider
-import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
+import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic, NotificationsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.collectors.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.collectors.notifications.ScrapeNotifications
@@ -129,6 +129,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Subscribe(MetricsTopic, self)
+    mediator ! Subscribe(NotificationsTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin(Roles.AgentRole, self))
   }
 
@@ -137,6 +138,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
     mediator ! Unsubscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
     mediator ! Unsubscribe(MetricsTopic, self)
+    mediator ! Unsubscribe(NotificationsTopic, self)
     log.info(s"The Agent $name <$id> has stopped.")
   }
 
@@ -199,7 +201,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
       manager ! ScrapeMetricsSuccess(map)
 
     case ScrapeNotifications(manager) =>
-
+      //TODO ?
 
     case _ =>
   }

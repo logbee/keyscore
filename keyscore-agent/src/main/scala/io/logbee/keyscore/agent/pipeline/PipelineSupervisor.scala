@@ -12,7 +12,7 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
+import io.logbee.keyscore.commons.cluster.Topics.{MetricsTopic, NotificationsTopic}
 import io.logbee.keyscore.commons.collectors.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.collectors.notifications.ScrapeNotifications
 import io.logbee.keyscore.commons.notifications.{ScrapeNotificationsFailure, ScrapeNotificationsSuccess}
@@ -121,6 +121,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   override def postStop(): Unit = {
     mediator ! Unsubscribe(MetricsTopic, self)
+    mediator ! Unsubscribe(NotificationsTopic, self)
     log.info(" stopped.")
   }
 
@@ -259,6 +260,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ControllerMaterialized(controller) =>
       log.debug(s"Last Controller <${controller.id}> has been materialized.")
       mediator ! Subscribe(MetricsTopic, self)
+      mediator ! Subscribe(NotificationsTopic, self)
       become(running(new PipelineController(pipeline, controllers :+ controller)(executionContext)), discardOld = true)
 
     case ControllerMaterializationFailed(cause) =>
