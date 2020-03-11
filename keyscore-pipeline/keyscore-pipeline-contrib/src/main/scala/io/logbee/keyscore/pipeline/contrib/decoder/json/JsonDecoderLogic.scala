@@ -103,8 +103,9 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             }
           }
           catch {
-            case ex: Throwable =>
-              log.error(ex, "Failed to decode.")
+            case e: Throwable =>
+              log.error(e, "Failed to decode.")
+              notifications.notifyy(Seq(Field("level", NotificationValue(LogLevel.ERROR)), Field("message", TextValue(e.getMessage)), Field("dataset", TextValue(dataset.toString))))
           }
         }
 
@@ -116,4 +117,5 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
   override def onPull(): Unit = {
     pull(in)
   }
+
 }
