@@ -1,11 +1,11 @@
 package io.logbee.keyscore.model.notifications
 
-import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
 
-import io.logbee.keyscore.model.data.{Dataset, Field, Label, Record, TextValue, TimestampValue}
+import io.logbee.keyscore.model.data._
 
-class NotificationConversion {
+object NotificationConversion {
 
   def labelToField(label: Label): Field = {
     Field(label.name, label.value)
@@ -27,12 +27,12 @@ class NotificationConversion {
     Dataset(records)
   }
 
-  def getLatest(mc: NotificationsCollection): TimestampValue = {
-    mc.notifications.map { notification => notification.timestamp.get }.reduceLeft(latest)
+  def getLatest(nc: NotificationsCollection): TimestampValue = {
+    nc.notifications.map { notification => notification.timestamp.get }.reduceLeft(latest)
   }
 
-  def getEarliest(mc: NotificationsCollection): TimestampValue = {
-    mc.notifications.map { notification => notification.timestamp.get }.reduce(earliest)
+  def getEarliest(nc: NotificationsCollection): TimestampValue = {
+    nc.notifications.map { notification => notification.timestamp.get }.reduce(earliest)
   }
 
   private def latest(first: TimestampValue, second: TimestampValue): TimestampValue = {

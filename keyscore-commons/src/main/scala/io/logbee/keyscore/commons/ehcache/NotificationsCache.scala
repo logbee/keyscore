@@ -1,13 +1,14 @@
 package io.logbee.keyscore.commons.ehcache
 
+
 import java.nio.file.Files
 import java.time.Duration
 import java.util.UUID
 
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
-import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
-import io.logbee.keyscore.model.metrics.{MetricConversion, MetricsCollection}
+import io.logbee.keyscore.commons.ehcache.NotificationsCache.Configuration
+import io.logbee.keyscore.model.notifications.{NotificationConversion, NotificationsCollection}
 import org.ehcache.PersistentUserManagedCache
 import org.ehcache.config.builders._
 import org.ehcache.config.units.MemoryUnit
@@ -16,12 +17,12 @@ import org.ehcache.impl.persistence.DefaultLocalPersistenceService
 
 import scala.collection.mutable
 
-object MetricsCache {
+object NotificationsCache {
 
-  def apply(configuration: Configuration): MetricsCache = new MetricsCache(configuration)
+  def apply(configuration: Configuration): NotificationsCache = new NotificationsCache(configuration)
 
   object Configuration {
-    val root = "keyscore.metrics.cache"
+    val root = "keyscore.notifications.cache"
 
     def apply(config: Config): Configuration = {
 
@@ -42,7 +43,7 @@ object MetricsCache {
                           )
 }
 
-class MetricsCache(val configuration: Configuration) extends Cache {
+class NotificationsCache(val configuration: Configuration) extends Cache {
 
   private val idToValues: mutable.HashMap[UUID, (Long, Long)] = mutable.HashMap.empty[UUID, (Long, Long)]
 
@@ -51,11 +52,11 @@ class MetricsCache(val configuration: Configuration) extends Cache {
     .disk(configuration.diskSize, MemoryUnit.B)
 
   private val configExpiry = ExpiryPolicyBuilder.timeToLiveExpiration(configuration.expiration)
-  private val persistenceConfiguration = new DefaultPersistenceConfiguration(Files.createTempDirectory("keyscore.metrics-cache-").toFile)
+  private val persistenceConfiguration = new DefaultPersistenceConfiguration(Files.createTempDirectory("keyscore.notifications-cache-").toFile)
   private val persistenceService = new DefaultLocalPersistenceService(persistenceConfiguration)
-  private val persistenceContext = new UserManagedPersistenceContext[String, MetricsCollection]("keyscore.metrics-cache", persistenceService)
+  private val persistenceContext = new UserManagedPersistenceContext[String, NotificationsCollection]("keyscore.notifications-cache", persistenceService)
 
-  private val cache: PersistentUserManagedCache[String, MetricsCollection] = UserManagedCacheBuilder.newUserManagedCacheBuilder(classOf[String], classOf[MetricsCollection])
+  private val cache: PersistentUserManagedCache[String, NotificationsCollection] = UserManagedCacheBuilder.newUserManagedCacheBuilder(classOf[String], classOf[NotificationsCollection])
     .`with`(persistenceContext)
     .withExpiry(configExpiry)
     .withResourcePools(resourcePool)
@@ -78,22 +79,22 @@ class MetricsCache(val configuration: Configuration) extends Cache {
     }
   }
 
-  private def getAllFrom(id: UUID, entry: Long, earliest: Timestamp, latest: Timestamp, limit: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
+  private def getAllFrom(id: UUID, entry: Long, earliest: Timestamp, latest: Timestamp, limit: Long, seq: Seq[NotificationsCollection] = Seq.empty[NotificationsCollection]): Seq[NotificationsCollection] = {
     cache.get(calculateKey(id, entry)) match {
-      case mc: MetricsCollection =>
-        if (mc.metrics.nonEmpty) {
+      case nc: NotificationsCollection =>
+        if (nc.notifications.nonEmpty) {
 
-          val actualLatest = MetricConversion.getLatest(mc)
+          val actualLatest = NotificationConversion.getLatest(nc)
           val actualTimestamp = Timestamp(actualLatest.seconds, actualLatest.nanos)
 
           if (seq.size < limit) {
-            if(newerThanLatest(actualTimestamp, latest)){
+            if (newerThanLatest(actualTimestamp, latest)) {
               getAllFrom(id, entry - 1, earliest, latest, limit, seq)
             } else {
-              if(olderThanEarliest(actualTimestamp, earliest)){
+              if (olderThanEarliest(actualTimestamp, earliest)) {
                 seq
               } else {
-                getAllFrom(id, entry - 1, earliest, latest, limit, seq :+ mc)
+                getAllFrom(id, entry - 1, earliest, latest, limit, seq :+ nc)
               }
             }
           } else seq
@@ -104,7 +105,7 @@ class MetricsCache(val configuration: Configuration) extends Cache {
     }
   }
 
-  def put(id: UUID, collection: MetricsCollection): Unit = {
+  def put(id: UUID, collection: NotificationsCollection): Unit = {
     idToValues.get(id) match {
       case Some(tuple) =>
         idToValues += (id -> (tuple._1, tuple._2 + 1L))
@@ -117,7 +118,7 @@ class MetricsCache(val configuration: Configuration) extends Cache {
     }
   }
 
-  def getAll(id: UUID, earliest: Timestamp, latest: Timestamp, limit: Long): Seq[MetricsCollection] = {
+  def getAll(id: UUID, earliest: Timestamp, latest: Timestamp, limit: Long): Seq[NotificationsCollection] = {
     idToValues.get(id) match {
       case Some(tuple) =>
         getAllFrom(id, tuple._2, earliest = earliest, latest = latest, limit)
@@ -125,20 +126,20 @@ class MetricsCache(val configuration: Configuration) extends Cache {
     }
   }
 
-  def getNewest(id: UUID): Option[MetricsCollection] = {
+  def getNewest(id: UUID): Option[NotificationsCollection] = {
     idToValues.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._2)) match {
-        case mc: MetricsCollection => Some(mc)
+        case mc: NotificationsCollection => Some(mc)
         case _ => None
       }
       case None => None
     }
   }
 
-  def getOldest(id: UUID): Option[MetricsCollection] = {
+  def getOldest(id: UUID): Option[NotificationsCollection] = {
     idToValues.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._1)) match {
-        case mc: MetricsCollection => Some(mc)
+        case mc: NotificationsCollection => Some(mc)
         case _ => None
       }
       case None => None
