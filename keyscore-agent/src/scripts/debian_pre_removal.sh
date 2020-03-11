@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#TODO keyscore-agent instead of ks_agent
+
 #1 Check if systemd is available
 SYSTEMD="/usr/lib/systemd/"
 if [ -d $SYSTEMD ]

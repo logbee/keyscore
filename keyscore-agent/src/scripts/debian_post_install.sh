@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#TODO keyscore-agent instead of ks_agent
+
 # 1. Make jdk accessible
 /bin/chmod -R 755 /usr/share/keyscore/keyscore-agent/jdk8
 
