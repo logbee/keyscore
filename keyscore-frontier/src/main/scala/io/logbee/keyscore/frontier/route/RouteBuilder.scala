@@ -13,12 +13,13 @@ import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.collectors.metrics.MetricsManager
+import io.logbee.keyscore.commons.collectors.notifications.NotificationsManager
 import io.logbee.keyscore.commons.util.{AppInfo, ServiceDiscovery}
 import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, InitializeRouteBuilder, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.frontier.route.routes.{AgentRoute, FilterRoute, PipelineRoute}
-import io.logbee.keyscore.frontier.route.routes.resources.{BlueprintResourceRoute, ConfigurationResourceRoute, DescriptorResourceRoute, MetricsRoute}
+import io.logbee.keyscore.frontier.route.routes.resources.{BlueprintResourceRoute, ConfigurationResourceRoute, DescriptorResourceRoute, MetricsRoute, NotificationsRoute}
 
 import scala.util.{Failure, Success}
 
@@ -45,7 +46,7 @@ object RouteBuilder {
 }
 
 class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits with AgentRoute
-  with PipelineRoute with FilterRoute with ConfigurationResourceRoute with BlueprintResourceRoute with DescriptorResourceRoute with MetricsRoute {
+  with PipelineRoute with FilterRoute with ConfigurationResourceRoute with BlueprintResourceRoute with DescriptorResourceRoute with MetricsRoute with NotificationsRoute {
 
   val appInfo = AppInfo.fromMainClass[FrontierApplication]
 
@@ -69,6 +70,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
   private val clusterAgentManager = clusterAgentManagerRef
   private val clusterPipelineManager: ActorRef = system.actorOf(ClusterPipelineManager(clusterAgentManager))
   private val metricsManager: ActorRef = system.actorOf(MetricsManager(MetricsManager.Configuration(context.system.settings.config)), "metrics-manager")
+  private val notificationsManager: ActorRef = system.actorOf(NotificationsManager(NotificationsManager.Configuration(context.system.settings.config)), "notifications-manager")
   private var blueprintManager: ActorRef = _
 
   override def preStart(): Unit = {
@@ -120,7 +122,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
     * @return The complete Route for a Standard Full-Operating Frontier
     */
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ metricsRoute(metricsManager)
+    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ metricsRoute(metricsManager) ~ notificationsRoute(notificationsManager)
 
     settings { fullRoute }
   }
