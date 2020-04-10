@@ -35,7 +35,7 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
           assert(localFile.lastModified >= currentTime - 3 * 1000)
           assert(localFile.lastModified <= currentTime)
           
-          localFile.length shouldBe charset.encode(content).limit
+          localFile.length shouldBe charset.encode(content).limit()
       }
     }
     
@@ -70,7 +70,7 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
       
       TestUtil.withOpenLocalFile(watchDir, "localFile.txt", content) {
         localFile =>
-          val buffer = ByteBuffer.allocate(encodedContent.limit)
+          val buffer = ByteBuffer.allocate(encodedContent.limit())
           
           localFile.read(buffer, offset=0)
           
@@ -86,7 +86,7 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
       
       TestUtil.withOpenLocalFile(watchDir, "localFile.txt", content) {
         localFile =>
-          val fileLength = encodedContent.limit
+          val fileLength = encodedContent.limit()
           val offset = fileLength / 2
           
           val buffer = ByteBuffer.allocate(fileLength - offset)
@@ -95,7 +95,7 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
           
           buffer.array shouldBe encodedContent.array
                                   .drop(offset)
-                                  .dropRight(encodedContent.capacity - encodedContent.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
+                                  .dropRight(encodedContent.capacity - encodedContent.limit()) //the resulting array has 0s from the buffer's limit to the end, which we drop here
       }
     }
 

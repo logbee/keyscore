@@ -4,7 +4,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileReadScheduler.FileInfo
 import org.slf4j.LoggerFactory
 
 import scala.util.{Failure, Success}

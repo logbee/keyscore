@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFactory {
+class FileReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFactory {
 
   trait PersistenceContextWithoutTimestamp extends LogFile {
     
@@ -30,7 +30,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
   }
   
   
-  trait ReadSchedulerSetup {
+  trait FileReadSchedulerSetup {
     val readSchedule = mock[ReadSchedule]
     val readPersistence = mock[ReadPersistence]
   }
@@ -39,7 +39,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
   "A ReadScheduler should" - {
     
     "queue a read for a change in a file" in
-    new ReadSchedulerSetup with LogFile {
+    new FileReadSchedulerSetup with LogFile {
       
       (readPersistence.getCompletedRead _)
         .expects(*)
@@ -47,7 +47,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
                                   previousReadTimestamp=0,
                                   newerFilesWithSharedLastModified = 0))
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       
       (readSchedule.enqueue _)
         .expects(ReadScheduleItem(
@@ -62,7 +62,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
     
     
     "queue multiple reads for a change in a file, to also catch up on changes in its rotated files" in
-    new ReadSchedulerSetup with RotateFiles {
+    new FileReadSchedulerSetup with RotateFiles {
     
       inSequence {
         (readPersistence.getCompletedRead _)
@@ -104,13 +104,13 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
             newerFilesWithSharedLastModified = 0))
       }
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
     
     "schedule only reads for files, which haven't already been completely read" in
-    new ReadSchedulerSetup with RotateFiles {
+    new FileReadSchedulerSetup with RotateFiles {
     
       inSequence {
         (readPersistence.getCompletedRead _)
@@ -142,13 +142,13 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
         }
       }
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
     
     "schedule reads from the correct starting position, when a read up to that position has already been completed" in
-    new ReadSchedulerSetup with LogFile {
+    new FileReadSchedulerSetup with LogFile {
     
       val previousReadPosition = 3
       
@@ -168,13 +168,13 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
             newerFilesWithSharedLastModified = 0))
       }
 
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
     
     "schedule reads from the start (including rotated files), when a read for this file has not yet been scheduled or completed" in
-    new ReadSchedulerSetup with RotateFiles {
+    new FileReadSchedulerSetup with RotateFiles {
 
       inSequence {
         (readPersistence.getCompletedRead _)
@@ -194,14 +194,14 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
         }
       }
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
     
     
     "schedule a read only for the newest file, if the files have been rotated" in
-    new ReadSchedulerSetup with RotateFiles {
+    new FileReadSchedulerSetup with RotateFiles {
       
       (readPersistence.getCompletedRead _)
         .expects(*)
@@ -221,7 +221,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
           logFile.lastModified,
           newerFilesWithSharedLastModified = 0))
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
@@ -239,7 +239,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
     
     
     "schedule reads for files with the same lastModified-timestamp with correct information about the number of newer files with same lastModified-timestamp" in
-    new ReadSchedulerSetup with SharedLastModifiedFilesSetup {
+    new FileReadSchedulerSetup with SharedLastModifiedFilesSetup {
 
       previousReadPosition = logFile2.length() / 2
       
@@ -280,14 +280,14 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
           )
       }
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
     
     
     "schedule reads correctly when it needs to resume in files with shared lastModified-timestamps" in
-    new ReadSchedulerSetup with LogFile with SharedLastModifiedFilesSetup {
+    new FileReadSchedulerSetup with LogFile with SharedLastModifiedFilesSetup {
       
       previousReadPosition = logFile1.length() / 2
       val newerFilesWithSharedLastModified = 0
@@ -318,7 +318,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
             newerFilesWithSharedLastModified = 0)
           )
       }
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
     
@@ -326,7 +326,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
     
     
     "not schedule reads for files which share their lastModified-timestamp with the non-rotated log file (to which data can still be appended to)" in
-    new ReadSchedulerSetup with LogFile with RotateFiles {
+    new FileReadSchedulerSetup with LogFile with RotateFiles {
       //This tested behaviour is important, as otherwise the non-rotated log file's lastModified-timestamp could change at some point in the future (as data can still be appended to this file).
       //We need it to not change, as we differentiate between files with identical lastModified-timestamp by basically counting from the newest of these shared-lastModified files towards the oldest.
       
@@ -373,7 +373,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
           .never
       }
       
-      val readScheduler = new ReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
+      val readScheduler = new FileReadScheduler(logFile.file, rotationPattern, readPersistence, readSchedule)
       readScheduler.processChanges()
     }
   }

@@ -66,7 +66,7 @@ class Manual_SpecWithSmbShare extends AnyFreeSpec {
     val writeBuffer = content
     
     //the resulting array has 0s from the buffer's limit to the end, which we drop here
-    val writeArray = writeBuffer.array.dropRight(writeBuffer.capacity - writeBuffer.limit)
+    val writeArray = writeBuffer.array.dropRight(writeBuffer.capacity - writeBuffer.limit())
     
     
     val actualSmbFile = share.openFile(

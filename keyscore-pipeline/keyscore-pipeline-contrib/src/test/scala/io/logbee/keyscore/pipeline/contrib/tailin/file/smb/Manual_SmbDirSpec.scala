@@ -2,8 +2,9 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.charset.StandardCharsets
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChanges, PathHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 import org.scalatest.matchers.should.Matchers
 
 class Manual_SmbDirSpec extends Manual_SpecWithSmbShare with Matchers {

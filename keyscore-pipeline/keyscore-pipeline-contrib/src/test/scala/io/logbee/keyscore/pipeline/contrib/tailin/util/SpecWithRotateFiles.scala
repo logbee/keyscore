@@ -47,13 +47,13 @@ class SpecWithRotateFiles extends AnyFreeSpec with MockFactory with Matchers {
         override def absolutePath: String = _absolutePath
         override def name: String = _name
         override def parent: String = ???
-        override def length: Long = charset.encode(content()).limit
+        override def length: Long = charset.encode(content()).limit()
         override def lastModified: Long = _lastModified
         override def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle] = rotatedFiles
         override def read(buffer: ByteBuffer, offset: Long): Int = {
           val encoded = charset.encode(content())
           val _offset = offset.asInstanceOf[Int]
-          val bytesRead = Math.min(buffer.limit, encoded.limit - _offset)
+          val bytesRead = Math.min(buffer.limit(), encoded.limit() - _offset)
           buffer.put(encoded.array, _offset, bytesRead)
           bytesRead
         }
@@ -65,7 +65,7 @@ class SpecWithRotateFiles extends AnyFreeSpec with MockFactory with Matchers {
         _absolutePath,
         _name,
         content,
-        length = () => charset.encode(content()).limit,
+        length = () => charset.encode(content()).limit(),
         _lastModified,
         rotatedFiles,
       )

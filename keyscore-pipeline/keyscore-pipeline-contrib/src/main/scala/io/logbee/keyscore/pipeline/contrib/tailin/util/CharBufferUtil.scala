@@ -1,6 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
-import java.nio.CharBuffer
+import java.nio.{Buffer, CharBuffer}
+
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.CharPos
 
 object CharBufferUtil {
@@ -10,13 +11,13 @@ object CharBufferUtil {
     val length = endPos - startPos
     
     val tmpPos = buffer.position()
-    buffer.position(startPos.value)
+    buffer.asInstanceOf[Buffer].position(startPos.value)
     
     val array = new Array[Char](length.value)
     buffer.get(array, 0, length.value)
     val returnString = new String(array)
     
-    buffer.position(tmpPos) //set the position back
+    buffer.asInstanceOf[Buffer].position(tmpPos) //set the position back
     
     returnString
   }

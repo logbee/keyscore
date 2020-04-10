@@ -34,7 +34,7 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
         assert(smbFile.lastModified <= currentTime + 5 * 60 * 1000)
 
 
-        smbFile.length shouldBe content.limit
+        smbFile.length shouldBe content.limit()
       })
     }
     
@@ -66,7 +66,7 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       val content = charset.encode("Hellö Wörld")
       
       withOpenSmbFile(s"\\\\$hostName\\$shareName\\smbTestFile.txt", content, { smbFile =>
-        val buffer = ByteBuffer.allocate(content.limit)
+        val buffer = ByteBuffer.allocate(content.limit())
 
         smbFile.read(buffer, offset=0)
 
@@ -81,7 +81,7 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       
       withOpenSmbFile(s"\\\\$hostName\\$shareName\\smbTestFile.txt", content, {
         smbFile =>
-          val fileLength = content.limit
+          val fileLength = content.limit()
           val offset = fileLength / 2
           
           val buffer = ByteBuffer.allocate(fileLength - offset)
@@ -90,7 +90,7 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
           
           buffer.array shouldBe content.array
                                   .drop(offset)
-                                  .dropRight(content.capacity - content.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
+                                  .dropRight(content.capacity - content.limit()) //the resulting array has 0s from the buffer's limit to the end, which we drop here
       })
     }
     

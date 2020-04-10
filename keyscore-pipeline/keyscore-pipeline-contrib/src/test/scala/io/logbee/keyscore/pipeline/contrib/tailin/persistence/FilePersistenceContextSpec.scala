@@ -40,7 +40,7 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
     val key2 = "/path/to/file2"
     val value2 = FileReadRecord(234567891, 198765432, 0)
   }
-
+  
   "A PersistenceFormat" - {
 
     "should be serializable" in {
@@ -58,23 +58,23 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
       result shouldBe persistenceFormat
     }
   }
-
+  
   "A FilePersistenceContext" - {
     "should write and read" - {
-
+      
       "multiple case classes correctly" in new PersistenceFile {
-
+        
         filePersistenceContext.store(key1, value1)
         filePersistenceContext.store(key2, value2)
-
+        
         val loaded1 = filePersistenceContext.load(key1)
         val loaded2 = filePersistenceContext.load(key2)
-
+        
         loaded1 shouldBe Some(value1)
         loaded2 shouldBe Some(value2)
       }
     }
-
+    
 //    "should write and find keys with common prefix" in new PersistenceFile {
 //
 //      filePersistenceContext.store("One", "1")
@@ -85,68 +85,68 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
 //
 //      keys should contain allOf ("One", "OneTwo")
 //    }
-
+    
     "should return None," - {
-
+      
       "if the persistence file is empty" in new PersistenceFile {
-
+        
         val value = filePersistenceContext.load("non-existent key")
-
+        
         value shouldBe None
       }
       
       "if no matching persistence record was found" in new PersistenceFile {
-
+        
         filePersistenceContext.store(key1, value1)
         filePersistenceContext.store(key2, value2)
-
+        
         val value = filePersistenceContext.load("non-existent key")
-
+        
         value shouldBe None
       }
     }
-
+    
     "should update the value" - {
-
+      
       "if the same key is written twice" in new PersistenceFile {
-
+        
         filePersistenceContext.store(key1, value1)
         filePersistenceContext.store(key1, value2)
-
+        
         val value = filePersistenceContext.load(key1)
-
+        
         value shouldBe Some(value2)
       }
     }
-
+    
     "should remove" - {
-
+      
       "a record" in new PersistenceFile {
-
+        
         val key = key1
         val value = value1
-
+        
         filePersistenceContext.store(key, value)
-
+        
         val loaded1 = filePersistenceContext.load(key)
         loaded1 shouldBe Some(value)
-
+        
         filePersistenceContext.remove(key)
-
+        
         val loaded2 = filePersistenceContext.load(key)
         loaded2 shouldBe None
       }
-
+      
       "only the record with the correct key" in new PersistenceFile {
-
+        
         filePersistenceContext.store(key1, value1)
         filePersistenceContext.store(key2, value2)
-
+        
         filePersistenceContext.remove(key2)
-
+        
         val loaded1 = filePersistenceContext.load(key1)
         val loaded2 = filePersistenceContext.load(key2)
-
+        
         loaded1 shouldBe Some(value1)
         loaded2 shouldBe None
       }

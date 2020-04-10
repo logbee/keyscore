@@ -21,7 +21,7 @@ class SmbFile private (path: String, share: DiskShare) extends FileHandle {
   private lazy val log = LoggerFactory.getLogger(classOf[SmbFile])
   
   private val _absolutePath = SmbUtil.absolutePath(path)(share)
-  override def absolutePath = _absolutePath
+  override def absolutePath: String = _absolutePath
   
   override def open[R](func: Try[OpenFileHandle] => R): R = SmbFile.open(path, share, util.EnumSet.of(AccessMask.FILE_READ_DATA, AccessMask.FILE_READ_ATTRIBUTES))(smbFile => func(smbFile.map(new OpenSmbFile(_, share))))
 

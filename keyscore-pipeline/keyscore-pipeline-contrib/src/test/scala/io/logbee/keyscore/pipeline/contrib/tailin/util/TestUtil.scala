@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.io.{File, IOException}
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.Charset
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -10,11 +10,10 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.rolling.{FixedWindowRollingPolicy, RollingFileAppender, SizeBasedTriggeringPolicy}
 import ch.qos.logback.core.util.FileSize
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, FileHandle, OpenDirHandle, OpenFileHandle}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.localFile2File
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.OpenLocalFile
-
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle, OpenDirHandle, OpenFileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChangeListener
 import org.slf4j.LoggerFactory
 
 import scala.util.{Failure, Success, Try}

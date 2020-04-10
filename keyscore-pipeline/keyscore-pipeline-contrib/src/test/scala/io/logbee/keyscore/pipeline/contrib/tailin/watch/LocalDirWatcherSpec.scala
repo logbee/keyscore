@@ -3,6 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file._
+import java.time.Duration
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFile}
 import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
@@ -21,6 +22,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
     var provider = mock[WatcherProvider[LocalDir, LocalFile]]
     var dirPath = watchDir
     var matchPattern = new FileMatchPattern[LocalDir, LocalFile](s"$dirPath/*.txt")
+    implicit var processChangesTimeout = Duration.ofSeconds(30)
   }
   
   
@@ -30,7 +32,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       new DirWatcherParams {
         
         matchPattern = new FileMatchPattern(fullFilePattern = s"$watchDir/*/test.txt")
-        val dirWatcher = new DirWatcher[LocalDir, LocalFile](LocalDir(dirPath), matchPattern, provider)
+        val dirWatcher = new DirWatcher[LocalDir, LocalFile](LocalDir(dirPath), matchPattern, provider, processChangesTimeout)
         
         val subDir = Paths.get(s"$watchDir/testDir/")
         subDir.toFile.mkdir
@@ -70,7 +72,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           new DirWatcherParams {
             
             matchPattern = new FileMatchPattern(s"$watchDir/${setup.pattern}")
-            val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider)
+            val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider, processChangesTimeout)
             
             val file = new File(s"$watchDir/test.txt")
             
@@ -114,12 +116,12 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             val file = TestUtil.createFile(subDir, "test.txt", "testContent")
             val subDir2 = LocalDir(subDir)
             
-            val subDirWatcher = new DirWatcher(subDir2, matchPattern, provider)
+            val subDirWatcher = new DirWatcher(subDir2, matchPattern, provider, processChangesTimeout)
             (provider.createDirWatcher _).expects(subDir2, matchPattern).returns(subDirWatcher)
             val fileEventHandler = stub[FileEventHandler]
             (provider.createFileEventHandler _).expects(file).returns(fileEventHandler)
             
-            val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider)
+            val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider, processChangesTimeout)
             
             
             dirWatcher.processChanges()
@@ -137,7 +139,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in
       new DirWatcherParams {
         
-        val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider)
+        val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider, processChangesTimeout)
         
         val file = new File(s"$watchDir/test.foobar")
         
@@ -154,7 +156,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       "is modified, should notify the responsible FileEventHandlers that the file was modified" in
       new DirWatcherParams {
         
-        val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider)
+        val dirWatcher = new DirWatcher(LocalDir(dirPath), matchPattern, provider, processChangesTimeout)
         
         val file = new File(s"$watchDir/test.txt")
         

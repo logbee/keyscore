@@ -52,7 +52,7 @@ class LocalFileSourceLogicSpec extends AnyFreeSpec with Matchers with BeforeAndA
   }
 
 
-  override def afterAll = {
+  override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
 
@@ -112,11 +112,11 @@ class LocalFileSourceLogicSpec extends AnyFreeSpec with Matchers with BeforeAndA
           implicit val charset = testSetup.encoding
 
           val configuration = Configuration(
-            TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir/${testSetup.filePattern}"),
-            ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
-            ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),
-            TextParameter(  LocalFileSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
-            FieldNameParameter(  LocalFileSourceLogic.fieldName.ref,  "output"),
+            TextParameter(  FileSourceLogicBase.filePattern.ref,     s"$watchDir/${testSetup.filePattern}"),
+            ChoiceParameter(FileSourceLogicBase.readMode.ref,        testSetup.readMode.toString),
+            ChoiceParameter(FileSourceLogicBase.encoding.ref,        testSetup.encoding.toString),
+            TextParameter(  FileSourceLogicBase.rotationPattern.ref, testSetup.rotationPattern),
+            FieldNameParameter(  FileSourceLogicBase.fieldName.ref,  "output"),
           )
 
           val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
@@ -234,11 +234,11 @@ class LocalFileSourceLogicSpec extends AnyFreeSpec with Matchers with BeforeAndA
       implicit val charset = StandardCharsets.UTF_8
 
       val configuration = Configuration(
-        TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir/file.csv"),
-        ChoiceParameter(LocalFileSourceLogic.readMode.ref,        ReadMode.Line.toString),
-        ChoiceParameter(LocalFileSourceLogic.encoding.ref,        charset.toString),
-        TextParameter(  LocalFileSourceLogic.rotationPattern.ref, "file.csv.[1-5]"),
-        FieldNameParameter(  LocalFileSourceLogic.fieldName.ref,  "output"),
+        TextParameter(  FileSourceLogicBase.filePattern.ref,     s"$watchDir/file.csv"),
+        ChoiceParameter(FileSourceLogicBase.readMode.ref,        ReadMode.Line.toString),
+        ChoiceParameter(FileSourceLogicBase.encoding.ref,        charset.toString),
+        TextParameter(  FileSourceLogicBase.rotationPattern.ref, "file.csv.[1-5]"),
+        FieldNameParameter(  FileSourceLogicBase.fieldName.ref,  "output"),
       )
 
       val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)

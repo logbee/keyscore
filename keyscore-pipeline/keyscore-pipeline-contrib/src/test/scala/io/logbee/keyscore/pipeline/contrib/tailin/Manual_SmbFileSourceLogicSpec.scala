@@ -103,11 +103,11 @@ class Manual_SmbFileSourceLogicSpec extends Manual_SpecWithSmbShare with Matcher
             TextParameter(   SmbFileSourceLogic.loginName.ref,       userName),
             TextParameter(   SmbFileSourceLogic.password.ref,        password),
           )))),
-          TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir\\${testSetup.filePattern}"),
-          ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
-          ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),
-          TextParameter(  LocalFileSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
-          TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
+          TextParameter(  FileSourceLogicBase.filePattern.ref,     s"$watchDir\\${testSetup.filePattern}"),
+          ChoiceParameter(FileSourceLogicBase.readMode.ref,        testSetup.readMode.toString),
+          ChoiceParameter(FileSourceLogicBase.encoding.ref,        testSetup.encoding.toString),
+          TextParameter(  FileSourceLogicBase.rotationPattern.ref, testSetup.rotationPattern),
+          TextParameter(  FileSourceLogicBase.fieldName.ref,       "output"),
         )
 
         val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new SmbFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)

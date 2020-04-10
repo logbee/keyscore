@@ -8,7 +8,8 @@ import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation
 import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess, SMBApiException}
 import com.hierynomus.smbj.share.{Directory, DiskShare}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, DirNotOpenableException, OpenDirHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, DirNotOpenableException, OpenDirHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChangeListener
 import org.slf4j.LoggerFactory
 
 import scala.jdk.javaapi.CollectionConverters
@@ -21,10 +22,10 @@ class SmbDir private (path: String, share: DiskShare) extends DirHandle[SmbDir, 
   @throws[DirNotOpenableException]
   override def open[T](func: Try[OpenDirHandle[SmbDir, SmbFile]] => T): T = SmbDir.open(path, share)(func)
   
-  override def getDirChangeListener(): DirChangeListener[SmbDir, SmbFile] = new SmbDirChangeListener(this)
+  override def getDirChangeListener(): DirChangeListener[SmbDir, SmbFile] = new DirChangeListener(this)
   
   private val _absolutePath = SmbUtil.absolutePath(path)(share)
-  override def absolutePath = _absolutePath
+  override def absolutePath: String = _absolutePath
   
   def canEqual(other: Any): Boolean = other.isInstanceOf[SmbDir]
   
@@ -60,7 +61,7 @@ object SmbDir {
     
     try {
       smbDir = share.openDirectory(
-        if (path == "/" || path == "\\") "" else SmbUtil.relativePath(path)(share),
+        SmbUtil.relativePath(path)(share),
         EnumSet.of(AccessMask.GENERIC_READ),
         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
         SMB2ShareAccess.ALL,
@@ -93,6 +94,7 @@ object SmbDir {
     }
     
     override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = {
+      
       val subPaths = CollectionConverters.asScala(dir.list).toSet
         .filterNot(subPath =>
              subPath.getFileName.endsWith("\\.")
@@ -107,9 +109,9 @@ object SmbDir {
       subPaths.foreach { subPath =>
         try {
           if (isDirectory(subPath)) {
-            dirs = dirs :+ SmbDir(absolutePath + subPath.getFileName + "\\", share)
+            dirs = dirs :+ SmbDir(SmbUtil.joinPath(absolutePath, subPath.getFileName + "\\"), share)
           } else {
-            files = files :+ SmbFile(absolutePath + subPath.getFileName, share)
+            files = files :+ SmbFile(SmbUtil.joinPath(absolutePath, subPath.getFileName), share)
           }
         }
         catch {
@@ -117,19 +119,19 @@ object SmbDir {
             smbException.getStatus match {
               case NtStatus.STATUS_DELETE_PENDING =>
                 //this file/dir is being deleted, so don't add it to the listing
-                log.debug("Listed dir which is pending to be deleted.")
+                log.debug(s"Listed dir which is pending to be deleted: $dir")
                 
               case NtStatus.STATUS_OBJECT_NAME_NOT_FOUND =>
                 //this file/dir is already deleted, so don't add it to the listing
-                log.debug("Listed dir which does not exist.")
+                log.error(s"The dir to list or one of its contents does not exist.", smbException)
                 
               case _ =>
-                log.error("SMBApiException while listing files and dirs.", smbException)
+                log.error(s"SMBApiException while listing files and dirs for directory: $dir", smbException)
                 throw smbException
             }
             
           case otherException: Throwable =>
-            log.error("Uncaught exception while listing files and dirs: ", otherException)
+            log.error(s"Uncaught exception while listing files and dirs for directory: &dir", otherException)
             throw otherException
         }
       }

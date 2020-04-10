@@ -1,6 +1,5 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
-import java.nio.charset.{Charset, StandardCharsets}
 import java.time.Duration
 
 import akka.stream.SourceShape
@@ -17,22 +16,19 @@ import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic.Poll
+import io.logbee.keyscore.pipeline.contrib.tailin.FileSourceLogicBase.Poll
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirNotOpenableException
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle}
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RamPersistenceContext, ReadPersistence, ReadSchedule}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.read._
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException, WatcherProvider}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success}
 
 object SmbFileSourceLogic extends Described {
+  import io.logbee.keyscore.model.util.ToOption.T2OptionT
   
   val hostName = TextParameterDescriptor(
     ref = "source.smb.hostName",
@@ -135,16 +131,17 @@ object SmbFileSourceLogic extends Described {
         domainName,
         enableAuth,
         authGroup,
-        LocalFileSourceLogic.filePattern,
-        LocalFileSourceLogic.readMode,
-        LocalFileSourceLogic.firstLinePattern,
-        LocalFileSourceLogic.fieldName,
-        LocalFileSourceLogic.encoding,
-        LocalFileSourceLogic.rotationPattern,
-        LocalFileSourceLogic.postReadFileAction,
-        LocalFileSourceLogic.renamePostReadFileAction_string,
-        LocalFileSourceLogic.renamePostReadFileAction_append,
-        LocalFileSourceLogic.persistenceEnabled,
+        FileSourceLogicBase.filePattern,
+        FileSourceLogicBase.readMode,
+        FileSourceLogicBase.firstLinePattern,
+        FileSourceLogicBase.lastLinePattern,
+        FileSourceLogicBase.fieldName,
+        FileSourceLogicBase.encoding,
+        FileSourceLogicBase.rotationPattern,
+        FileSourceLogicBase.postReadFileAction,
+        FileSourceLogicBase.renamePostReadFileAction_string,
+        FileSourceLogicBase.renamePostReadFileAction_append,
+        FileSourceLogicBase.persistenceEnabled,
       ),
       icon = Icon.fromClass(classOf[SmbFileSourceLogic]),
       maturity = Maturity.Development
@@ -152,7 +149,7 @@ object SmbFileSourceLogic extends Described {
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic",
       Locale.ENGLISH, Locale.GERMAN
-    ) ++ CATEGORY_LOCALIZATION
+    ) ++ FileSourceLogicBase.LOCALIZATION ++ CATEGORY_LOCALIZATION
   )
 
   object Configuration {
@@ -164,20 +161,26 @@ object SmbFileSourceLogic extends Described {
       new Configuration(
         filePersistenceConfig = sub.getConfig("file-persistence-context"),
         pollInterval = sub.getDuration("poll-interval"),
+        pollTimeout = sub.getDuration("poll-error-timeout"),
         connectRetryInterval = sub.getDuration("connect-retry-interval"),
         baseDirNotFoundRetryInterval = sub.getDuration("base-dir-not-found-retry-interval"),
         readBufferSize = sub.getMemorySize("read-buffer-size").toBytes.toInt,
       )
     }
   }
-  case class Configuration(filePersistenceConfig: Config, pollInterval: FiniteDuration, connectRetryInterval: FiniteDuration, baseDirNotFoundRetryInterval: FiniteDuration, readBufferSize: Int)
-
-  private case object Poll
+  case class Configuration(filePersistenceConfig: Config, pollInterval: FiniteDuration, pollTimeout: Duration, connectRetryInterval: FiniteDuration, baseDirNotFoundRetryInterval: FiniteDuration, readBufferSize: Int)
 }
 
-class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
+class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends FileSourceLogicBase[SmbDir, SmbFile](parameters, shape) {
   
   private val config = SmbFileSourceLogic.Configuration(system.settings.config)
+  
+  
+  override val pollInterval: FiniteDuration = config.pollInterval
+  override val readBufferSize: Int = config.readBufferSize
+  override val filePersistenceConfig: Config = config.filePersistenceConfig
+  override val processChangesErrorTimeout: Duration = config.pollTimeout
+  override val persistenceFileIdentifier: String = classOf[SmbFileSourceLogic].getSimpleName
   
   private var hostName = SmbFileSourceLogic.hostName.defaultValue
   private var shareName = SmbFileSourceLogic.shareName.defaultValue
@@ -185,134 +188,53 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
   private var loginName = SmbFileSourceLogic.loginName.defaultValue
   private var password = SmbFileSourceLogic.password.defaultValue
   private var authenticationEnabled = SmbFileSourceLogic.enableAuth.defaultValue
-
-  //like LocalFileSourceLogic
-  private var filePattern = LocalFileSourceLogic.filePattern.defaultValue
-  private var readMode = ReadMode.Line.toString
-  private var firstLinePattern = LocalFileSourceLogic.firstLinePattern.defaultValue
-  private var fieldName = LocalFileSourceLogic.fieldName.defaultValue
-  private var encoding = StandardCharsets.UTF_8.toString
-  private var rotationPattern = LocalFileSourceLogic.rotationPattern.defaultValue
-  private var postFileReadAction = PostReadFileAction.None.toString
-  private var renamePostReadFileAction_string = LocalFileSourceLogic.renamePostReadFileAction_string.defaultValue
-  private var renamePostReadFileAction_append = LocalFileSourceLogic.RenameAppend.After.toString
-  private var persistenceEnabled = LocalFileSourceLogic.persistenceEnabled.defaultValue
-
+  
+  
   var connection: Connection = _
   var share: DiskShare = _
-
-  var dirWatcher: BaseDirWatcher = _
   
-  var sendBuffer: SendBuffer = _
-  var readPersistence: ReadPersistence = _
+  var dirWatcher: BaseDirWatcher = _
   
   var baseDirString: String = _
   var smbFilePattern: FileMatchPattern[SmbDir, SmbFile] = _
   
-  var readSchedulerProvider: WatcherProvider[SmbDir, SmbFile] = _
   var baseDir: SmbDir = _
-
-  override def initialize(configuration: Configuration): Unit = {
-    configure(configuration)
-  }
+  
   
   override def configure(configuration: Configuration): Unit = {
+    super.configure(configuration)
+    
     hostName = configuration.getValueOrDefault(SmbFileSourceLogic.hostName, hostName)
-		shareName = configuration.getValueOrDefault(SmbFileSourceLogic.shareName, shareName)
-		domainName = configuration.getValueOrDefault(SmbFileSourceLogic.domainName, domainName)
-
+    shareName = configuration.getValueOrDefault(SmbFileSourceLogic.shareName, shareName)
+    domainName = configuration.getValueOrDefault(SmbFileSourceLogic.domainName, domainName)
+    
     authenticationEnabled = configuration.getValueOrDefault(SmbFileSourceLogic.enableAuth, authenticationEnabled)
-
+    
     configuration.findValue(SmbFileSourceLogic.authGroup) match {
-
+      
       case Some(configuration: ParameterSet) if authenticationEnabled =>
         loginName = configuration.getValueOrDefault(SmbFileSourceLogic.loginName, loginName)
         password = configuration.getValueOrDefault(SmbFileSourceLogic.password, password)
-
+      
       case _ =>
         loginName = ""
         password = ""
     }
-
-		//like LocalFileSourceLogic
-    filePattern = configuration.getValueOrDefault(LocalFileSourceLogic.filePattern, filePattern)
-    readMode = configuration.getValueOrDefault(LocalFileSourceLogic.readMode, readMode)
-    firstLinePattern = configuration.getValueOrDefault(LocalFileSourceLogic.firstLinePattern, firstLinePattern)
-    fieldName = configuration.getValueOrDefault(LocalFileSourceLogic.fieldName, fieldName)
-    encoding = configuration.getValueOrDefault(LocalFileSourceLogic.encoding, encoding)
-    rotationPattern = configuration.getValueOrDefault(LocalFileSourceLogic.rotationPattern, rotationPattern)
-    postFileReadAction = configuration.getValueOrDefault(LocalFileSourceLogic.postReadFileAction, postFileReadAction)
-    renamePostReadFileAction_string = configuration.getValueOrDefault(LocalFileSourceLogic.renamePostReadFileAction_string, renamePostReadFileAction_string)
-    renamePostReadFileAction_append = configuration.getValueOrDefault(LocalFileSourceLogic.renamePostReadFileAction_append, renamePostReadFileAction_append)
-    persistenceEnabled = configuration.getValueOrDefault(LocalFileSourceLogic.persistenceEnabled, persistenceEnabled)
-
-    readPersistence = new ReadPersistence(completedPersistence = new RamPersistenceContext(),
-                                          committedPersistence = FilePersistenceContext(
-                                            FilePersistenceContext.Configuration(
-                                              config.filePersistenceConfig,
-                                              persistenceEnabled,
-                                              s"${classOf[SmbFileSourceLogic].getSimpleName}-${parameters.uuid}"
-                                            )
-                                          ))
-
-    var exclusionPattern = ""
-
-    import LocalFileSourceLogic.RenameAppend
-    val postFileReadActions: Seq[FileHandle => Unit] =
-      if (postFileReadAction.isEmpty)
-        Seq.empty
-      else {
-        PostReadFileAction.fromString(postFileReadAction) match {
-          case PostReadFileAction.None => Seq.empty
-          
-          case PostReadFileAction.Delete => Seq(file => file.delete() match {
-            case Success(_) => log.debug(s"Deleted file '${file.absolutePath}'")
-            case Failure(ex) => log.error(ex, "Could not delete file '{}': {}", file)
-          })
-          
-          case PostReadFileAction.Rename =>
-            
-            if (renamePostReadFileAction_append.isEmpty) {
-              val message = "When 'Rename' is selected as Post Read File Action, you need to specify whether the string should be appended before or after the file name."
-              log.error(message)
-              fail(out, new IllegalArgumentException(message))
-              return
-            }
-            
-            (RenameAppend.withName(renamePostReadFileAction_append), renamePostReadFileAction_string) match {
-              case (_, "") | (_, null) => Seq.empty
-              case (RenameAppend.Before, string) => {
-                exclusionPattern = "**/" + string + "*"
-
-                Seq(file => file.open {
-                  case Success(openFile) => file.move(openFile.parent + string + openFile.name)
-                  case Failure(ex) => log.error(ex, "Could not rename file '{}': {}", file)
-                })
-              }
-              case (RenameAppend.After, string) => {
-                exclusionPattern = "**/*" + string
-
-                Seq(file => file.open {
-                  case Success(openFile) => file.move(openFile.parent + openFile.name + string)
-                  case Failure(ex) => log.error(ex, "Could not rename file '{}': {}", file)
-                })
-              }
-              case (_, _) => Seq.empty
-            }
-        }
-      }
-
+    
+    
     var filePatternWithoutLeadingSlashes = filePattern.replace('/', '\\') //transform any forward slashes to backward slashes -> SMB/Windows paths cannot contain forward slashes, so this should be safe
     while (filePatternWithoutLeadingSlashes.startsWith("/") || filePatternWithoutLeadingSlashes.startsWith("\\")) {
       filePatternWithoutLeadingSlashes = filePatternWithoutLeadingSlashes.substring(1)
     }
     
-        val absoluteFilePattern = s"\\\\$hostName\\$shareName\\$filePatternWithoutLeadingSlashes"
+    
+    val exclusionPattern = "" //Currently unused, may be exposed in the UI in future
+    val absoluteFilePattern = s"\\\\$hostName\\$shareName\\$filePatternWithoutLeadingSlashes"
     val absoluteExclusionPattern = s"\\\\$hostName\\$shareName\\$exclusionPattern"
-     
+    
     smbFilePattern = new FileMatchPattern[SmbDir, SmbFile](absoluteFilePattern,
                                                            absoluteExclusionPattern)
-
+    
     //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
     FileMatchPattern.extractInvariableDir(absoluteFilePattern, "\\") match {
       case None =>
@@ -320,99 +242,57 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
         log.error(message)
         fail(out, new IllegalArgumentException(message))
         return
-        
+
       case Some(baseDirString) =>
         this.baseDirString = baseDirString
         log.debug("Selecting '{}' as base directory to start the first DirWatcher in.", baseDirString)
     }
-    
-    val readSchedule = new ReadSchedule()
-    val fileReaderProvider = new FileReaderProvider(rotationPattern, config.readBufferSize, Charset.forName(encoding), ReadMode.fromString(readMode), firstLinePattern, postFileReadActions)
-    
-    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
-    sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
-    
-    readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
   }
   
-  override def postStop(): Unit = {
-    log.info(s"${classOf[SmbFileSourceLogic].getSimpleName} is stopping.")
-
-    if (share != null) {
-      share.close()
-    }
-    
-    if (connection != null) {
-      connection.close()
-    }
-  }
-
   override def onTimer(timerKey: Any): Unit = {
     
     timerKey match {
       case Poll => onPull()
     }
   }
-
-  private def doPush(): Unit = {
-    val fileReadDataOpt = sendBuffer.getNextElement
-    
-    fileReadDataOpt match {
-
-      case None =>
-        scheduleOnce(timerKey = Poll, config.pollInterval)
-
-      case Some(fileReadData) =>
-        val outData = Dataset(
-          records = List(Record(
-            fields = List(
-              Field(fieldName, TextValue(fileReadData.readData)),
-              Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
-              Field("file.modified-timestamp", TimestampValue(fileReadData.writeTimestamp / 1000, (fileReadData.writeTimestamp % 1000 * 1000000).asInstanceOf[Int])),
-            )
-          ))
-        )
-        push(out, outData)
-        readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp, fileReadData.newerFilesWithSharedLastModified))
-    }
-  }
-
+  
+  
   override def onPull(): Unit = {
-
-    if (connectionNotReady) {
+    
+    if (connection == null || !connection.isConnected) {
       setupConnection()
       return
     }
-
-    if (shareNotReady) {
+    
+    if (share == null || !share.isConnected) {
       setupShare()
       return
     }
-
+    
     if (baseDir == null) {
       setupSmbBaseDir()
       return
     }
-
+    
     if (dirWatcher == null) {
       setupDirWatcher()
       return
     }
-
+    
     if (!sendBuffer.isEmpty) {
       doPush()
     }
     else {
-      try {
-        dirWatcher.processChanges()
-        scheduleOnce(timerKey = Poll, config.pollInterval)
+      dirWatcher.processChanges() match {
+        case Success(_) =>
+        case Failure(_: WatchDirNotFoundException) => setupSmbBaseDir()
+        case Failure(ex) => fail(out, ex)
       }
-      catch {
-        case _: WatchDirNotFoundException => setupSmbBaseDir()
-      }
+      
+      scheduleOnce(timerKey = Poll, config.pollInterval)
     }
   }
-
+  
   private def setupConnection(): Unit = {
     val client = new SMBClient()
     try {
@@ -447,7 +327,7 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
         }
     }
   }
-
+  
   private def setupSmbBaseDir(): Unit = {
     
     try {
@@ -457,20 +337,20 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
     catch {
       case ex: SMBApiException =>
         if (ex.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND
-         || ex.getStatus == NtStatus.STATUS_OBJECT_PATH_NOT_FOUND) { //occurs when not even the parent directory exists
+        ||  ex.getStatus == NtStatus.STATUS_OBJECT_PATH_NOT_FOUND) { //occurs when not even the parent directory exists
           log.error(ex, s"The determined base directory '$baseDirString' does not exist. Retrying in ${config.baseDirNotFoundRetryInterval}.")
         }
         else {
           log.error(ex, s"Error while trying to open the determined base directory '$baseDirString'. Retrying in ${config.baseDirNotFoundRetryInterval}.")
         }
-
+  
         scheduleOnce(Poll, config.baseDirNotFoundRetryInterval)
     }
   }
-
+  
   private def setupDirWatcher(): Unit = {
     try {
-      dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, smbFilePattern)
+      dirWatcher = watcherProvider.createDirWatcher(baseDir, smbFilePattern)
       onPull()
     }
     catch {
@@ -479,12 +359,17 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
         scheduleOnce(Poll, config.baseDirNotFoundRetryInterval)
     }
   }
-
-  private def connectionNotReady: Boolean = {
-    connection == null || !connection.isConnected
-  }
-
-  private def shareNotReady: Boolean = {
-    share == null || !share.isConnected
+  
+  
+  override def postStop(): Unit = {
+    super.postStop()
+    
+    if (share != null) {
+      share.close()
+    }
+    
+    if (connection != null) {
+      connection.close()
+    }
   }
 }

@@ -3,7 +3,8 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 import java.nio.file.Path
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalDir.OpenLocalDir
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, DirNotOpenableException, OpenDirHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, DirNotOpenableException, OpenDirHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChangeListener
 
 import scala.util.{Success, Try}
 
@@ -12,7 +13,7 @@ class LocalDir private (val localDir: Path) extends DirHandle[LocalDir, LocalFil
   @throws[DirNotOpenableException]
   override def open[T](func: Try[OpenDirHandle[LocalDir, LocalFile]] => T): T = func(Success(new OpenLocalDir(localDir)))
 
-  override def getDirChangeListener(): DirChangeListener[LocalDir, LocalFile] = new LocalDirChangeListener(this)
+  override def getDirChangeListener(): DirChangeListener[LocalDir, LocalFile] = new DirChangeListener(this)
 
   override def absolutePath: String = localDir.toAbsolutePath.toString
   

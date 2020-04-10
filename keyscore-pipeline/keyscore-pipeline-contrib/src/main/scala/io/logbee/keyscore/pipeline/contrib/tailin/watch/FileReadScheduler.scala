@@ -5,21 +5,22 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{ReadPersistence, 
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper.ListRotatedFilesException
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileReadScheduler.FileInfo
 import org.slf4j.LoggerFactory
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-object ReadScheduler {
+object FileReadScheduler {
   case class FileInfo(file: FileHandle, name: String, lastModified: Long, length: Long)
 }
 
-class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileEventHandler {
-  private lazy val log = LoggerFactory.getLogger(classOf[ReadScheduler])
-
+class FileReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileEventHandler {
+  private lazy val log = LoggerFactory.getLogger(classOf[FileReadScheduler])
+  
   private var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
-
-  def processChanges(): Unit = {
+  
+  
+  def processChanges(): Try[Unit] = {
     
     val (baseFileWithInfo, filesToRead) = baseFile.open {
       case Success(openBaseFile) =>
@@ -30,12 +31,12 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
             RotationHelper.getRotationFilesToRead(openBaseFile, baseFileWithInfo, rotationPattern, previouslyScheduled)
           }
           catch {
-            case ListRotatedFilesException(_, _) => return
+            case ex: ListRotatedFilesException => return Failure(ex)
           }
         )
       case Failure(ex) =>
         log.error(s"Failed to open base file: $baseFile", ex)
-        return
+        return Failure(ex)
     }
 
     //baseFile can still be written to, meaning its lastModified-timestamp could change at any point in the future
@@ -52,7 +53,7 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
     }
     
     if (filesToSchedule.isEmpty)
-      return
+      return Success(())
     
     
     //check for files which have the same lastModified-time (which we need to differentiate in order to tell them apart)
@@ -84,11 +85,9 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
           startPos = 0 //if there's multiple files, read the next files from the start
         }
     }
+    
+    Success(())
   }
-
-  override def pathDeleted(): Unit = tearDown()
-
-  override def tearDown(): Unit = {}
 }
 
 

@@ -1,18 +1,31 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.mssmb2.SMBApiException
 import io.logbee.keyscore.pipeline.contrib.tailin.file._
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatchDirNotFoundException
 import org.slf4j.LoggerFactory
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-class SmbDirChangeListener(dir: SmbDir) extends DirChangeListener[SmbDir, SmbFile](dir) {
+
+case class DirChanges[D <: DirHandle[D, F], F <: FileHandle](
+   newlyCreatedDirs: Seq[D],
+   newlyCreatedFiles: Seq[F],
+   deletedPaths: Seq[_ <: PathHandle],
+   potentiallyModifiedDirs: Seq[D],
+   potentiallyModifiedFiles: Seq[F],
+)
+
+
+class DirChangeListener[
+    D <: DirHandle[D, F],
+    F <: FileHandle
+  ]
+  (dir: D) {
   
-  private lazy val log = LoggerFactory.getLogger(classOf[SmbDirChangeListener])
+  private lazy val log = LoggerFactory.getLogger(classOf[DirChangeListener[D, F]])
   
-  private var (previousSubDirs, previousSubFiles): (Seq[SmbDir], Seq[SmbFile]) = //TODO get this from persistence
+  private var (previousSubDirs, previousSubFiles): (Seq[D], Seq[F]) = //TODO get this from persistence
     dir.open {
       case Success(dir) => dir.listDirsAndFiles
       case Failure(ex) =>
@@ -22,16 +35,11 @@ class SmbDirChangeListener(dir: SmbDir) extends DirChangeListener[SmbDir, SmbFil
   
   
   
-  override def getChanges: DirChanges[SmbDir, SmbFile] = {
-
-    var changes: DirChanges[SmbDir, SmbFile] = null
-    
+  def computeChanges: Try[DirChanges[D, F]] = {
     try {
-      val (currentSubDirs, currentSubFiles): (Seq[SmbDir], Seq[SmbFile]) = dir.open {
+      val (currentSubDirs, currentSubFiles): (Seq[D], Seq[F]) = dir.open {
         case Success(dir) => dir.listDirsAndFiles
-        case Failure(ex) =>
-          log.warn(s"Could not retrieve subDirs and subFiles for '$dir'. Assuming no changes from previous listing.", ex)
-          (previousSubDirs, previousSubFiles)
+        case Failure(ex) => return Failure(ex)
       }
       
       //determine dir-changes
@@ -48,12 +56,15 @@ class SmbDirChangeListener(dir: SmbDir) extends DirChangeListener[SmbDir, SmbFil
   
       previousSubFiles = currentSubFiles
       
-      changes = DirChanges(
-        newlyCreatedDirs,
-        newlyCreatedFiles,
-        deletedPaths,
-        dirsContinuingToExist,
-        filesContinuingToExist,
+      
+      Success(
+        DirChanges(
+          newlyCreatedDirs,
+          newlyCreatedFiles,
+          deletedPaths,
+          dirsContinuingToExist,
+          filesContinuingToExist,
+        )
       )
     }
     catch {
@@ -61,16 +72,11 @@ class SmbDirChangeListener(dir: SmbDir) extends DirChangeListener[SmbDir, SmbFil
         ex.getStatus match {
           case NtStatus.STATUS_OBJECT_NAME_NOT_FOUND =>
             log.error(ex.getMessage)
-            throw WatchDirNotFoundException()
+            Failure(WatchDirNotFoundException())
 
           case _ =>
-            throw ex
+            Failure(ex)
         }
     }
-    
-    changes
   }
-  
-  
-  override def tearDown(): Unit = {}
 }

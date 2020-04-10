@@ -5,6 +5,7 @@ import java.nio.file.Paths
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.openLocalFile2File
 import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChangeListener
 import org.junit.runner.RunWith
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
@@ -15,7 +16,7 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
   trait LocalDirChangeListenerSetup {
     implicit val charset = StandardCharsets.UTF_8
 
-    val localDirChangeListener = new LocalDirChangeListener(LocalDir(watchDir))
+    val localDirChangeListener = new DirChangeListener[LocalDir, LocalFile](LocalDir(watchDir))
   }
   
   
@@ -28,14 +29,14 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
-        localDirChangeListener.getChanges.newlyCreatedDirs should contain (LocalDir(subDir))
+        localDirChangeListener.computeChanges.get.newlyCreatedDirs should contain (LocalDir(subDir))
       }
       
       
       "when a file gets created" in
       new LocalDirChangeListenerSetup {
         TestUtil.withOpenLocalFile(watchDir, "testFile.txt", "Hello World!") { subFile =>
-          localDirChangeListener.getChanges.newlyCreatedFiles should contain (LocalFile(subFile))
+          localDirChangeListener.computeChanges.get.newlyCreatedFiles should contain (LocalFile(subFile))
         }
       }
       
@@ -46,12 +47,12 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
-        localDirChangeListener.getChanges //make these changes the current state
+        localDirChangeListener.computeChanges //make these changes the current state
         
         subDir.toFile.delete()
         TestUtil.waitForFileToBeDeleted(subDir.toFile)
         
-        val changes = localDirChangeListener.getChanges
+        val changes = localDirChangeListener.computeChanges.get
         
         changes.newlyCreatedDirs shouldBe empty
         changes.deletedPaths should contain (LocalDir(subDir))
@@ -62,15 +63,15 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
       new LocalDirChangeListenerSetup {
         TestUtil.withOpenLocalFile(watchDir, "testFile.txt", "Hello World!") { subFile =>
         
-          localDirChangeListener.getChanges //make these changes the current state
+          localDirChangeListener.computeChanges //make these changes the current state
 
           subFile.delete()
           TestUtil.waitForFileToBeDeleted(subFile)
 
-          val changes = localDirChangeListener.getChanges
+          val changes = localDirChangeListener.computeChanges.get
 
           changes.newlyCreatedFiles shouldBe empty
-          changes.deletedPaths should contain (LocalDir(subFile.toPath)) //gets converted to a LocalDir, because we can't check after deletion whether the deleted path contained a dir or a file
+          changes.deletedPaths should contain (LocalFile(subFile))
         }
       }
       
@@ -81,10 +82,10 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
-        val nonChanges = localDirChangeListener.getChanges //make these changes the current state
+        val nonChanges = localDirChangeListener.computeChanges.get //make these changes the current state
         nonChanges.newlyCreatedDirs should contain (LocalDir(subDir))
         
-        val changes = localDirChangeListener.getChanges
+        val changes = localDirChangeListener.computeChanges.get
         
         changes.potentiallyModifiedDirs should contain (LocalDir(subDir))
       }
@@ -94,12 +95,12 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
       new LocalDirChangeListenerSetup {
         TestUtil.withOpenLocalFile(watchDir, "testFile.txt", "foo") { subFile =>
 
-          localDirChangeListener.getChanges //make these changes the current state
+          localDirChangeListener.computeChanges //make these changes the current state
 
           TestUtil.writeStringToFile(subFile, "bar")
           TestUtil.waitForWatchService()
 
-          val changes = localDirChangeListener.getChanges
+          val changes = localDirChangeListener.computeChanges.get
 
           changes.potentiallyModifiedFiles should contain (LocalFile(subFile))
         }
@@ -111,11 +112,11 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
       new LocalDirChangeListenerSetup {
         TestUtil.withOpenLocalFile(watchDir, "testFile.txt", "foo") { subFile =>
 
-          localDirChangeListener.getChanges //make these changes the current state
+          localDirChangeListener.computeChanges //make these changes the current state
 
           TestUtil.withOpenLocalFile(watchDir, "testFile2.txt", "bar") { subFile2 =>
 
-            val changes = localDirChangeListener.getChanges
+            val changes = localDirChangeListener.computeChanges.get
 
             changes.newlyCreatedFiles should not contain (LocalFile(subFile))
             changes.newlyCreatedFiles should contain (LocalFile(subFile2))
@@ -125,15 +126,14 @@ class LocalDirChangeListenerSpec extends SpecWithTempDir with Matchers {
       
       
       
-      //TODO this test can't be made to work, as the Java WatchService API will return just the deletion event -> make the DirWatcher resilient for files being deleted that never existed
-      "when a path gets created and deleted in between polls" ignore
+      "when a path gets created and deleted in between polls" in
       new LocalDirChangeListenerSetup {
         TestUtil.withOpenLocalFile(watchDir, "testFile.txt", "Hello World!") { subFile =>
 
           subFile.delete()
           TestUtil.waitForFileToBeDeleted(subFile)
 
-          val changes = localDirChangeListener.getChanges
+          val changes = localDirChangeListener.computeChanges.get
 
           changes.newlyCreatedFiles shouldBe empty
           changes.deletedPaths shouldBe empty

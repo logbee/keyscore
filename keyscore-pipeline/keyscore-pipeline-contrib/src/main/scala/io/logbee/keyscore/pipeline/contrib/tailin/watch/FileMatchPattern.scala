@@ -57,7 +57,7 @@ object FileMatchPattern {
     var _fullFilePattern = fullFilePattern
       .replace("\\\\", "/").replace("//", "/") //replace "\\" at the start of SMB-paths with just a /
       .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
-
+    
     if (_fullFilePattern.charAt(0) != '/') {
       _fullFilePattern = "/" + _fullFilePattern
     }

@@ -1,5 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file
 
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChangeListener
+
 import scala.util.Try
 
 case class DirNotOpenableException(message: String, throwable: Throwable) extends RuntimeException(message, throwable)

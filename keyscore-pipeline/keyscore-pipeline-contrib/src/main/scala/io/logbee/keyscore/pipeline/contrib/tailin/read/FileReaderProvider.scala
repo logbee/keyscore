@@ -3,10 +3,11 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 import java.nio.charset.Charset
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.read.PostReadFileAction.PostReadFileActionFunc
 
-class FileReaderProvider(rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, firstLinePattern: String, fileCompleteActions: Seq[FileHandle => Unit])  {
+class FileReaderProvider(byteBufferSize: Int, charset: Charset, readMode: ReadMode, postReadFileActionFunc: PostReadFileActionFunc)  {
   
   def create(file: FileHandle): FileReader = {
-    new FileReader(file, rotationPattern, byteBufferSize, charset, readMode, firstLinePattern, fileCompleteActions)
+    new FileReader(file, byteBufferSize, charset, readMode, postReadFileActionFunc)
   }
 }

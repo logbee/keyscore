@@ -1,10 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
-import java.nio.{ByteBuffer, CharBuffer}
+import java.nio.{Buffer, ByteBuffer, CharBuffer}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
+import io.logbee.keyscore.pipeline.contrib.tailin.read.PostReadFileAction.PostReadFileActionFunc
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
 import org.slf4j.LoggerFactory
 
@@ -45,10 +46,7 @@ object FileReader {
   }
 }
 
-/**
- * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
- */
-class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, firstLinePattern: String = ".*", fileCompleteActions: Seq[FileHandle => Unit]) {
+class FileReader(fileToRead: FileHandle, byteBufferSize: Int, charset: Charset, readMode: ReadMode, postReadFileActionFunc: PostReadFileActionFunc) {
   
   import FileReader.{BytePos, CharPos}
   
@@ -62,11 +60,20 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   private val byteBuffer = ByteBuffer.allocate(byteBufferSize)
 
+
   private var readDataToCallback = ""
+  
+  
+  /**
+    * In MultiLine-mode, whether data should be added to be called back (pushed).
+    * 
+    * This is not the case when the firstLinePattern has not been found yet
+    * or after the lastLinePattern in MultiLineWithEnd-mode (before the next firstLinePattern is found).
+    */
+  private var multiLineAddToCallbackEnabled = false
+  
 
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem): Unit = {
-
-    log.debug("Reading from {}.", fileToRead)
 
     val readEndPos = BytePos(readScheduleItem.endPos)
     var bufferStartPos = BytePos(readScheduleItem.startPos)
@@ -74,28 +81,29 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     fileToRead.open {
 
       case Success(file) =>
+        log.debug("Reading from {}.", fileToRead)
 
         while (bufferStartPos < readEndPos) {
 
           //we're reading and persisting byte-positions, because the variable byte-length of encoded chars means that we
           //can't resume at the saved char-position without decoding every single char before it (to find out its byte-length)
 
-          byteBuffer.clear()
+          byteBuffer.asInstanceOf[Buffer].clear() //casting to Buffer fixes compiling issues with JDK9
           val newBufferLimit = (readEndPos - bufferStartPos).value.asInstanceOf[Int]
           if (newBufferLimit < byteBufferSize)
-            byteBuffer.limit(newBufferLimit) //set the limit to the end of what it should read out
+            byteBuffer.asInstanceOf[Buffer].limit(newBufferLimit) //set the limit to the end of what it should read out
 
           var bytesRead = BytePos(file.read(byteBuffer, bufferStartPos.value))
 
-          byteBuffer.rewind()
+          byteBuffer.asInstanceOf[Buffer].rewind()
 
-          charBuffer.clear()
+          charBuffer.asInstanceOf[Buffer].clear()
           decoder.reset()
           val coderResult = decoder.decode(byteBuffer, charBuffer, true)
 
           if (coderResult.isMalformed) {
 
-            if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
+            if (byteBuffer.position() + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
               bytesRead -= BytePos(coderResult.length)
             }
             else { //actual error case
@@ -103,7 +111,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
             }
           }
 
-          charBuffer.flip()
+          charBuffer.asInstanceOf[Buffer].flip()
 
           processBufferContents(
             charBuffer,
@@ -134,19 +142,19 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     var completedBytePositionWithinBuffer = BytePos(0)
 
     readMode match {
-      case ReadMode.Line | ReadMode.MultiLine => {
+      case ReadMode.Line | ReadMode.MultiLine(_) | ReadMode.MultiLineWithEnd(_, _) => {
 
         var completedCharPositionWithinBuffer = CharPos(0)
 
-        while (charBuffer.position < charBuffer.limit) {
+        while (charBuffer.position() < charBuffer.limit()) {
           //check for the occurrence of \n or \r, as we do linewise reading
           val char = charBuffer.get() //sets pos to pos+1
 
           if (char == '\n' || char == '\r') {
 
-            charBuffer.position(charBuffer.position - 1)
+            charBuffer.asInstanceOf[Buffer].position(charBuffer.position() - 1)
 
-            val firstNewline = CharPos(charBuffer.position)
+            val firstNewline = CharPos(charBuffer.position())
 
             val endOfNewlines: CharPos = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewline)
             val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, completedCharPositionWithinBuffer, endOfNewlines)
@@ -154,12 +162,12 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
 
             completedCharPositionWithinBuffer += CharPos(stringWithNewlines.length)
             
-
-
+            
+            
             readMode match {
               case ReadMode.Line => {
                 readDataToCallback += string
-                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
                 doCallback(
                   callback,
                   bufferStartPositionInFile + completedBytePositionWithinBuffer,
@@ -167,38 +175,93 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
                   absolutePath,
                 )
               }
-              case ReadMode.MultiLine => {
-                if (string.matches(firstLinePattern)) {
-                  doCallback( //callback the previously read lines
+              case ReadMode.MultiLine(firstLineRegex) if multiLineAddToCallbackEnabled == false => { //disabled when starting to read a file, gets enabled when the first line matching firstLinePattern is found
+                string match {
+                  case firstLineRegex() =>
+                    multiLineAddToCallbackEnabled = true
+                    readDataToCallback += stringWithNewlines
+                }
+                
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+              }
+              case ReadMode.MultiLine(firstLineRegex) if multiLineAddToCallbackEnabled == true => {
+                string match {
+                  case firstLineRegex() =>
+                    doCallback( //callback the previously read lines
                     callback,
                     bufferStartPositionInFile + completedBytePositionWithinBuffer,
                     readScheduleItem,
                     absolutePath,
                   )
+                  case _ => //do nothing
                 }
+                
                 readDataToCallback += stringWithNewlines
-                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+              }
+              case ReadMode.MultiLineWithEnd(firstLineRegex, _) if multiLineAddToCallbackEnabled == false => { //disabled at the beginning of the file, and between finding a line matching lastLinePattern and finding a line matching firstLinePattern
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+                string match {
+                  case firstLineRegex() =>
+                    doCallback( //callback the previously read lines
+                      callback,
+                      bufferStartPositionInFile + completedBytePositionWithinBuffer,
+                      readScheduleItem,
+                      absolutePath
+                    )
+                    multiLineAddToCallbackEnabled = true
+                    readDataToCallback += stringWithNewlines
+                  case _ => //do nothing
+                }
+              }
+              case ReadMode.MultiLineWithEnd(firstLineRegex, lastLineRegex) if multiLineAddToCallbackEnabled == true => {
+                string match {
+                  case firstLineRegex() => {
+                    doCallback( //callback the previously read lines
+                      callback,
+                      bufferStartPositionInFile + completedBytePositionWithinBuffer,
+                      readScheduleItem,
+                      absolutePath
+                    )
+                    
+                    readDataToCallback += stringWithNewlines
+                    completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+                  }
+                  case lastLineRegex() => {
+                    readDataToCallback += string
+                    completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+                    
+                    multiLineAddToCallbackEnabled = false
+                  }
+                  case _ => {
+                    if (multiLineAddToCallbackEnabled) {
+                      readDataToCallback += stringWithNewlines
+                    }
+                    
+                    completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit())
+                  }
+                }
               }
               case ReadMode.File => ??? //match-case above should never allow this to be triggered
             }
             
-            charBuffer.position(endOfNewlines.value)
+            charBuffer.asInstanceOf[Buffer].position(endOfNewlines.value)
           }
         }
 
         //if end of buffer reached without finding another newline
-        charBuffer.position(completedCharPositionWithinBuffer.value) //reset to the previous written position, so that the rest of the buffer can be read out
+        charBuffer.asInstanceOf[Buffer].position(completedCharPositionWithinBuffer.value) //reset to the previous written position, so that the rest of the buffer can be read out
       }
       case ReadMode.File => {
         //do nothing here (read out rest of buffer below)
-        charBuffer.position(0)
+        charBuffer.asInstanceOf[Buffer].position(0)
       }
     }
 
     //read out rest of buffer
-    if (charBuffer.limit - charBuffer.position > 0) {
-      val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position), CharPos(charBuffer.limit))
-      completedBytePositionWithinBuffer += BytePos(charset.encode(string).limit)
+    if (charBuffer.limit() - charBuffer.position() > 0) {
+      val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position()), CharPos(charBuffer.limit()))
+      completedBytePositionWithinBuffer += BytePos(charset.encode(string).limit())
       
       readDataToCallback += string
     }
@@ -215,7 +278,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     
 
     if (completedPositionInFile == BytePos(fileLength))
-      fileCompleteActions.foreach(action => action(fileToRead))
+      postReadFileActionFunc(fileToRead)
   }
 
   private def doCallback(callback: FileReadData => Unit, readEndPos: BytePos, readScheduleItem: ReadScheduleItem, absolutePath: String): Unit = {
