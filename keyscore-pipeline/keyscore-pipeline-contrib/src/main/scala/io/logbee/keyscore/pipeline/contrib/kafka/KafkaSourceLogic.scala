@@ -13,7 +13,6 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.metrics.NumberGaugeMetricDescriptor
-import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
@@ -23,6 +22,7 @@ import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeser
 import scala.util.{Failure, Success}
 
 object KafkaSourceLogic extends Described {
+  import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
   val serverParameter = TextParameterDescriptor(
     ref = "kafka.source.server",
@@ -144,11 +144,6 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
 
   private var queue: SinkQueueWithCancel[Dataset] = _
 
-  private var server = ""
-  private var port = portParameter.defaultValue
-  private var groupID = ""
-  private var offsetConfig = ""
-  private var topic = ""
   private var fieldName = fieldNameParameter.defaultValue
 
   private val pushAsync = getAsyncCallback[Dataset] { dataset =>
@@ -162,17 +157,17 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
   }
 
   override def postStop(): Unit = {
+    super.postStop()
     tearDown()
-    log.info("Kafka source is stopping.")
   }
 
   override def configure(configuration: Configuration): Unit = {
 
-    server = configuration.getValueOrDefault(serverParameter, server)
-    port = configuration.getValueOrDefault(portParameter, port)
-    groupID = configuration.getValueOrDefault(groupIdParameter, groupID)
-    offsetConfig = configuration.getValueOrDefault(offsetParameter, offsetConfig)
-    topic = configuration.getValueOrDefault(topicParameter, topic)
+    val server = configuration.getValueOrDefault(serverParameter, "")
+    val port = configuration.getValueOrDefault(portParameter, portParameter.defaultValue)
+    val groupID = configuration.getValueOrDefault(groupIdParameter, "")
+    val offsetConfig = configuration.getValueOrDefault(offsetParameter, "")
+    val topicPattern = configuration.getValueOrDefault(topicParameter, "")
     fieldName = configuration.getValueOrDefault(fieldNameParameter, fieldName)
 
     tearDown()
@@ -183,7 +178,7 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
         groupID = groupID,
         offsetConfig = offsetConfig
       ),
-      Subscriptions.topics(topic)
+      Subscriptions.topicPattern(topicPattern)
     )
   }
 
@@ -201,21 +196,20 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
       .withBootstrapServers(bootstrapServer)
       .withGroupId(groupID)
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetConfig)
-      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
+      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
   }
 
   private def createSinkQueue(settings: ConsumerSettings[Array[Byte], String], subscription: Subscription): SinkQueueWithCancel[Dataset] = {
 
-    Consumer.committableSource(settings, subscription).map { message =>
-
+    Consumer.plainSource(settings, subscription).map { record =>
       Dataset(
         MetaData(
-          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_TOPIC", TextValue(message.record.topic())),
-          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_PARTITION", NumberValue(message.record.partition())),
-          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_OFFSET", NumberValue(message.record.offset())),
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_TOPIC", TextValue(record.topic())),
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_PARTITION", NumberValue(record.partition())),
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_OFFSET", NumberValue(record.offset())),
         ),
         Record(
-          Field(fieldName, TextValue(message.record.value()))
+          Field(fieldName, TextValue(record.value()))
         )
       )
 
