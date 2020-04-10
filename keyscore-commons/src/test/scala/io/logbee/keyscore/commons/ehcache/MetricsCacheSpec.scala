@@ -7,13 +7,14 @@ import com.google.protobuf.timestamp.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 import io.logbee.keyscore.model.data.TimestampValue
-import io.logbee.keyscore.model.metrics.{CounterMetric, NumberGaugeMetric, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{CounterMetric, MetricsCollection, NumberGaugeMetric}
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class MetricsCacheSpec extends FreeSpec with Matchers {
+class MetricsCacheSpec extends AnyFreeSpec with Matchers {
 
   val id01: UUID = UUID.fromString("edf7758a-9c90-4a18-94bd-87acf5ca6ecb")
   val id02: UUID = UUID.fromString("40407701-e79b-43f0-aad3-65709c3578fc")

@@ -7,7 +7,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, ParallelTestExecution}
+import org.scalatest.ParallelTestExecution
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

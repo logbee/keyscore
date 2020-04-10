@@ -5,10 +5,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.Matchers
-import org.scalatest.junit.JUnitRunner
-
-import scala.reflect.runtime.universe._
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFactory {

@@ -4,12 +4,13 @@ import java.time.ZoneId
 
 import io.logbee.keyscore.model.data.{Field, TextValue, TimestampValue}
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])
-class TextToTimestampDirectiveSpec extends FreeSpec with Matchers {
+class TextToTimestampDirectiveSpec extends AnyFreeSpec with Matchers {
 
   val samples = Seq(
     ("yyyy-MM-dd HH:mm:ss", "2019-02-15 17:52:14", None, TimestampValue(1550253134)),

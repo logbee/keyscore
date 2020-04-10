@@ -9,12 +9,13 @@ import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.{Registrar, Se
 import io.logbee.keyscore.model.util.Reflection.Object2ExtendedObject
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])
-class RegistrarMessageSerializerSpec extends FreeSpec with Matchers {
+class RegistrarMessageSerializerSpec extends AnyFreeSpec with Matchers {
 
   "A RegistrarMessageSerializer" - {
 

@@ -11,7 +11,7 @@ import org.json4s._
 import org.json4s.native.JsonMethods._
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 import org.springframework.http.HttpStatus
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))

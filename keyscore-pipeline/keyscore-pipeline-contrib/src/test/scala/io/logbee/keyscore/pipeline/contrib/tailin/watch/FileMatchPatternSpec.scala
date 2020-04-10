@@ -4,11 +4,13 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.{OpenDirHandle, OpenFileH
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.{OpenableMockDirHandle, OpenableMockFileHandle}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
+class FileMatchPatternSpec extends AnyFreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
 
   "A FileMatchPattern" - {
     

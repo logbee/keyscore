@@ -8,13 +8,14 @@ import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class PatternExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class PatternExtractorLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   "A GrokFilter" - {
 
@@ -54,6 +55,22 @@ class PatternExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures
           BooleanParameter(autoDetectParameter, false)
         ))),
         title = "when configured with disabled auto-detection, should extract data into TextValues"
+      ),
+      Fixture(
+        Dataset(Record(Field("message", TextValue("superman_tRuE_\nbatman52.52_lanternId2184_JusticeLea\ngue")))),
+        expectation = Dataset(Record(
+          Field("message", TextValue("superman_tRuE_\nbatman52.52_lanternId2184_JusticeLea\ngue")),
+          Field("isCool", TextValue("tRuE")),
+          Field("earth", TextValue("52.52")),
+          Field("corpsId", TextValue("2184")),
+          Field("justice", TextValue("Lea\ngue"))
+        )),
+        configuration = Configuration(parameterSet = ParameterSet(Seq(
+          TextListParameter(fieldNamesParameter, Seq("message")),
+          TextParameter(patternParameter, "superman_(?<isCool>\\w*)_\nbatman(?<earth>.*)_lanternId(?<corpsId>\\d*)_Justice(?<justice>.*)"),
+          BooleanParameter(autoDetectParameter, false)
+        ))),
+        title = "when configured with dot-all matching, should extract data with .* across multiple lines"
       ),
       Fixture(
         sample = Dataset(Record(

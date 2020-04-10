@@ -28,14 +28,15 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 @RunWith(classOf[JUnitRunner])
-class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
+class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutionContext with AnyWordSpecLike with Matchers with ScalaFutures with MockFactory {
 
   "A PipelineSupervisor" should {
 

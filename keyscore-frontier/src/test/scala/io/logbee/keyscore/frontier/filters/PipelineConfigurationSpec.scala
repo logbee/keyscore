@@ -2,11 +2,12 @@ package io.logbee.keyscore.frontier.filters
 
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class PipelineConfigurationSpec extends WordSpecLike with Matchers {
+class PipelineConfigurationSpec extends AnyWordSpecLike with Matchers {
 
   private implicit val formats = KeyscoreFormats.formats
 

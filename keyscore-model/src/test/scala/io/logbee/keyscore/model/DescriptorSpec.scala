@@ -9,14 +9,15 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.Int.MaxValue
 import scala.io.Source
 
 
-class DescriptorSpec extends FreeSpec with Matchers {
+class DescriptorSpec extends AnyFreeSpec with Matchers {
 
   import io.logbee.keyscore.model.util.ToOption._
   import org.json4s.native.Serialization.{read, write, writePretty}

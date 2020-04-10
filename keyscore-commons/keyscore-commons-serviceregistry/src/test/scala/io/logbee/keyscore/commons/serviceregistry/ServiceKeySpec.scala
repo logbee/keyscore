@@ -1,9 +1,10 @@
 package io.logbee.keyscore.commons.serviceregistry
 
 import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.ServiceKey
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
-class ServiceKeySpec extends FreeSpec with Matchers {
+class ServiceKeySpec extends AnyFreeSpec with Matchers {
 
   Seq(
     (ServiceKey[String]("MyService"), ServiceKey[String]("MyService")),

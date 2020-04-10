@@ -156,6 +156,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   override def postStop(): Unit = {
+    super.postStop()
     cancellable.cancel()
   }
 

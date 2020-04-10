@@ -13,7 +13,7 @@ import com.hierynomus.smbj.share.DiskShare
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile, SmbUtil}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir.OpenSmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile.OpenSmbFile
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.util.{Failure, Success}
 
@@ -21,7 +21,7 @@ import scala.util.{Failure, Success}
  * Semi-automatic test. Requires user-interaction and an SMB share.
  */
 //no JUnitRunner, so that it doesn't get executed automatically by Gradle
-class Manual_SpecWithSmbShare extends FreeSpec {
+class Manual_SpecWithSmbShare extends AnyFreeSpec {
   val client = new SMBClient()
   
   def env(name: String) = System.getenv("KEYSCORE_MANUAL_SMB_SPEC_" + name)

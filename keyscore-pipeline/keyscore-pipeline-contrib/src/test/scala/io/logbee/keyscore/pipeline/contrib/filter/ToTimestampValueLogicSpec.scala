@@ -5,12 +5,14 @@ import io.logbee.keyscore.model.data.{Dataset, DecimalValue, Field, NumberValue,
 import io.logbee.keyscore.pipeline.testkit.{TestActorSystem, TestStreamForFilter}
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, Inside, Matchers}
 import org.scalatestplus.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.filter.ToTimestampValueLogic.{formatParameter, sourceFieldNameParameter, sourceTimeZoneParameter}
+import org.scalatest.Inside
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 @RunWith(classOf[JUnitRunner])
-class ToTimestampValueLogicSpec extends FreeSpec with Matchers with Inside with ScalaFutures with TestActorSystem {
+class ToTimestampValueLogicSpec extends AnyFreeSpec with Matchers with Inside with ScalaFutures with TestActorSystem {
 
   val configuration1 = Configuration(parameterSet = ParameterSet(Seq(
     FieldNameParameter(sourceFieldNameParameter.ref, "text-timestamp"),

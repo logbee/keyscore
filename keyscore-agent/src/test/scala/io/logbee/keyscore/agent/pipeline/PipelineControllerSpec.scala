@@ -22,8 +22,9 @@ import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionCo
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Second, Seconds, Span}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
@@ -32,7 +33,7 @@ import scala.language.postfixOps
 
 
 @RunWith(classOf[JUnitRunner])
-class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class PipelineControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   override implicit val patienceConfig = PatienceConfig(Span(10, Seconds), Span(1, Second))
 

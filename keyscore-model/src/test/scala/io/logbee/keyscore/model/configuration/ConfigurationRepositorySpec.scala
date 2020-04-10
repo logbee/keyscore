@@ -3,11 +3,13 @@ package io.logbee.keyscore.model.configuration
 import io.logbee.keyscore.model.configuration.ConfigurationRepository._
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValues {
+class ConfigurationRepositorySpec extends AnyFreeSpec with Matchers with OptionValues {
 
   "A ConfigurationRepository" - {
 

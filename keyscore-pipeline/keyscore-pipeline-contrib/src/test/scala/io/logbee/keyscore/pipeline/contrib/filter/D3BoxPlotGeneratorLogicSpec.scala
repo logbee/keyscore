@@ -9,11 +9,12 @@ import io.logbee.keyscore.pipeline.testkit.{TestActorSystem, TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.ExampleData
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class D3BoxPlotGeneratorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestActorSystem {
+class D3BoxPlotGeneratorLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with TestActorSystem {
 
   val d1 = Dataset(
     Record(

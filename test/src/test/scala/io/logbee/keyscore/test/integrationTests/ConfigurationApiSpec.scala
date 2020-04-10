@@ -13,7 +13,7 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.{HttpStatus, MediaType}
 

@@ -4,11 +4,12 @@ import java.io.InputStreamReader
 
 import io.logbee.keyscore.model.json4s._
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ParameterDescriptorSerializerSpec extends WordSpec with Matchers {
+class ParameterDescriptorSerializerSpec extends AnyWordSpec with Matchers {
 
   implicit val formats = KeyscoreFormats.formats
 

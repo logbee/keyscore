@@ -65,7 +65,11 @@ object PatternExtractorLogic extends Described {
       displayName = TextRef("pattern-extractor.displayName"),
       description = TextRef("pattern-extractor.description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
-      parameters = Seq(fieldNamesParameter, patternParameter, autoDetectParameter),
+      parameters = Seq(
+        fieldNamesParameter,
+        patternParameter,
+        autoDetectParameter
+      ),
       icon = Icon.fromClass(classOf[PatternExtractorLogic]),
       maturity = Maturity.Stable
     ),
@@ -96,7 +100,9 @@ class PatternExtractorLogic(parameters: LogicParameters, shape: FlowShape[Datase
 
     fieldNames = configuration.getValueOrDefault(fieldNamesParameter, fieldNames)
     pattern = configuration.getValueOrDefault(PatternExtractorLogic.patternParameter, pattern)
+    pattern = "(?s)" + pattern //Enable Dot-All Matching (Dot matches newlines)
     autoDetect = configuration.getValueOrDefault(PatternExtractorLogic.autoDetectParameter, autoDetect)
+
     regex = pattern.r(CAPTURE_GROUPS_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
   }
 

@@ -16,15 +16,16 @@ import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionCo
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.PatienceConfiguration.{Interval, Timeout}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.time.{Millis, Span}
-import org.scalatest.{FreeSpec, Matchers}
 
 import scala.collection.mutable
 import scala.concurrent.Promise
 
 @RunWith(classOf[JUnitRunner])
-class DiscardSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class DiscardSinkLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   "A DiscardSinkLogic" - {
 

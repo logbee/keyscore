@@ -3,11 +3,12 @@ package io.logbee.keyscore.agent.util
 import com.google.protobuf.Duration
 import io.logbee.keyscore.agent.util.MovingMedian.MovingMedianItem
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class MovingMedianSpec extends WordSpec with Matchers {
+class MovingMedianSpec extends AnyWordSpec with Matchers {
 
   "An initialized MovingMedian" should {
     "return 0" in {

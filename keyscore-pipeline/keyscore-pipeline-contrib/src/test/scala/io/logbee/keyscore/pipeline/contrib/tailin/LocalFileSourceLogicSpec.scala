@@ -20,14 +20,16 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FreeSpec, Matchers}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.duration.DurationInt
 
 @RunWith(classOf[JUnitRunner])
-class LocalFileSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class LocalFileSourceLogicSpec extends AnyFreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val defaultPatience = PatienceConfig(timeout = Span(2, Seconds), interval = Span(500, Millis))
   val expectNextTimeout = 10.seconds

@@ -8,11 +8,12 @@ import io.logbee.keyscore.test.fixtures.ExampleData.{dataset1, messageTextField1
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class LoggerLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class LoggerLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   override implicit val system: ActorSystem = ActorSystem("testsystem", ConfigFactory.parseString(
     """akka.loggers = ["akka.testkit.TestEventListener"]"""

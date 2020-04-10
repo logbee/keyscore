@@ -3,11 +3,12 @@ package io.logbee.keyscore.model
 import io.logbee.keyscore.model.data.{Label, TextValue}
 import io.logbee.keyscore.model.metrics._
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
+class BaseMetricsCollectionSpec extends AnyFreeSpec with Matchers {
 
   "A MetricsCollection" - {
 

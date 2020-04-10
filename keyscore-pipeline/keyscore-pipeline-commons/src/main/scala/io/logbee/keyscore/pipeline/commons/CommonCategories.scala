@@ -11,6 +11,7 @@ object CommonCategories {
   val DATA_EXTRACTION = Category("contrib.data-extraction", TextRef("contrib.category.data-extraction.displayName"))
   val DEBUG = Category("contrib.debug", TextRef("contrib.category.debug.displayName"))
   val FIELDS = Category("contrib.fields", TextRef("contrib.category.fields.displayName"))
+  val RECORDS = Category("contrib.fields", TextRef("contrib.category.records.displayName"))
   val JSON = Category("contrib.json", TextRef("contrib.category.json.displayName"))
   val XML = Category("contrib.xml", TextRef("contrib.category.xml.displayName"))
   val CSV = Category("contrib.csv", TextRef("contrib.category.csv.displayName"))
@@ -24,6 +25,8 @@ object CommonCategories {
   val CONVERSION = Category("contrib.conversion", TextRef("contrib.category.conversion.displayName"))
   val FLOW = Category("contrib.flow", TextRef("contrib.category.flow.displayName"))
   val MISCELLANEOUS = Category("contrib.miscellaneous", TextRef("contrib.category.miscellaneous.displayName"))
+  val TIME = Category("contrib.time", TextRef("contrib.category.time.displayName"))
+  val TEMPLATING = Category("contrib.templating", TextRef("contrib.category.templating.displayName"))
 
   import Locale.{ENGLISH, GERMAN}
 
@@ -49,6 +52,10 @@ object CommonCategories {
       FIELDS.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Fields",
         GERMAN -> "Felder"
+      )),
+      RECORDS.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Records",
+        GERMAN -> "Records"
       )),
       JSON.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "JSON",
@@ -101,6 +108,14 @@ object CommonCategories {
       MISCELLANEOUS.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Miscellaneous",
         GERMAN -> "Sonstige"
+      )),
+      TIME.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Time",
+        GERMAN -> "Zeit"
+      )),
+      TEMPLATING.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Templating",
+        GERMAN -> "Templating"
       ))
     )
   )

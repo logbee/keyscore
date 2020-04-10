@@ -7,11 +7,12 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline.{FilterState, Running}
 import org.json4s.native.Serialization.{read, write}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class FilterStateSerializerSpec extends WordSpec with Matchers{
+class FilterStateSerializerSpec extends AnyWordSpec with Matchers {
 
   implicit val formats = KeyscoreFormats.formats
 

@@ -5,14 +5,15 @@ import ch.qos.logback.classic.{Level, LoggerContext}
 import ch.qos.logback.classic.spi.LoggingEvent
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
 import java.util
 
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 @RunWith(classOf[JUnitRunner])
-class KeyscoreLoggingLayoutSpec extends FreeSpec with Matchers with MockFactory {
+class KeyscoreLoggingLayoutSpec extends AnyFreeSpec with Matchers with MockFactory {
 
   "A LoggingLayout should" - {
     val testSetups = Seq(

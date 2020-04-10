@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import com.hierynomus.mssmb2.SMBApiException
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
 
 class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {

@@ -6,11 +6,12 @@ import io.logbee.keyscore.pipeline.commons.util.Characteristic.whereAll
 import io.logbee.keyscore.pipeline.commons.util.DefaultDataIndex.FIELD_PRESENT
 import io.logbee.keyscore.pipeline.commons.util.DefaultDataIndex.Record.{byField, byPresentField, withField}
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class DefaultIndexSpec_Records extends FreeSpec with Matchers {
+class DefaultIndexSpec_Records extends AnyFreeSpec with Matchers {
 
   "A GroupingBookkeeper" - {
 

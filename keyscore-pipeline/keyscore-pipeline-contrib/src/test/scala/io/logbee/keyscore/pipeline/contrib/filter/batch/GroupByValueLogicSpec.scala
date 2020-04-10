@@ -9,7 +9,8 @@ import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.duration._
@@ -19,7 +20,7 @@ import scala.language.postfixOps
   * This Test also tests the metrics of the [[AbstractGroupingLogic]].
   */
 @RunWith(classOf[JUnitRunner])
-class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers with TestSystemWithMaterializerAndExecutionContext {
+class GroupByValueLogicSpec extends AnyFreeSpec with ScalaFutures with Matchers with TestSystemWithMaterializerAndExecutionContext {
 
   "A GroupByValueLogic" - {
 

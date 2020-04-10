@@ -18,8 +18,9 @@ import io.logbee.keyscore.pipeline.api.stage.{SourceStage, StageContext}
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
-import org.scalatest._
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, ParallelTestExecution}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
 

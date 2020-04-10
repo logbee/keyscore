@@ -3,11 +3,12 @@ package io.logbee.keyscore.model.descriptor
 import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.data.IconEncoding.RAW
 import io.logbee.keyscore.model.data.IconFormat.SVG
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
 
-class IconLoaderSpec extends FreeSpec with Matchers {
+class IconLoaderSpec extends AnyFreeSpec with Matchers {
 
   val expectedData = Source.fromInputStream(getClass.getResourceAsStream("ExampleIcon.svg")).mkString
 

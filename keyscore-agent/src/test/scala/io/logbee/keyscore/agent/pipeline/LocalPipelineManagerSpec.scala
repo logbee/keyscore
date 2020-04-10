@@ -7,15 +7,15 @@ import akka.util.Timeout
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{Matchers, WordSpec}
+import org.junit.runner.RunWith
+import org.scalatest.freespec.AnyFreeSpecLike
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-//@RunWith(classOf[JUnitRunner])
-class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with ProductionSystemWithMaterializerAndExecutionContext {
+@RunWith(classOf[JUnitRunner])
+class LocalPipelineManagerSpec extends AnyFreeSpecLike with ProductionSystemWithMaterializerAndExecutionContext {
 
   implicit val timeout: Timeout = 30 seconds
 
@@ -23,7 +23,7 @@ class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures 
   val sourceConfiguration = Configuration()
   val sinkConfiguration = Configuration()
 
-  "A LocalPipelineManager " should {
+  "A LocalPipelineManager " - {
 
     "start a StreamSupervisor for a pipeline" in {
 

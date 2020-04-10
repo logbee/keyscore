@@ -6,12 +6,14 @@ import io.logbee.keyscore.pipeline.contrib.filter.DropRecordsLogic.fieldNamesPar
 import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
+import org.scalatest.Inside
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Inside, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class DropRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures with Inside with TestSystemWithMaterializerAndExecutionContext  {
+class DropRecordsLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with Inside with TestSystemWithMaterializerAndExecutionContext  {
 
   "A DropRecordsFilterLogic" - {
 

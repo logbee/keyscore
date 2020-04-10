@@ -19,13 +19,15 @@ import io.logbee.keyscore.pipeline.api.stage._
 import io.logbee.keyscore.test.fixtures.ToActorRef._
 import io.logbee.keyscore.test.fixtures._
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Inside, Matchers}
+import org.scalatest.Inside
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class ManifestStageLogicProviderSpec extends FreeSpec with Matchers with Inside {
+class ManifestStageLogicProviderSpec extends AnyFreeSpec with Matchers with Inside {
 
   import akka.actor.typed.scaladsl.adapter._
 

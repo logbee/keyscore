@@ -9,10 +9,11 @@ import akka.testkit.{TestKit, TestProbe}
 import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted, MemberAdded, MemberRemoved}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
+import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class ClusterAgentManagerSpec extends TestKit(ActorSystem("ClusterAgentManagerSpec")) with WordSpecLike with ScalaFutures with BeforeAndAfter {
+class ClusterAgentManagerSpec extends TestKit(ActorSystem("ClusterAgentManagerSpec")) with AnyWordSpecLike with ScalaFutures with BeforeAndAfter {
 
   var clusterAgentManager: ActorRef = _
 

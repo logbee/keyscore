@@ -1,11 +1,12 @@
 package io.logbee.keyscore.agent.util
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RingBufferSpec extends WordSpec with Matchers {
+class RingBufferSpec extends AnyWordSpec with Matchers {
 
   "An empty RingBuffer" should {
 

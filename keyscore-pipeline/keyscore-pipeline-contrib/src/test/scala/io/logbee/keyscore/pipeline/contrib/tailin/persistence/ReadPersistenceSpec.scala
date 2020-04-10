@@ -7,13 +7,14 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.OpenableMockFileHandle
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.reflect.runtime.universe.{TypeTag, typeTag}
 
 @RunWith(classOf[JUnitRunner])
-class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
+class ReadPersistenceSpec extends AnyFreeSpec with Matchers with MockFactory {
 
   trait ReadPersistenceSetup {
     val completedPersistence = mock[PersistenceContext[String, FileReadRecord]]

@@ -8,7 +8,8 @@ import io.logbee.keyscore.test.fixtures.ExampleData.dataset1
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
@@ -16,7 +17,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class AddFieldsLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestActorSystem {
+class AddFieldsLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockFactory with TestActorSystem {
 
   val modified1 = Dataset(records = Record(
     Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C")),

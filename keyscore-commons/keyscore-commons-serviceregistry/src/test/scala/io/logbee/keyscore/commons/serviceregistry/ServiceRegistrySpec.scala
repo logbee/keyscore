@@ -10,7 +10,9 @@ import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.ServiceKey
 import io.logbee.keyscore.test.fixtures.ToActorRef.{TypedProbe2SomeTypedActorRef, TypedProbe2TypedActorRef}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers, Suite}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
@@ -19,7 +21,7 @@ import scala.language.{implicitConversions, postfixOps}
 
 
 @RunWith(classOf[JUnitRunner])
-class ServiceRegistrySpec extends FreeSpec with Matchers with ActorSystems with MockFactory {
+class ServiceRegistrySpec extends AnyFreeSpec with Matchers with ActorSystems with MockFactory {
 
   Seq(
     ("local", withLocalActorSystem _),

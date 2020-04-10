@@ -4,15 +4,16 @@ import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, P
 import io.logbee.keyscore.pipeline.testkit.TestStreamForSink
 import io.logbee.keyscore.test.fixtures.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Seconds, Span}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 //@RunWith(classOf[JUnitRunner])
-class ElasticSearchSinkLogicSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class ElasticSearchSinkLogicSpec extends AnyWordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val defaultPatience = PatienceConfig(timeout = Span(20, Seconds), interval = Span(5, Seconds))
 

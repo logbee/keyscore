@@ -18,7 +18,9 @@ import io.logbee.keyscore.model.pipeline.StageSupervisor._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage._
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Inside, Matchers}
+import org.scalatest.Inside
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.duration._
@@ -26,7 +28,7 @@ import scala.language.postfixOps
 
 
 @RunWith(classOf[JUnitRunner])
-class FilterManagerSpec extends FreeSpec with Matchers with Inside {
+class FilterManagerSpec extends AnyFreeSpec with Matchers with Inside {
 
   implicit val timeout: Timeout = 5 seconds
 

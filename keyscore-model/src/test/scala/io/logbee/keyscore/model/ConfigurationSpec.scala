@@ -7,12 +7,13 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.json4s.native.Serialization.write
 import org.junit.runner.RunWith
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
 
 
 @RunWith(classOf[JUnitRunner])
-class ConfigurationSpec extends FreeSpec with Matchers {
+class ConfigurationSpec extends AnyFreeSpec with Matchers {
   implicit val formats = KeyscoreFormats.formats
 
   "A Configuration" - {

@@ -5,12 +5,13 @@ import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.json4s.JsonPath
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser.parse
 import org.junit.runner.RunWith
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
+class JsonPathJson4sParserSpec extends AnyFreeSpec with Matchers {
 
   case class Fixture(title: String, jsonpath: JsonPath, expectation: JValue)
 

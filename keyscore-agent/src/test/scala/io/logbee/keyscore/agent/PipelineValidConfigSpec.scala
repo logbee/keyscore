@@ -19,9 +19,10 @@ import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecu
 import org.json4s.native.Serialization.writePretty
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
+class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with AnyWordSpecLike with Matchers with ScalaFutures with MockFactory {
 
   implicit val formats = KeyscoreFormats.formats
 

@@ -4,9 +4,10 @@ import io.logbee.keyscore.model.blueprint.FilterBlueprint
 import io.logbee.keyscore.model.blueprint.ToBlueprintRef._
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpecLike, Matchers}
+import org.scalatest.freespec.AnyFreeSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class BlueprintMaterializerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures {
+class BlueprintMaterializerSpec extends ProductionSystemWithMaterializerAndExecutionContext with AnyFreeSpecLike with Matchers with ScalaFutures {
 
   val exampleBlueprint = FilterBlueprint(
     ref = "76747e71-75db-4126-8cab-dd9afdde70fa",

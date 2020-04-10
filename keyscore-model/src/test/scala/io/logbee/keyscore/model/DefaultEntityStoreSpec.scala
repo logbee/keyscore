@@ -1,14 +1,20 @@
 package io.logbee.keyscore.model
 
+import java.util.UUID
+
+import io.logbee.keyscore.model.Entity.SeqOfComponents2MapOfComponent
 import io.logbee.keyscore.model.EntityStore.ROOT_ANCESTOR
 import io.logbee.keyscore.model.configuration.{NumberParameter, TextParameter}
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class DefaultEntityStoreSpec extends FreeSpec with Matchers with OptionValues {
+class DefaultEntityStoreSpec extends AnyFreeSpec with Matchers with OptionValues with MockFactory {
 
   "A DefaultEntityStore" - {
 

@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.openLocalFile2File
 import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
 import org.junit.runner.RunWith
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

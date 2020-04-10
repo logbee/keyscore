@@ -8,7 +8,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFil
 import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest._
+import org.scalatest.{Inside, OptionValues, ParallelTestExecution}
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

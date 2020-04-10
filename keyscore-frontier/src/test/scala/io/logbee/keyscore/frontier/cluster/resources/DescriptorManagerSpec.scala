@@ -6,13 +6,13 @@ import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
 import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpecLike, Matchers}
+import org.scalatest.freespec.AnyFreeSpecLike
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
-
 import scala.language.postfixOps
 
-class DescriptorManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures {
+class DescriptorManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with AnyFreeSpecLike with Matchers with ScalaFutures {
 
   implicit val timeout = Timeout(5 seconds)
 

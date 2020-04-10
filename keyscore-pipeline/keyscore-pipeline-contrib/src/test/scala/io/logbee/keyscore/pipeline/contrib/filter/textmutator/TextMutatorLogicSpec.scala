@@ -6,12 +6,14 @@ import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor.P
 import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
+import org.scalatest.Inside
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Inside, Matchers}
 
 
 @RunWith(classOf[JUnitRunner])
-class TextMutatorLogicSpec extends FreeSpec with Matchers with Inside with TestSystemWithMaterializerAndExecutionContext {
+class TextMutatorLogicSpec extends AnyFreeSpec with Matchers with Inside with TestSystemWithMaterializerAndExecutionContext {
 
   "A TextMutator" - {
 

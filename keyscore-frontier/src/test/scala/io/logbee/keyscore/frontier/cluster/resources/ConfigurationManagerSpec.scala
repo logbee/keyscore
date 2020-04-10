@@ -9,9 +9,11 @@ import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
+import org.scalatest.{Inside, OptionValues}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpecLike
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpecLike, Inside, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 
@@ -20,7 +22,7 @@ import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext
-  with TestKitBase with ImplicitSender with FreeSpecLike with Matchers with ScalaFutures with OptionValues with Inside {
+  with TestKitBase with ImplicitSender with AnyFreeSpecLike with Matchers with ScalaFutures with OptionValues with Inside {
 
   implicit val timeout = Timeout(5 seconds)
 

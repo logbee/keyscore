@@ -95,7 +95,8 @@ ext {
 
     dependency += [
         scala_test: [
-            "org.scalatest:scalatest_2.13:3.0.8",
+            "org.scalatest:scalatest_2.13:3.1.1",
+            "org.scalatestplus:junit-4-12_2.13:3.1.1.0",
             "org.scalamock:scalamock_2.13:4.4.0"
         ],
     ]

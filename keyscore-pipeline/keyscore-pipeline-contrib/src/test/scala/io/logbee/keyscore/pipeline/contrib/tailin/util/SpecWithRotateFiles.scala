@@ -7,13 +7,19 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.{FileHandle, OpenFileHand
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.OpenableMockFileHandle
 import org.junit.runner.RunWith
+import org.scalamock.function.MockFunction1
+import org.scalamock.matchers.ArgCapture
+import org.scalamock.matchers.ArgCapture.CaptureAll
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 import org.slf4j.LoggerFactory
 
+import scala.language.postfixOps
+
 @RunWith(classOf[JUnitRunner])
-class SpecWithRotateFiles extends FreeSpec with MockFactory {
+class SpecWithRotateFiles extends AnyFreeSpec with MockFactory with Matchers {
   implicit var charset: Charset = StandardCharsets.UTF_8
 
   def writeStringToFile(fileInfo: TestFileInfo, string: String)(implicit charset: Charset): TestFileInfo = {
@@ -119,16 +125,16 @@ class SpecWithRotateFiles extends FreeSpec with MockFactory {
   
   
   
-  def calledBackDataIsSimilarTo(expected: FileReadData): FileReadData => Boolean = {
-    actual: FileReadData => {
-      expected.readData == actual.readData &&
-      Option(expected.baseFile).equals(Option(actual.baseFile)) &&
-      Option(expected.physicalFile).equals(Option(actual.physicalFile)) &&
-      expected.readEndPos == actual.readEndPos &&
-      expected.writeTimestamp == actual.writeTimestamp &&
-      actual.readTimestamp >= actual.writeTimestamp &&
-      actual.readTimestamp <= System.currentTimeMillis &&
-      expected.newerFilesWithSharedLastModified == actual.newerFilesWithSharedLastModified
+  def calledBackDataIsSimilarTo(actual: ArgCapture.CaptureAll[FileReadData], expected: FileReadData*): Unit = {
+    actual.values.zip(expected).foreach { case (actual, expected) =>
+      actual.readData shouldBe expected.readData
+      Option(actual.baseFile) shouldBe Option(expected.baseFile)
+      Option(actual.physicalFile) shouldBe Option(expected.physicalFile)
+      actual.readEndPos shouldBe expected.readEndPos
+      actual.writeTimestamp shouldBe expected.writeTimestamp
+      assert(actual.readTimestamp >= actual.writeTimestamp)
+      assert(actual.readTimestamp <= System.currentTimeMillis)
+      actual.newerFilesWithSharedLastModified shouldBe expected.newerFilesWithSharedLastModified
     }
   }
 }
