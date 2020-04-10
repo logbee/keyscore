@@ -7,7 +7,7 @@ import {
 } from "../actions/preview.actions";
 
 
-import * as _ from "lodash";
+import {cloneDeep} from 'lodash-es';
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
@@ -39,7 +39,7 @@ export const initalPreviewState: PreviewState = {
 };
 
 export function PreviewReducer(state: PreviewState = initalPreviewState, action: PreviewActions): PreviewState {
-    let result = _.cloneDeep(state);
+    let result = cloneDeep(state);
     switch (action.type) {
         case EXTRACT_FROM_SELECTED_BLOCK: {
             if (action.where === 'after') {

@@ -12,7 +12,8 @@ import {
 import {FormControl, NgControl} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {map, startWith} from "rxjs/operators";
-import {MatAutocompleteTrigger, MatFormFieldControl} from "@angular/material";
+import { MatAutocompleteTrigger } from "@angular/material/autocomplete";
+import { MatFormFieldControl } from "@angular/material/form-field";
 import {FocusMonitor} from "@angular/cdk/a11y";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 
@@ -90,8 +91,8 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
     @Output() change: EventEmitter<void> = new EventEmitter<void>();
     @Output() keyUpEnterEvent: EventEmitter<Event> = new EventEmitter();
 
-    @ViewChild('inputField') inputElemRef: ElementRef;
-    @ViewChild(MatAutocompleteTrigger) autocompleteTrigger: MatAutocompleteTrigger;
+    @ViewChild('inputField', { static: true }) inputElemRef: ElementRef;
+    @ViewChild(MatAutocompleteTrigger, { static: true }) autocompleteTrigger: MatAutocompleteTrigger;
 
     constructor(private fm: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
         super();
@@ -109,24 +110,6 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
             );
     }
 
-    focus(event: Event) {
-        if (event) {
-            event.stopPropagation();
-        }
-        this.inputElemRef.nativeElement.focus();
-        this.autocompleteTrigger.openPanel();
-    }
-
-    public clear() {
-        this.value = '';
-        this.onChange();
-        this.focus(null);
-    }
-
-    private onEnter(event: Event) {
-        this.keyUpEnterEvent.emit(event);
-    }
-
     private filter(value: string): string[] {
         if (!this.options) return [];
 
@@ -135,7 +118,26 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
         return this.options.filter(option => option.toLowerCase().includes(filterValue));
     }
 
-    private onChange() {
+    focus(event: Event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        this.inputElemRef.nativeElement.focus();
+        this.autocompleteTrigger.openPanel();
+    }
+
+    clear() {
+        this.value = '';
+        this.onChange();
+        this.focus(null);
+    }
+
+    onEnter(event: Event) {
+        this.keyUpEnterEvent.emit(event);
+    }
+
+
+    onChange() {
         this.stateChanges.next();
         this.change.emit();
     }

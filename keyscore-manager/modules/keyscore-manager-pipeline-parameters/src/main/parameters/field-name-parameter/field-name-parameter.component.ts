@@ -21,27 +21,36 @@ import {FieldNameHint} from "@/../modules/keyscore-manager-models/src/main/param
                     (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
-            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField && showLabel" translate [translateParams]="{hint:descriptor.hint}">
+            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField && showLabel" translate
+                      [translateParams]="{hint:descriptor.hint}">
                 PARAMETER.FIELD_NAME_HINT
             </mat-hint>
         </mat-form-field>
-        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="descriptor.mandatory && !inputField.value" translate [translateParams]="{name:descriptor.displayName}">
+        <p
+            [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'"
+            *ngIf="descriptor.mandatory && !inputField.value" translate
+            [translateParams]="{name:descriptor.displayName}">
             PARAMETER.IS_REQUIRED
         </p>
-        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
+        <p
+            [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'"
+            *ngIf="!isValid(inputField.value) && descriptor.validator.description">
             {{descriptor.validator.description}}</p>
-        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="!isValid(inputField.value) && !descriptor.validator.description" translate [translateParams]="{pattern:descriptor.validator.expression}">
+        <p
+            [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'"
+            *ngIf="!isValid(inputField.value) && !descriptor.validator.description" translate
+            [translateParams]="{pattern:descriptor.validator.expression}">
             PARAMETER.FULFILL_PATTERN
-        </p> 
+        </p>
 
     `,
-    styleUrls:['../../style/parameter-module-style.scss']
+    styleUrls: ['../../style/parameter-module-style.scss']
 })
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
     @Input() showLabel: boolean = true;
 
-    @ViewChild('inputField') inputFieldRef: AutocompleteFilterComponent;
-    public fieldNameHint: typeof FieldNameHint = FieldNameHint;
+    @ViewChild('inputField', {static: true}) inputFieldRef: AutocompleteFilterComponent;
+    fieldNameHint: typeof FieldNameHint = FieldNameHint;
 
     get value(): FieldNameParameter {
         return new FieldNameParameter(this.descriptor.ref, this.inputFieldRef.value);
@@ -57,23 +66,23 @@ export class FieldNameParameterComponent extends ParameterComponent<FieldNamePar
         }
     }
 
-    public clear() {
+    clear() {
         this.inputFieldRef.clear();
     }
 
-    public focus(event:Event){
+    focus(event: Event) {
         this.inputFieldRef.focus(event);
     }
 
-    private onChange(): void {
+    onChange(): void {
         this.emit(this.value);
     }
 
-    private onEnter(event: Event) {
+    onEnter(event: Event) {
         this.keyUpEnterEvent.emit(event);
     }
 
-    private isValid(value: string) {
+    isValid(value: string) {
         if (!this.descriptor.validator) {
             return true;
         }

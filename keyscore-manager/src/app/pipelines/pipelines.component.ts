@@ -6,8 +6,9 @@ import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
 import {CreatePipelineAction, LoadPipelineBlueprints, UpdatePipelinePollingAction} from "./actions/pipelines.actions";
-import {getPipelineList} from "./index";
-import {MatPaginator, MatSort} from "@angular/material";
+import {getPipelineList} from "./reducers/module";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";
 import {PipelineDataSource} from "../data-source/pipeline-data-source";
@@ -24,8 +25,7 @@ import {takeUntil} from "rxjs/operators";
                 [showAdd]="true"
                 [isLoading]="isLoading$|async"
                 (onAdd)="createPipeline(true)"
-                (onUpdateRefreshTime)="updateRefreshTime($event)"
-                (onManualReload)="reload()">
+                (onUpdateRefreshTime)="updateRefreshTime($event)">
         </header-bar>
 
         <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
@@ -59,7 +59,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
 
     }
 
-    public ngOnInit() {
+    ngOnInit() {
         this.dataSource = new PipelineDataSource([]);
         this.store.pipe(select(getPipelineList)).pipe(takeUntil(this._unsubscribe$)).subscribe(list => {
             this.dataSource.data = list;
@@ -70,17 +70,17 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         this.store.dispatch(new LoadPipelineBlueprints());
     }
 
-    public ngOnDestroy() {
+    ngOnDestroy() {
         this._unsubscribe$.next();
         this._unsubscribe$.complete();
         this.store.dispatch(new UpdatePipelinePollingAction(false));
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
 
     }
 
-    public createPipeline(activeRouting: boolean = false) {
+    createPipeline(activeRouting: boolean = false) {
         const pipelineId = uuid();
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));
         if (activeRouting) {
@@ -92,7 +92,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         }
     }
 
-    public editPipeline(id: string) {
+    editPipeline(id: string) {
         //this.store.dispatch(new EditPipelineAction(id));
         this.store.dispatch(new RouterActions.Go({
             path: ["pipelines/" + id, {}],
@@ -101,11 +101,11 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         }));
     }
 
-    private deployPipeline(id: string, deploy: boolean): void {
+    deployPipeline(id: string, deploy: boolean): void {
         console.log("Deploy pipleine '" + id + "': " + deploy)
     }
 
-    public updateRefreshTime(refreshTimes: { newRefreshTime: number, oldRefreshTime: number }) {
+    updateRefreshTime(refreshTimes: { newRefreshTime: number, oldRefreshTime: number }) {
         this.store.dispatch(new UpdateRefreshTimeAction(refreshTimes.newRefreshTime, refreshTimes.oldRefreshTime));
     }
 

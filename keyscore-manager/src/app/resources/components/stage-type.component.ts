@@ -5,24 +5,24 @@ import {BlueprintJsonClass} from "@/../modules/keyscore-manager-models/src/main/
     selector: "stage-type",
     template: `
         <ng-container [ngSwitch]="stageType">
-            <div *ngSwitchCase="transform">
+            <div *ngSwitchCase="blueprintJsonClass.FilterBlueprint">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.FILTER' | translate}}"
                           svgIcon="filter-stage"></mat-icon>
             </div>
-            <div *ngSwitchCase="source">
+            <div *ngSwitchCase="blueprintJsonClass.SourceBlueprint">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.SOURCE' | translate}}"
                           svgIcon="source-stage"></mat-icon>
             </div>
-            <div *ngSwitchCase="sink">
+            <div *ngSwitchCase="blueprintJsonClass.SinkBlueprint">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.SINK' | translate}}"
                           svgIcon="sink-stage"></mat-icon>
 
             </div>
-            <div *ngSwitchCase="merging">
+            <div *ngSwitchCase="blueprintJsonClass.MergeBlueprint">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.MERGE' | translate}}"
                           svgIcon="merge-block"></mat-icon>
             </div>
-            <div *ngSwitchCase="branching">
+            <div *ngSwitchCase="blueprintJsonClass.BranchBlueprint">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.BRANCH' | translate}}"
                           svgIcon="branch-block"></mat-icon>
             </div>
@@ -32,10 +32,7 @@ import {BlueprintJsonClass} from "@/../modules/keyscore-manager-models/src/main/
 })
 
 export class StageType {
-    @Input() public stageType: string;
-    private transform: string = BlueprintJsonClass.FilterBlueprint;
-    private source: string = BlueprintJsonClass.SourceBlueprint;
-    private sink: string = BlueprintJsonClass.SinkBlueprint;
-    private merging: string = BlueprintJsonClass.MergeBlueprint;
-    private branching: string = BlueprintJsonClass.BranchBlueprint;
+    blueprintJsonClass: typeof BlueprintJsonClass = BlueprintJsonClass;
+
+    @Input() stageType: string;
 }

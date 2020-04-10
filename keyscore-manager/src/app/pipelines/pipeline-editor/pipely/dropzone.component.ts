@@ -31,7 +31,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     @HostBinding('class.p-0') isP0: boolean;
 
 
-    @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
+    @ViewChild("dropzoneContainer", { read: ViewContainerRef, static: true }) dropzoneContainer: ViewContainerRef;
 
 
     private isDroppableSubject$: Subject<boolean> = new BehaviorSubject(false);

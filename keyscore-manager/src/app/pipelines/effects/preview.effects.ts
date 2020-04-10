@@ -25,7 +25,7 @@ import {
 } from "../actions/preview.actions";
 import {FilterControllerService} from "@keyscore-manager-rest-api/src/main/FilterController.service";
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
-import {isPreviewVisible} from "@/app/pipelines";
+import {isPreviewVisible} from "@/app/pipelines/reducers/module";
 
 @Injectable()
 export class PreviewEffects {

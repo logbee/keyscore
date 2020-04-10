@@ -1,4 +1,4 @@
-import { MatSnackBarConfig } from "@angular/material";
+import { MatSnackBarConfig } from "@angular/material/snack-bar";
 import { Action } from "@ngrx/store";
 
 export const SNACKBAR_OPEN = 'SNACKBAR_OPEN';

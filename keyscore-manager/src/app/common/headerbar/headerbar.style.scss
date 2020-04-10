@@ -1,9 +1,9 @@
-@import "../../../assets/variables";
+@import "variables";
 
 #header-bar {
   position:relative;
   padding:10px;
-  height:5vh;
+  height:$header-bar-height;
   min-height:calc(20px + 24px); // padding + x-large font size
   background-color: $keyscore-blue;
   color: white;

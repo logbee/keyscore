@@ -2,10 +2,8 @@ import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {RouterModule, Routes} from "@angular/router";
-import {EffectsModule} from "@ngrx/effects";
 import {TranslateModule} from "@ngx-translate/core";
 import {AgentsComponent} from "./agents.component";
-import {AgentsEffects} from "./agents.effects";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {AppAuthGuard} from "../app.authguard";
@@ -21,7 +19,6 @@ export const routes: Routes = [
         CommonModule,
         FormsModule,
         RouterModule.forChild(routes),
-        EffectsModule.forFeature([AgentsEffects]),
         TranslateModule,
         HeaderBarModule,
         LoadingModule,
@@ -30,9 +27,7 @@ export const routes: Routes = [
     declarations: [
         AgentsComponent
     ],
-    providers: [
-
-    ]
+    providers: []
 })
 export class AgentsModule {
 }

@@ -6,7 +6,7 @@ import {
     ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import * as _ from "lodash";
+import {cloneDeep} from 'lodash-es';
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 import {Blueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
@@ -30,7 +30,7 @@ const initialState: ResourceViewerState = {
 };
 
 export function ResourcesReducer(state: ResourceViewerState = initialState, action: ResourcesActions): ResourceViewerState {
-    let result = _.cloneDeep(state);
+    let result = cloneDeep(state);
     switch (action.type) {
         case LOAD_ALL_BLUEPRINTS_SUCCESS:
             result.blueprints = action.blueprints;
@@ -65,7 +65,7 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
             result.resourceModels = tmp;
             break;
         case GET_RESOURCE_STATE_SUCCESS:
-            let copy = _.cloneDeep(result.stateObjects);
+            let copy = cloneDeep(result.stateObjects);
             copy.push(new StateObject(action.resourceId, action.instance));
             result.stateObjects = copy;
             break;

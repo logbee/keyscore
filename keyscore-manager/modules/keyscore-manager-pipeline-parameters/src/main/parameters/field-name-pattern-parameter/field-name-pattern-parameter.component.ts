@@ -9,7 +9,6 @@ import {
     FieldNameHint,
     PatternType
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
-import * as _ from 'lodash'
 
 @Component({
     selector: 'parameter-field-name-pattern',
@@ -33,7 +32,7 @@ import * as _ from 'lodash'
             </mat-form-field>
             <mat-form-field fxFlex="50">
                 <mat-label>Pattern</mat-label>
-                <mat-select #patternType  [value]="parameter.patternType"
+                <mat-select #patternType [value]="parameter.patternType"
                             (selectionChange)="onChange(fieldName.value, patternType.value)">
                     <mat-option *ngFor="let pattern of descriptor.supports" [value]="pattern.type">
                         {{pattern.displayName}}
@@ -58,12 +57,12 @@ export class FieldNamePatternParameterComponent extends ParameterComponent<Field
         }
     }
 
-    private onChange(fieldName: string, patternType: PatternType): void {
+    onChange(fieldName: string, patternType: PatternType): void {
         const parameter = new FieldNamePatternParameter(this.descriptor.ref, fieldName, patternType);
         this.emit(parameter)
     }
 
-    private comparePatternTypes(p0: PatternTypeChoice, p1: PatternTypeChoice) {
+    comparePatternTypes(p0: PatternTypeChoice, p1: PatternTypeChoice) {
         return p0.type === p1.type;
     }
 

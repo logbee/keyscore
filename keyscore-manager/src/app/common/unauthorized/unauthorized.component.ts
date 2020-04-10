@@ -36,7 +36,7 @@ import {AfterViewInit, Component, ElementRef, HostListener, ViewChild} from "@an
 export class UnauthorizedComponent implements AfterViewInit {
 
     root = document.documentElement;
-    @ViewChild('eyef') eyef: ElementRef;
+    @ViewChild('eyef', { static: true }) eyef: ElementRef;
     cx: string;
     cy: string;
 

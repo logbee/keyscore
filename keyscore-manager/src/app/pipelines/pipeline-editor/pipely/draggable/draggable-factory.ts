@@ -26,7 +26,7 @@ export class DraggableFactory {
     }
 
     private computeColor(categories: string[]): string {
-        const colors: string[] = ['#cc0000', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3d85c6', '#674ea7'];
+        const colors: string[] = ['#c1047b', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3d85c6', '#674ea7'];
         let categoryHash = this.categoryHashCode(categories.reduce((acc, category) => acc + category, ""));
         return colors[Math.abs(categoryHash % colors.length)];
     }

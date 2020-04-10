@@ -31,20 +31,20 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
 })
 export class ExpressionParameterComponent extends ParameterComponent<ExpressionParameterDescriptor, ExpressionParameter> {
 
+    currentChoice: ExpressionParameterChoice;
     private ref: ParameterRef;
-    private currentChoice: ExpressionParameterChoice;
 
     protected onInit(): void {
         this.ref = this.descriptor.ref;
-        this.currentChoice = ExpressionParameterComponent.findChoice(this.descriptor.choices, this.value.choice);
+        this.currentChoice = this.findChoice(this.descriptor.choices, this.value.choice);
     }
 
-    private onExpressionChanged(value: string): void {
+    onExpressionChanged(value: string): void {
         const parameter = new ExpressionParameter(this.ref, value, this.value.choice);
         this.emit(parameter)
     }
 
-    private onExpressionTypeChanged(value: ExpressionParameterChoice): void {
+    onExpressionTypeChanged(value: ExpressionParameterChoice): void {
         if (this.currentChoice != value) {
             const parameter = new ExpressionParameter(this.ref, this.value.value, value.name);
             this.currentChoice = value;
@@ -52,7 +52,7 @@ export class ExpressionParameterComponent extends ParameterComponent<ExpressionP
         }
     }
 
-    private static findChoice(choices: ExpressionParameterChoice[], name: string): ExpressionParameterChoice {
+    private findChoice(choices: ExpressionParameterChoice[], name: string): ExpressionParameterChoice {
         const index = choices.map(value => value.name).indexOf(name);
         if (index >= 0) return choices[index];
         else return choices[0];

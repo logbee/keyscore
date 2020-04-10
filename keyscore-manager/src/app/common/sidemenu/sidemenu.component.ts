@@ -49,16 +49,6 @@ import {AppState} from "@/app/app.component";
                         <mat-icon svgIcon="pipelines-nav"></mat-icon>
                     </a>
 
-                    <a *ngIf="isExpanded" mat-list-item href="/doc/index.html" target="_blank">
-                        <p matLine>{{'APPCOMPONENT.DOCUMENTATION' | translate}}</p>
-                        <mat-icon svgIcon="documentation-nav"></mat-icon>
-                    </a>
-
-                    <a *ngIf="!isExpanded" mat-list-item href="/doc/index.html" target="_blank"
-                       matTooltip="{{'APPCOMPONENT.DOCUMENTATION' | translate}}" matTooltipPosition="right">
-                        <mat-icon svgIcon="documentation-nav"></mat-icon>
-                    </a>
-
                 </mat-nav-list>
                 <mat-divider></mat-divider>
             </div>
@@ -93,6 +83,15 @@ import {AppState} from "@/app/app.component";
                         </button>
                     </mat-menu>
 
+                    <a *ngIf="isExpanded" mat-list-item href="/doc/welcome.html" target="_blank">
+                        <p matLine>{{'APPCOMPONENT.DOCUMENTATION' | translate}}</p>
+                        <mat-icon svgIcon="documentation-nav"></mat-icon>
+                    </a>
+
+                    <a *ngIf="!isExpanded" mat-list-item href="/doc/welcome.html" target="_blank"
+                       matTooltip="{{'APPCOMPONENT.DOCUMENTATION' | translate}}" matTooltipPosition="right">
+                        <mat-icon svgIcon="documentation-nav"></mat-icon>
+                    </a>
 
                     <a mat-list-item (click)="toggleMenu()">
                         <p matLine *ngIf="isExpanded">{{'GENERAL.COLLAPSE' | translate}}</p>
@@ -115,7 +114,7 @@ export class SidemenuComponent {
     public isLoggedIn: boolean = false;
     public userName: string = "";
 
-    constructor(private translate: TranslateService, private keycloak: KeycloakService) {
+    constructor(public translate: TranslateService, private keycloak: KeycloakService) {
         this.checkIsLoggedIn();
     }
 

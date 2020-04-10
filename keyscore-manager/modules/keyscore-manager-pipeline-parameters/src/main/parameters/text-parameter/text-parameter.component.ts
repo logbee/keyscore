@@ -42,33 +42,34 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
         return new TextParameter(this.descriptor.ref,this.textInputRef.nativeElement.value);
     }
 
-    @ViewChild('textInput') textInputRef:ElementRef;
+    @ViewChild('textInput', { static: true }) textInputRef:ElementRef;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
     }
 
-    public clear(){
+    clear(){
         this.textInputRef.nativeElement.value="";
         this.onChange();
     }
 
-    public focus(event:Event){
+    focus(event:Event){
         this.textInputRef.nativeElement.focus();
     }
 
-    private onChange(): void {
-        this.emit(this.value);
-    }
-
-    private onEnter(event:Event): void {
-        this.keyUpEnterEvent.emit(event);
-    }
-
-    private isValid(value: string): boolean {
+    isValid(value: string): boolean {
         if (!this.descriptor.validator) {
             return true;
         }
         return this.stringValidator.validate(value, this.descriptor.validator);
     }
+
+    onChange(): void {
+        this.emit(this.value);
+    }
+
+    onEnter(event:Event): void {
+        this.keyUpEnterEvent.emit(event);
+    }
+
 }

@@ -59,8 +59,8 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
     @Output() onDelete: EventEmitter<DirectiveConfiguration> = new EventEmitter<DirectiveConfiguration>();
     @Output() onChange: EventEmitter<DirectiveConfiguration> = new EventEmitter<DirectiveConfiguration>();
 
-    @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
-    @ViewChild('iconContainer') iconContainer: ElementRef;
+    @ViewChild('parameterContainer', {read: ViewContainerRef, static: true}) parameterContainer: ViewContainerRef;
+    @ViewChild('iconContainer', {static: true}) iconContainer: ElementRef;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -88,10 +88,10 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
             this.iconContainer.nativeElement.innerHTML = this.descriptor.icon.data;
         }
         this.createParameterComponents();
+
     }
 
     private createParameterComponents() {
-        console.log("CONTAINER:", this.parameterContainer);
         this.parameterContainer.clear();
         this.descriptor.parameters.forEach(descriptor =>
             this.createParameterComponent(descriptor, this.getParameter(descriptor))
@@ -118,7 +118,7 @@ export class DirectiveComponent implements AfterViewInit, OnDestroy {
         return parameter;
     }
 
-    private noParameters() {
+    noParameters() {
         return this.descriptor.parameters && this.descriptor.parameters.length === 0;
     }
 

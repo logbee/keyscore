@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {DatasetDataSource} from "../dataset-data-source";
-import {MatSort} from "@angular/material";
+import { MatSort } from "@angular/material/sort";
 import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {map} from "rxjs/operators";
@@ -45,7 +45,7 @@ import {map} from "rxjs/operators";
                         {{ ('DATATABLE.INSWITCH' | translate) }}
                     </span>
                     <mat-slide-toggle class="mat-colored-always" color="primary"
-                                      [checked]="_inputOutputChecked"
+                                      [checked]="isOutputView"
                                       (click)="switch()">
 
                     </mat-slide-toggle>
@@ -110,7 +110,6 @@ import {map} from "rxjs/operators";
 
 export class DataPreviewComponent implements OnInit {
 
-    //Labels
     readonly labelDatasets = "Dataset";
     readonly labelRecords = "Record";
 
@@ -189,28 +188,39 @@ export class DataPreviewComponent implements OnInit {
                 map(([beforeIsLoading, afterIsLoading, _]) => this.where === 'after' ? afterIsLoading : beforeIsLoading)
             );
 
-    // specifying the visible columns
-    private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
-    // indicating if in or outputdatasets are required default value is after
-    private where: 'after' | 'before' = 'after';
-
-    private _inputOutputChecked = true;
+    dataSource: DatasetDataSource = new DatasetDataSource([]);
+    displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
+    where: 'after' | 'before' = 'after';
+    isOutputView = true;
 
     //Angular Material DataTable
-    @ViewChild(MatSort) sort: MatSort;
+    @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-    private dataSource: DatasetDataSource = new DatasetDataSource([]);
 
     ngOnInit(): void {
         this.dataSource.sort = this.sort;
     }
 
-    private updateDatasetCounter(count: number) {
+    updateDatasetCounter(count: number) {
         this.dataSource.datasetIndex = count - 1;
     }
 
-    private updateRecordCounter(count: number) {
+    updateRecordCounter(count: number) {
         this.dataSource.recordsIndex = count - 1;
+    }
+
+    applyFilterPattern(filterValue: string) {
+        this.dataSource.filter = filterValue;
+    }
+
+    switch() {
+        if (this.where === "before") {
+            this.where = "after";
+        } else {
+            this.where = "before";
+        }
+        this.dataSource.datasets = this._allDatasets.get(this.where).get(this.selectedBlock);
+        this.inputOutputToggled$.next(true);
     }
 
     private accessFieldValues(valueObject: Value): any {
@@ -235,19 +245,5 @@ export class DataPreviewComponent implements OnInit {
                 }
             }
         }
-    }
-
-    applyFilterPattern(filterValue: string) {
-        this.dataSource.filter = filterValue;
-    }
-
-    switch() {
-        if (this.where === "before") {
-            this.where = "after";
-        } else {
-            this.where = "before";
-        }
-        this.dataSource.datasets = this._allDatasets.get(this.where).get(this.selectedBlock);
-        this.inputOutputToggled$.next(true);
     }
 }

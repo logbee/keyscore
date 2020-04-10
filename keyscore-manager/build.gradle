@@ -5,7 +5,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.github.node-gradle:gradle-node-plugin:2.2.0"
+        classpath "com.github.node-gradle:gradle-node-plugin:2.2.1"
     }
 }
 
@@ -29,7 +29,7 @@ dependencies {
 
 ext {
     dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
-    nodeVersion = '10.16.0'
+    nodeVersion = '12.16.2'
 }
 
 node {
@@ -41,18 +41,13 @@ npmInstall {
     args = ['--verbose', '--loglevel', 'verbose']
 }
 
-
-task webpack(type: NodeTask, dependsOn: npmInstall) {
-    script = file('node_modules/.bin/webpack')
-    inputs.files([
-            file('node_modules/.bin/webpack'),
-            files("src")
-    ])
+//Using ExecTask because nodeTask won't exit.
+task ngBuild(type: Exec, dependsOn: npmInstall) {
+  commandLine "node_modules/.bin/ng","build","--prod"
 }
 
-task copyResources(type: Copy) {
-    from file('../media/svg/light/keyscore.light.svg')
-    into "$buildDir/resources/"
+build {
+  dependsOn = [ngBuild]
 }
 
 task manifest() {
@@ -74,26 +69,23 @@ distributions {
     main {
         contents {
             into('web-content') {
-                from('conf/application.conf')
-                from('public/')
-                from('build/webpack/')
-                from(copyResources.outputs)
-                from(webpack)
-                from(manifest)
-                from(configurations.documentation) {
-                    into 'doc'
-                }
+              from(ngBuild)
+              from(manifest)
+              from(configurations.documentation) {
+                  into 'doc'
+              }
+              from('build/ng')
             }
         }
     }
 }
 
-task serve(type: NodeTask, dependsOn: npmInstall) {
-    script = file('node_modules/.bin/webpack-dev-server')
+task serve(type: NpmTask, dependsOn: npmInstall) {
+    args=['run','start']
 }
 
+
 task storybook(type: NpmTask) {
-    group = 'Storybook'
     args = ['run', 'storybook']
 }
 
@@ -128,11 +120,21 @@ task startDockerContainer(type: DockerStartContainer) {
 
 task stopDockerContainer(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
 }
 
 task pushDockerImage(type: DockerPushImage) {
@@ -147,4 +149,8 @@ clean {
 
 task cleanAll(type: Delete, dependsOn: clean) {
     delete 'node_modules', 'package-lock.json'
+}
+
+task npmReset(type: NpmTask,dependsOn:cleanAll ){
+  args= ['install']
 }

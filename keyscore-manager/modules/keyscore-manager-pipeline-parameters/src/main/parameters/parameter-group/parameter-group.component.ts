@@ -9,16 +9,16 @@ import {
 import {BooleanParameter} from '@keyscore-manager-models/src/main/parameters/boolean-parameter.model'
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {BehaviorSubject, Observable, Subject} from "rxjs";
-import {filter, share, takeUntil} from "rxjs/operators";
-import * as _ from 'lodash';
+import {BehaviorSubject, Subject} from "rxjs";
+import {filter, takeUntil} from "rxjs/operators";
+import {cloneDeep} from 'lodash-es';
 import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configuration";
 
 @Component({
     selector: 'parameter-group',
     template: `
 
-        <div class="group-wrapper" *ngIf="(_isVisible|async) as visible" [class.without-name]="!descriptor.displayName">
+        <div class="group-wrapper" *ngIf="(isVisible$|async) as visible" [class.without-name]="!descriptor.displayName">
             <span *ngIf="descriptor.displayName" class="group-label">{{descriptor.displayName}}</span>
             <ng-template #groupContainer></ng-template>
         </div>
@@ -28,15 +28,12 @@ import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configurati
 export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDescriptor, ParameterGroup> {
 
     @Input() set conditionInput(val: Parameter) {
-        this._isVisible.next(this.checkCondition(val));
+        this.isVisible$.next(this.checkCondition(val));
     };
 
-    @ViewChild('groupContainer', {read: ViewContainerRef}) groupContainer: ViewContainerRef;
+    @ViewChild('groupContainer', { read: ViewContainerRef }) groupContainer: ViewContainerRef;
 
-    private _isVisible: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
-    //private _visible$: Observable<boolean> = this._isVisible.asObservable().pipe(share<boolean>());
-
+    isVisible$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     private _unsubscribe$: Subject<void> = new Subject();
 
@@ -45,13 +42,13 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
     }
 
     protected onInit(): void {
-        this._isVisible.pipe(filter<boolean>(val => val), takeUntil(this._unsubscribe$)).subscribe(_ => {
+        this.isVisible$.pipe(filter<boolean>(val => val), takeUntil(this._unsubscribe$)).subscribe(_ => {
             setTimeout(() => {
                 this.createParameterComponents(this.parameter.value.parameters)
             }, 0)
         });
         if (!this.descriptor.condition) {
-            this._isVisible.next(true);
+            this.isVisible$.next(true);
         }
 
     }
@@ -73,7 +70,7 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
 
         componentRef.instance.emitter.pipe(takeUntil(this._unsubscribe$)).subscribe((componentParameter: Parameter) => {
-            const groupParams: ParameterSet = _.cloneDeep(this.parameter.value);
+            const groupParams: ParameterSet = cloneDeep(this.parameter.value);
             const parameterIndex = groupParams.parameters.findIndex(param => param.ref.id === componentParameter.ref.id);
             if (parameterIndex > -1) {
                 groupParams.parameters.splice(parameterIndex, 1, componentParameter);
@@ -88,7 +85,7 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
     }
 
     isVisible(): boolean {
-        return this._isVisible.getValue();
+        return this.isVisible$.getValue();
     }
 
     private checkCondition(conditionValue: Parameter): boolean {

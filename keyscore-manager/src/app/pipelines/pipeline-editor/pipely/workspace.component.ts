@@ -28,19 +28,16 @@ import {share, takeUntil, tap} from "rxjs/operators";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
 import {
-    BlueprintJsonClass,
     Blueprint,
+    BlueprintJsonClass,
     FilterBlueprint,
     SinkBlueprint
 } from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
-import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {MimeType, TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
-import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
 import {AppConfig} from "@/app/app.config";
-import {ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
 
 
 @Component({
@@ -70,7 +67,6 @@ import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
                 <configurator fxFlex="25"
                               [pipelineMetaData]="pipelineMetaData$ | async"
                               [agents]="agents"
-                              [changedParameters]="_selectedBlockChangedParameterRefs$ | async"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
                                 descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor,
@@ -99,13 +95,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
     private _pipeline: EditingPipelineModel;
 
-    @Input() set changedParameters(val: Map<string, ParameterDescriptor[]>) {
-        this._changedParameters = val;
-
-    }
-
-    private _changedParameters: Map<string, ParameterDescriptor[]> = new Map();
-    private _selectedBlockChangedParameterRefs$: BehaviorSubject<ParameterRef[]> = new BehaviorSubject([]);
 
     @Input() agents: Agent[];
 
@@ -115,7 +104,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
     private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
 
-    private isInspecting: boolean = false;
+    isInspecting: boolean = false;
 
     @Input() runTrigger$: Observable<void>;
     @Input() saveTrigger$: Observable<void>;
@@ -154,9 +143,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
     @Input() applicationConf: AppConfig;
 
-    @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
-    @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
-    @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
+    @ViewChild("workspaceContainer", { read: ViewContainerRef, static: true }) workspaceContainer: ViewContainerRef;
+    @ViewChild("workspace", { read: ViewContainerRef, static: true }) mirrorContainer: ViewContainerRef;
+    @ViewChild("workspace", { read: ElementRef, static: true }) workspaceElement: ElementRef;
 
     @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
     @Output() onRunPipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
@@ -176,10 +165,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     private mirrorDraggable: Draggable;
 
     private selectedDraggableSource: BehaviorSubject<Draggable> = new BehaviorSubject(null);
-    private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
+    selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
     private selectedBlockForDataTable$: BehaviorSubject<string>;
-    private pipelineMetaData$: BehaviorSubject<{ name: string, description: string, selectedAgent: string }> = new BehaviorSubject(null);
+    pipelineMetaData$: BehaviorSubject<{ name: string, description: string, selectedAgent: string }> = new BehaviorSubject(null);
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
 
@@ -367,7 +356,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         this.isConfiguratorOpened = false;
     }
 
-    private saveConfiguration(configuration: Configuration) {
+    saveConfiguration(configuration: Configuration) {
         let stack: Draggable[] = [];
         stack.push(...this.draggables);
         let draggable: Draggable;
@@ -382,7 +371,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         }
     }
 
-    private savePipelineMetaData(metaData: { name: string, description: string, selectedAgent: string }) {
+    savePipelineMetaData(metaData: { name: string, description: string, selectedAgent: string }) {
 
         this.setPipelineMetaData("pipeline.name", metaData.name);
         this.setPipelineMetaData("pipeline.description", metaData.description);
@@ -469,7 +458,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
             //TODO: Disable when no pipeline
             this.isInspecting = !this.isInspecting;
-            console.log("set flag to " + this.isInspecting);
             this.selectBlock(this.selectedDraggableSource.getValue());
             if (!this.selectedBlockForDataTable$) {
                 let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
@@ -494,34 +482,19 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             }
         }));
 
-        this.selectedDraggableSource.pipe(takeUntil(this.isAlive$)).subscribe(draggable => {
-                console.log("SELECTEDDRAGGABLEPIPE");
-                console.log("CHANGEMAP:", this._changedParameters);
-                let selectedBlockChangedParameterRefs = [];
-                if (draggable) {
-                    console.log("DRAGGABLE BLUEPRINT REF: ", draggable.getDraggableModel().blueprintRef.uuid);
-                    console.log("DRAGGABLE Descriptor REF: ", draggable.getDraggableModel().blockDescriptor.ref.uuid);
-                    const selectedBlockChangedParameters: ParameterDescriptor[] = this._changedParameters.get(draggable.getDraggableModel().blueprintRef.uuid);
-                    if (selectedBlockChangedParameters) {
-                        selectedBlockChangedParameterRefs = selectedBlockChangedParameters.map(descriptor => descriptor.ref);
-                    }
-                }
-                console.log("SELECTEDDRAGGABLEAFTER: ", selectedBlockChangedParameterRefs);
-                this._selectedBlockChangedParameterRefs$.next(selectedBlockChangedParameterRefs);
-            }
-        );
 
         this.pipelineUpdate();
-
 
     }
 
     private pipelineUpdate() {
         if (!this.workspaceDropzone || !this.pipeline) return;
 
-        this.workspaceDropzone.clearViewContainer();
+        this.drawEditingPipeline();
+        this.updatePipelineMetaData();
+    }
 
-        this.buildEditPipeline();
+    private updatePipelineMetaData() {
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
         const selectedAgentLabel = this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.selectedAgent');
@@ -536,14 +509,15 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         });
     }
 
-    private buildEditPipeline() {
+    private drawEditingPipeline() {
+        this.workspaceDropzone.clearViewContainer();
         let nextBlueprint: Blueprint = this.pipeline.blueprints.find(blueprint =>
             blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
 
         if (!nextBlueprint) return;
-        //TODO find possibility to center (workspace element width is 0?!) without this magic number shit (0.75 => percentage of workspace width,250px => width of sidebar)
         const dropzone = this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent;
-        let sourceXPosition = (this.workspaceElement.nativeElement.offsetWidth * 0.75 + 250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
+        const viewWidth =  Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        let sourceXPosition = (viewWidth * 0.75 + 250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
         let sourceYPosition = dropzone.workspaceScrollContainer.nativeElement.offsetHeight / 2 - DRAGGABLE_HEIGHT / 2;
 
         let models: DraggableModel[] = [];

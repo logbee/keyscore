@@ -1,4 +1,4 @@
-import {MatTableDataSource} from "@angular/material";
+import { MatTableDataSource } from "@angular/material/table";
 import {BehaviorSubject} from "rxjs";
 import {
     ChangeType,
@@ -32,6 +32,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
             } else {
                 this.datasetIndex = this.datasetIndex;
             }
+
         }
     }
 
@@ -111,7 +112,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     private updateData() {
-        if (this._datasetTableModels && this._datasetTableModels[this.datasetIndex]) {
+        if (this._datasetTableModels && this._datasetTableModels[this.datasetIndex] && this._datasetTableModels[this.datasetIndex].records[this.recordsIndex]) {
             this.data = this._datasetTableModels[this.datasetIndex].records[this.recordsIndex].rows;
         } else {
             this.data = [];

@@ -13,8 +13,8 @@ import {DropzoneSubcomponent} from "./dropzone-subcomponent";
 })
 
 export class TrashDropzoneSubcomponent implements DropzoneSubcomponent{
-    @ViewChild("draggableContainer", {read: ViewContainerRef}) draggableContainer: ViewContainerRef;
-    @ViewChild("dropzone") dropzoneElement: ElementRef;
+    @ViewChild("draggableContainer", { read: ViewContainerRef, static: true }) draggableContainer: ViewContainerRef;
+    @ViewChild("dropzone", { static: true }) dropzoneElement: ElementRef;
 
     isDroppable:boolean;
 

@@ -1,7 +1,9 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {LoadAgentsAction, RemoveCurrentAgentAction} from "./agents.actions";
-import {MatPaginator, MatSort, MatTable} from "@angular/material";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
+import { MatTable } from "@angular/material/table";
 import {TranslateService} from "@ngx-translate/core";
 import {AgentsState, getAgents} from "./agents.reducer";
 import {AgentDataSource} from "../data-source/agent-data-source";
@@ -68,13 +70,13 @@ import {AgentDataSource} from "../data-source/agent-data-source";
 })
 
 export class AgentsComponent implements AfterViewInit {
-    private title: string = "Agents";
+    title: string = "Agents";
     displayedColumns: string[] = ['number', 'id', 'name', 'host', 'remove'];
     dataSource: AgentDataSource = new AgentDataSource(this.store.select(getAgents));
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
-    @ViewChild(MatTable) table: MatTable<any>;
+    @ViewChild(MatSort, { static: true }) sort: MatSort;
+    @ViewChild(MatTable, { static: true }) table: MatTable<any>;
 
     constructor(private store: Store<AgentsState>, private translate: TranslateService) {
         translate.setDefaultLang("en");

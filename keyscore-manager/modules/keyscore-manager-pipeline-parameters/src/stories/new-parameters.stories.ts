@@ -123,7 +123,7 @@ import { boolean, number, text, withKnobs } from '@storybook/addon-knobs';
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
-        return of(require('../../../../public/assets/i18n/en.json'))
+        return of(require('../../../../src/assets/i18n/en.json'))
     }
 };
 

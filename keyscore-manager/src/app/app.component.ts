@@ -1,4 +1,4 @@
-import {Component, ViewChild, ViewContainerRef} from "@angular/core";
+import {Component, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
 import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {AppConfig, selectAppConfig} from "./app.config";
@@ -10,7 +10,7 @@ import {ToggleMenuAction} from "./common/sidemenu/sidemenu.actions";
 import {ErrorState} from "./common/error/error.reducer";
 import {SnackbarState} from "./common/snackbar/snackbar.reducer";
 import {DomSanitizer} from "@angular/platform-browser";
-import {MatIconRegistry} from "@angular/material";
+import {MatIconRegistry} from "@angular/material/icon";
 import {AgentsState} from "@/app/agents/agents.reducer";
 import {Router} from "@angular/router";
 import {take} from "rxjs/operators";
@@ -22,8 +22,9 @@ export interface AppState {
     menu: MenuState;
     error: ErrorState;
     snackbar: SnackbarState;
-    agents:AgentsState
+    agents: AgentsState;
 }
+
 
 @Component({
     selector: "my-app",
@@ -42,7 +43,6 @@ export interface AppState {
                 <mat-sidenav-content class="sidenav-content">
                     <router-outlet></router-outlet>
                 </mat-sidenav-content>
-
             </mat-sidenav-container>
         </div>
     `,
@@ -51,20 +51,26 @@ export interface AppState {
     ]
 })
 
-export class AppComponent {
+export class AppComponent implements OnInit {
 
     @ViewChild("modal", {
-        read: ViewContainerRef
+        read: ViewContainerRef,
+        static: true
     }) public viewContainerRef: ViewContainerRef;
-
 
     constructor(private store: Store<any>,
                 private translate: TranslateService,
                 private matIconRegistry: MatIconRegistry,
                 private domSanitizer: DomSanitizer,
-                private router:Router) {
+                private router: Router) {
 
         this.addPermittedRolesToRoutes();
+
+
+    }
+
+    ngOnInit(): void {
+
     }
 
     public setLanguage(language: string) {

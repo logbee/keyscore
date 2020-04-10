@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {FormControl} from "@angular/forms";
 import {animate, style, transition, trigger} from "@angular/animations";
-import * as _ from 'lodash'
+import {cloneDeep} from 'lodash-es';
 import {
     ChoiceParameter,
     ChoiceParameterDescriptor
@@ -12,14 +12,14 @@ import {
     selector: 'parameter-choice',
     template: `
         <mat-form-field>
-            <mat-select [formControl]="_selectFormControl" [multiple]="descriptor.max > 1 ? '' :null"
+            <mat-select [formControl]="selectFormControl" [multiple]="descriptor.max > 1 ? '' :null"
                         (selectionChange)="selectionChanged()">
                 <mat-option *ngFor="let choice of descriptor.choices;let i=index" [value]="choice.name"
                             [matTooltip]="choice.description ||null"
                             matTooltipPosition="before">
                     <span>{{choice.displayName}}</span>
 
-                    <div @max-warn *ngIf="_showMaxError[i]" class="choice-max-error" translate
+                    <div @max-warn *ngIf="showMaxError[i]" class="choice-max-error" translate
                          [translateParams]="{name:descriptor.displayName,max:descriptor.max}">
                         PARAMETER.CHOICE_MAX_SELECTION_WARNING
                     </div>
@@ -27,9 +27,9 @@ import {
             </mat-select>
             <mat-label>{{descriptor.displayName}}</mat-label>
         </mat-form-field>
-        <p class="parameter-warn" *ngIf=" descriptor.min > 1 && _selectFormControl.value.length < descriptor.min"
-            translate [translateParams]="{name:descriptor.displayName,min:descriptor.min}">
-            PARAMETER.CHOICE_MIN_SELECTION_WARNING    
+        <p class="parameter-warn" *ngIf=" descriptor.min > 1 && selectFormControl.value.length < descriptor.min"
+           translate [translateParams]="{name:descriptor.displayName,min:descriptor.min}">
+            PARAMETER.CHOICE_MIN_SELECTION_WARNING
         </p>
     `,
     styleUrls: ['../../style/parameter-module-style.scss'],
@@ -47,42 +47,41 @@ import {
 })
 export class ChoiceParameterComponent extends ParameterComponent<ChoiceParameterDescriptor, ChoiceParameter> {
     get value(): ChoiceParameter {
-        return new ChoiceParameter(this.descriptor.ref, this._selectFormControl.value)
+        return new ChoiceParameter(this.descriptor.ref, this.selectFormControl.value)
     }
 
-    private _selectFormControl: FormControl;
-
-
-    private _selections: string[];
-    private _showMaxError: boolean[] = [];
+    selectFormControl: FormControl;
+    selections: string[];
+    showMaxError: boolean[] = [];
 
     protected onInit() {
-        this._selectFormControl = new FormControl(this.parameter.value || "");
-        this.descriptor.choices.forEach(_ => this._showMaxError.push(false));
+        this.selectFormControl = new FormControl(this.parameter.value || "");
+        this.descriptor.choices.forEach(_ => this.showMaxError.push(false));
     }
 
-    private onChange() {
+    onChange() {
         this.emit(this.value);
     }
 
-    private selectionChanged() {
+    selectionChanged() {
         if (this.descriptor.max === 1) {
             this.onChange();
             return;
         }
-        if (this._selectFormControl.value.length <= this.descriptor.max) {
-            this._selections = this._selectFormControl.value;
+        if (this.selectFormControl.value.length <= this.descriptor.max) {
+            this.selections = this.selectFormControl.value;
             this.onChange();
-        } else {
-            const currentValue: string[] = _.cloneDeep(this._selectFormControl.value);
-            this._selectFormControl.setValue(this._selections);
-            const selectedIndex = this.descriptor.choices.map(choice => choice.name).findIndex(val =>
-                !this._selections.includes(val) && currentValue.includes(val));
-            if (selectedIndex > -1 && this._showMaxError.every(error => error === false)) {
-                this._showMaxError[selectedIndex] = true;
-                setTimeout(() => this._showMaxError[selectedIndex] = false, 5000);
-            }
+            return;
         }
+        const currentValue: string[] = cloneDeep(this.selectFormControl.value);
+        this.selectFormControl.setValue(this.selections);
+        const selectedIndex = this.descriptor.choices.map(choice => choice.name).findIndex(val =>
+            !this.selections.includes(val) && currentValue.includes(val));
+        if (selectedIndex > -1 && this.showMaxError.every(error => error === false)) {
+            this.showMaxError[selectedIndex] = true;
+            setTimeout(() => this.showMaxError[selectedIndex] = false, 5000);
+        }
+
     }
 
 

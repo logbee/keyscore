@@ -57,43 +57,43 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
         return new PasswordParameter(this.descriptor.ref, this.passwordInputRef.nativeElement.value);
     }
 
-    @ViewChild('passwordInput') passwordInputRef: ElementRef;
+    @ViewChild('passwordInput', { static: true }) passwordInputRef: ElementRef;
 
-    private isPasswordVisible: boolean = false;
-    private warning: string = null;
+    isPasswordVisible: boolean = false;
+    warning: string = null;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
     }
 
-    public clear() {
+    clear() {
         this.passwordInputRef.nativeElement.value = "";
         this.onChange();
     }
 
-    public focus(event: Event) {
+    focus(event: Event) {
         this.passwordInputRef.nativeElement.focus();
     }
 
-    private onChange(): void {
+    onChange(): void {
         if (this.validate()) {
             this.emit(this.value);
         }
     }
 
-    private onEnter(event: Event): void {
+    onEnter(event: Event): void {
         this.keyUpEnterEvent.emit(event);
     }
 
-    private showPassword(): void {
+    showPassword(): void {
         this.isPasswordVisible = true;
     }
 
-    private hidePassword(): void {
+    hidePassword(): void {
         this.isPasswordVisible = false;
     }
 
-    private validate(): boolean {
+    validate(): boolean {
 
         if (this.isMandatoryButEmpty()) {
             this.warning = "WARNING_MANDATORY_BUT_EMPTY";

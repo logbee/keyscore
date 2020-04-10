@@ -42,7 +42,7 @@ export class PuzzleCategoryComponent implements OnInit {
     @Output() onDraggablesCreated: EventEmitter<string> = new EventEmitter();
     @Output() onInit:EventEmitter<void> = new EventEmitter();
 
-    @ViewChild("blockContainer", {read: ViewContainerRef}) blockContainer: ViewContainerRef;
+    @ViewChild("blockContainer", { read: ViewContainerRef, static: true }) blockContainer: ViewContainerRef;
 
     private toolbarDropzone: Dropzone;
 

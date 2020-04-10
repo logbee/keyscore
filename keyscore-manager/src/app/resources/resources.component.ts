@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {MatPaginator, MatSort} from "@angular/material";
+import {MatPaginator} from "@angular/material/paginator";
+import {MatSort} from "@angular/material/sort";
 import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
@@ -18,8 +19,8 @@ import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/
     ],
     template: `
         <header-bar
-                [showManualReload]="false"
-                [title]="title">
+            [showManualReload]="false"
+            [title]="title">
         </header-bar>
         <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <!--Search Field-->
@@ -39,19 +40,21 @@ import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
                     <td mat-cell *matCellDef="let resourceModel">{{resourceModel.blueprint?.ref.uuid}}</td>
                 </ng-container>
-                
+
                 <!--Resource display name-->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.descriptor?.displayName}}</td>lk
+                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.descriptor?.displayName}}</td>
+                    lk
                 </ng-container>
 
                 <!--Resource categories -->
                 <ng-container matColumnDef="categories">
                     <th mat-header-cell *matHeaderCellDef>Categories</th>
-                    <td mat-cell *matCellDef="let resourceModel">{{getCategories(resourceModel)}}</td>lk
+                    <td mat-cell *matCellDef="let resourceModel">{{getCategories(resourceModel)}}</td>
+                    lk
                 </ng-container>
-                
+
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
@@ -63,8 +66,9 @@ import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/
                 <!--Expandend Content Column-->
                 <ng-container matColumnDef="expandedDetail">
                     <td mat-cell *matCellDef="let resourceModel" [attr.colspan]="4">
-                        <json-visualizer class="jsonViewer" [configuration]="resourceModel.configuration" 
-                                         [descriptor]="resourceModel.descriptor" [class.visible]="expandedElement === resourceModel.blueprint">>
+                        <json-visualizer class="jsonViewer" [configuration]="resourceModel.configuration"
+                                         [descriptor]="resourceModel.descriptor"
+                                         [class.visible]="expandedElement === resourceModel.blueprint">>
                         </json-visualizer>
                     </td>
                 </ng-container>
@@ -92,15 +96,15 @@ import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/
 
 export class ResourcesComponent implements OnInit {
 
-    private title: string = "Resources";
-    private dataSource$: BehaviorSubject<ResourcesDataSource> = new BehaviorSubject<ResourcesDataSource>(new ResourcesDataSource([]));
-    private resourceModels$: Observable<ResourceTableModel[]> = this.store.pipe(select(selectTableModels));
+    title: string = "Resources";
+    dataSource$: BehaviorSubject<ResourcesDataSource> = new BehaviorSubject<ResourcesDataSource>(new ResourcesDataSource([]));
+    resourceModels$: Observable<ResourceTableModel[]> = this.store.pipe(select(selectTableModels));
 
     expandedElement: any;
     isExpansionDetailRow = (i: number) => i % 2 === 1;
 
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
+    @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+    @ViewChild(MatSort, {static: true}) sort: MatSort;
 
     constructor(private store: Store<any>) {
     }
@@ -112,6 +116,7 @@ export class ResourcesComponent implements OnInit {
             this.dataSource$.getValue().sort = this.sort;
         });
     }
+
     applyFilter(filterValue: string) {
         this.dataSource$.getValue().filter = filterValue;
         if (this.dataSource$.getValue().paginator) {

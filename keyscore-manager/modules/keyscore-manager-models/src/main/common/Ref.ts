@@ -1,4 +1,4 @@
-import * as faker from 'faker/locale/en_US';
+import * as uuid from 'uuid';
 
 
 export interface Ref{
@@ -11,17 +11,12 @@ export interface ParameterRef{
 
 export const generateRef = (): Ref => {
     return {
-        uuid: faker.random.uuid()
+        uuid: uuid()
     }
 };
-export const generateRefs = (count = faker.random.number({min: 1, max: 10})): Ref[] => {
-    return Array.apply(null, Array(count)).map(() => generateRef());
-};
+
 export const generateParameterRef = (): ParameterRef => {
     return {
-        id: faker.random.uuid()
+        id: uuid()
     }
-};
-export const generateParameterRefs = (count = faker.random.number({min: 1, max: 10})): ParameterRef[] => {
-    return Array.apply(null, Array(count)).map(() => generateParameterRef());
 };

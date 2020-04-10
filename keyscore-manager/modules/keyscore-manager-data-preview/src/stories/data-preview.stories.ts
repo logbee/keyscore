@@ -3,7 +3,7 @@ import {DataPreviewComponent} from "../main/components/data-preview.component";
 import {CommonModule} from "@angular/common";
 import {MaterialModule} from "@keyscore-manager-material/src/main/material.module";
 import {LeftToRightNavigationControl} from "../main/components/left-right-navigation-control.component";
-import {ValueType} from "../main/components/value.type.component";
+import {ValueType} from "../main/components/value-type.component";
 import {HttpClient} from "@angular/common/http";
 import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
@@ -135,7 +135,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
-        return of(require('../../../../public/assets/i18n/en.json'))
+        return of(require('../../../../src/assets/i18n/en.json'))
     }
 };
 

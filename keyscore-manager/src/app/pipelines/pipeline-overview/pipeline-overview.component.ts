@@ -19,7 +19,7 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
                     <mat-checkbox (change)="onSelectionChange(pipelineTableModel.uuid, $event.checked)"></mat-checkbox>
                 </td>
             </ng-container>
-            
+
             <ng-container matColumnDef="health">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
                 <td mat-cell *matCellDef="let pipelineTableModel">
@@ -45,9 +45,9 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
                 <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
                 <td mat-cell *matCellDef="let pipelineTableModel" align="right">
                     <!-- TODO: Enable when ready. -->
-<!--                    <mat-slide-toggle [checked]="isRunning(pipelineTableModel)"-->
-<!--                                      (change)="onChange($event.checked, pipelineTableModel)">-->
-<!--                    </mat-slide-toggle>-->
+                    <!--                    <mat-slide-toggle [checked]="isRunning(pipelineTableModel)"-->
+                    <!--                                      (change)="onChange($event.checked, pipelineTableModel)">-->
+                    <!--                    </mat-slide-toggle>-->
                     <button mat-icon-button (click)="onEditPipeline(pipelineTableModel.uuid)">
                         <mat-icon>edit</mat-icon>
                     </button>
@@ -64,7 +64,7 @@ import {PipelineTableModel} from "@/app/pipelines/PipelineTableModel";
 export class PipelineOverviewComponent implements AfterViewInit {
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
+    @ViewChild(MatSort, {static: true}) sort: MatSort;
 
     @Input() dataSource: PipelineDataSource;
     @Input() selectionMode: boolean;
@@ -72,45 +72,44 @@ export class PipelineOverviewComponent implements AfterViewInit {
     @Output() deployPipeline: EventEmitter<[string, boolean]> = new EventEmitter();
     @Output() pipelinesSelected: EventEmitter<string[]> = new EventEmitter();
 
-    private healthType = Health;
+    healthType = Health;
 
-    private selectedPipelines = new Set<string>();
+    selectedPipelines = new Set<string>();
 
-    public ngAfterViewInit(): void {
+    ngAfterViewInit(): void {
         console.log("Datasource: ", this.dataSource);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
     }
 
-    private onEditPipeline(uuid: string) {
+    onEditPipeline(uuid: string) {
         this.editPipeline.emit(uuid);
     }
 
-    private onChange(checked: boolean, pipeline: PipelineTableModel): void {
+    onChange(checked: boolean, pipeline: PipelineTableModel): void {
         // console.log('pipeline', checked, pipeline);
         this.deployPipeline.emit([pipeline.uuid, checked]);
     }
 
-    private onSelectionChange(pipeline: string, selected: boolean): void {
+    onSelectionChange(pipeline: string, selected: boolean): void {
 
         if (selected) {
             this.selectedPipelines.add(pipeline)
-        }
-        else {
+        } else {
             this.selectedPipelines.delete(pipeline);
         }
 
         if (this.selectionMode) {
-            this.pipelinesSelected.emit([...this.selectedPipelines]);
+            this.pipelinesSelected.emit(Array.from(this.selectedPipelines));
         }
     }
 
-    private isRunning(pipeline: PipelineTableModel): boolean {
+    isRunning(pipeline: PipelineTableModel): boolean {
         return pipeline.health != Health.Unknown;
     }
 
-    private getColumns(): string[] {
+    getColumns(): string[] {
         if (this.selectionMode) return ['select', 'health', 'uuid', 'name', 'deploy'];
         else return ['health', 'uuid', 'name', 'deploy'];
     }
- }
+}

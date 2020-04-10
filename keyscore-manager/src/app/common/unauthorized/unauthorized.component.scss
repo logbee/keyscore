@@ -1,8 +1,8 @@
-@import '../../../assets/variables';
+@import 'variables';
 
 @font-face {
   font-family: Bungee;
-  src: url("/assets/fonts/Bungee/Bungee-Regular.ttf") format("truetype");
+  src: url("~assets/fonts/Bungee/Bungee-Regular.ttf") format("truetype");
 }
 
 /*.wrapper {

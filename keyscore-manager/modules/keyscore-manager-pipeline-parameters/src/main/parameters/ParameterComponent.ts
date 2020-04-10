@@ -1,8 +1,9 @@
-import {Component, ElementRef, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output} from "@angular/core";
+import { Component, ElementRef, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, Directive } from "@angular/core";
 
-@Component({
+/*@Component({
     selector: 'parameter',
-})
+})*/
+@Directive()
 export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     @Input() public descriptor: D;
@@ -56,4 +57,6 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     protected onDestroy(): void {
     }
+
+
 }

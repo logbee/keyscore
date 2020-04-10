@@ -6,7 +6,7 @@ import {MenuReducer} from "./common/sidemenu/sidemenu.reducer";
 import {LoadingReducer} from "./common/loading/loading.reducer";
 import {ErrorReducer} from "./common/error/error.reducer";
 import {SnackbarReducer} from "./common/snackbar/snackbar.reducer";
-import {AgentsReducer} from "./agents/agents.reducer";
+import {AgentsReducer} from "@/app/agents/agents.reducer";
 
 export const reducers: ActionReducerMap<AppState> = {
     config: AppConfigReducer,

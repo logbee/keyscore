@@ -14,7 +14,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
-        return of(require('../../public/assets/i18n/en.json'))
+        return of(require('../assets/i18n/en.json'))
     }
 };
 

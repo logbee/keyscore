@@ -23,6 +23,7 @@ import {Store} from "@ngrx/store";
 import {Go} from "../../../router/router.actions";
 import {ConnectorComponent} from "./connectors/connector.component";
 import {IconFormat, IconEncoding} from "@/../modules/keyscore-manager-models/src/main/descriptors/Icon";
+import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-configuration-checker.service";
 
 
 @Component({
@@ -73,6 +74,7 @@ import {IconFormat, IconEncoding} from "@/../modules/keyscore-manager-models/src
 
                         </div>
                     </div>
+                    <mat-icon *ngIf="hasChangedParameters" color="warn" class="draggable-warning">warning</mat-icon>
                 </div>
 
                 <div class="connection next-connection" fxLayout="column" fxLayoutAlign="center center">
@@ -94,36 +96,39 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     draggableModel: DraggableModel;
     componentRef: ComponentRef<DraggableComponent>;
 
-    @ViewChild("iconInnerContainer") iconContainer: ElementRef;
-    @ViewChild("draggableElement") draggableElement: ElementRef;
-    @ViewChild("previousConnection", {read: ViewContainerRef}) previousConnectionContainer: ViewContainerRef;
-    @ViewChild("nextConnection", {read: ViewContainerRef}) nextConnectionContainer: ViewContainerRef;
+    @ViewChild("iconInnerContainer", { static: true }) iconContainer: ElementRef;
+    @ViewChild("draggableElement", { static: true }) draggableElement: ElementRef;
+    @ViewChild("previousConnection", { read: ViewContainerRef, static: true }) previousConnectionContainer: ViewContainerRef;
+    @ViewChild("nextConnection", { read: ViewContainerRef, static: true }) nextConnectionContainer: ViewContainerRef;
 
-    public id: string;
+    id: string;
+    isAlive = new Subject<void>();
+
+    private dragStartSource = new Subject<MouseEvent>();
+    dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
+
+    visible: boolean = true;
+    isPreviousConncetionDroppable: boolean = false;
+    isNextConnectionDroppable: boolean = false;
+    nextConnectionDropzone: Dropzone;
+    previousConnectionDropzone: Dropzone;
 
     private dropzoneType: typeof DropzoneType = DropzoneType;
 
-    private dragStartSource = new Subject<MouseEvent>();
-    private isAlive = new Subject<void>();
 
-    dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
 
     private lastDragX: number;
     private lastDragY: number;
-    private visible: boolean = true;
     private preDragPosition: { x: number, y: number } = {x: 0, y: 0};
 
-    public nextConnectionDropzone: Dropzone;
-    private previousConnectionDropzone: Dropzone;
-
-    private isPreviousConncetionDroppable: boolean = false;
-    private isNextConnectionDroppable: boolean = false;
 
     private next: Draggable;
 
     private dropzoneFactory: DropzoneFactory;
 
-    constructor(private resolver: ComponentFactoryResolver, private store: Store<any>) {
+    hasChangedParameters: boolean = false;
+
+    constructor(private resolver: ComponentFactoryResolver, private store: Store<any>, private pipelineConfigurationChecker: PipelineConfigurationChecker) {
         this.id = uuid();
         this.dropzoneFactory = new DropzoneFactory(resolver);
     }
@@ -153,9 +158,15 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.draggableModel.isSelected = true;
         }
 
+        this.pipelineConfigurationChecker.getUpdatedParametersForFilter(this.draggableModel.blueprintRef.uuid).subscribe(parameters => {
+                if (parameters) {
+                    this.hasChangedParameters = parameters.length > 0
+                }
+            }
+        )
+
     }
 
-    //TODO move to factory?
     public ngAfterViewInit() {
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
@@ -244,7 +255,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         this.isAlive.next();
     }
 
-    private triggerDragStart(event: MouseEvent) {
+    triggerDragStart(event: MouseEvent) {
         event.stopPropagation();
         this.dragStartSource.next(event);
     }

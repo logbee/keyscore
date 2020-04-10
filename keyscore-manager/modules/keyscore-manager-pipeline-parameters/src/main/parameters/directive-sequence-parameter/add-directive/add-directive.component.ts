@@ -32,7 +32,7 @@ export interface MenuItem {
         <mat-expansion-panel hideToggle class="add-directive-wrapper" [disabled]="hasNoMenuItems()">
 
             <mat-expansion-panel-header *ngIf="!hasNoMenuItems();else withOutItems"
-                                        [@openClose]="_panelExpanded ? 'open' : 'closed'"
+                                        [@openClose]="panelExpanded ? 'open' : 'closed'"
                                         class="add-directive-header">
                 <mat-panel-title class="add-button">
                     <mat-icon color="accent">add_circle_outline</mat-icon>
@@ -41,8 +41,8 @@ export interface MenuItem {
 
             <ng-template #withOutItems>
                 <mat-expansion-panel-header
-                        class="add-directive-header"
-                        matRipple [matRippleColor]="rippleColor" (click)="add(null)">
+                    class="add-directive-header"
+                    matRipple [matRippleColor]="rippleColor" (click)="add(null)">
                     <mat-panel-title class="add-button">
                         <mat-icon color="accent">add_circle_outline</mat-icon>
                     </mat-panel-title>
@@ -98,12 +98,12 @@ export class AddDirectiveComponent implements AfterViewInit, OnDestroy {
 
     @Output() onAdd: EventEmitter<MenuItem> = new EventEmitter();
 
-    @ViewChild(MatExpansionPanel) panel: MatExpansionPanel;
+    @ViewChild(MatExpansionPanel, {static: true}) panel: MatExpansionPanel;
     @ViewChildren('iconContainer') iconContainers: QueryList<ElementRef>;
 
-    private _panelExpanded: boolean;
-    private _unsubscribe$: Subject<void> = new Subject();
+    panelExpanded: boolean;
 
+    private _unsubscribe$: Subject<void> = new Subject();
     private _rippleMenuItemConfig: RippleAnimationConfig = {
         enterDuration: 0.2,
         exitDuration: 0.2
@@ -115,7 +115,7 @@ export class AddDirectiveComponent implements AfterViewInit, OnDestroy {
     ngAfterViewInit(): void {
         this.insertDirectiveIcons();
         this.iconContainers.changes.pipe(takeUntil(this._unsubscribe$)).subscribe(() => this.insertDirectiveIcons());
-        this.panel.expandedChange.pipe(takeUntil(this._unsubscribe$)).subscribe((val) => this._panelExpanded = val);
+        this.panel.expandedChange.pipe(takeUntil(this._unsubscribe$)).subscribe((val) => this.panelExpanded = val);
     }
 
     private insertDirectiveIcons() {
@@ -127,22 +127,22 @@ export class AddDirectiveComponent implements AfterViewInit, OnDestroy {
         })
     }
 
-    public closePanel() {
+    closePanel() {
         this.panel.close();
     }
 
-    private add(item: MenuItem) {
+    add(item: MenuItem) {
         if (this.autoClosePanelOnAdd) {
             this.closePanel();
         }
         this.onAdd.emit(item);
     }
 
-    private hasNoMenuItems() {
+    hasNoMenuItems() {
         return !(this.itemsToAdd && this.itemsToAdd.length > 0);
     }
 
-    private onClick() {
+    onClick() {
         if (this.hasNoMenuItems()) {
             this.onAdd.emit(null);
         }

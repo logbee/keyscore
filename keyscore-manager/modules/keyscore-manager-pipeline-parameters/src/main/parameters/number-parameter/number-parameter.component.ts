@@ -36,7 +36,7 @@ export class NumberParameterComponent extends ParameterComponent<NumberParameter
         this.ref = this.descriptor.ref;
     }
 
-    private onChange(value: string): void {
+    onChange(value: string): void {
         const parameter = new NumberParameter(this.ref, Number(value));
         this.emit(parameter)
     }

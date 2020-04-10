@@ -13,7 +13,7 @@ import {
     UPDATE_PIPELINE_SUCCESS,
 } from "../actions/pipelines.actions";
 import {PipelineTableModel} from "../PipelineTableModel";
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash-es';
 import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
 import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
@@ -102,7 +102,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 })
             };
         case LOAD_ALL_PIPELINE_INSTANCES_SUCCESS:
-            let pipelineListCopy: PipelineTableModel[] = _.cloneDeep(state.pipelineList);
+            let pipelineListCopy: PipelineTableModel[] = cloneDeep(state.pipelineList);
             action.pipelineInstances.forEach(instance => {
                 const index = pipelineListCopy.findIndex(dataModel => dataModel.uuid === instance.id);
                 if (index >= 0) {
@@ -114,11 +114,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 pipelineList: pipelineListCopy
             };
         case STOP_PIPELINE_SUCCESS:
-            let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
+            let pipelineList = cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
             return {...state, pipelineList: pipelineList};
         case STOP_PIPELINE_FAILURE:
             if (action.cause.status === 404) {
-                let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
+                let pipelineList = cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
                 return {...state, pipelineList: pipelineList};
             }
             return state;

@@ -3,8 +3,6 @@ import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {DragDropModule} from '@angular/cdk/drag-drop';
-import {PropagationStopModule} from "ngx-propagation-stop";
-import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {TextParameterModule} from "./parameters/text-parameter/text-parameter.module";
 import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 import {StringValidatorService} from "./service/string-validator.service";
@@ -32,7 +30,6 @@ import {ParameterErrorWrapperComponent} from "@keyscore-manager-pipeline-paramet
         TranslateModule,
         MaterialModule,
         DragDropModule,
-        PropagationStopModule,
         ExpressionParameterModule,
         TextParameterModule,
         PasswordParameterModule,

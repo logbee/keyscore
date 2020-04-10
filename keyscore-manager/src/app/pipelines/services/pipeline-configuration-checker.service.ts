@@ -2,67 +2,101 @@ import {EditingPipelineModel} from "@keyscore-manager-models/src/main/pipeline-m
 import {FilterDescriptor} from "@keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {Injectable} from "@angular/core";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
-import * as _ from 'lodash';
+import {cloneDeep,partition} from 'lodash-es';
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
 import {Blueprint} from "@keyscore-manager-models/src/main/blueprints/Blueprint";
+import {BehaviorSubject, Observable} from "rxjs";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {map} from "rxjs/operators";
 
 @Injectable({providedIn: 'root'})
 export class PipelineConfigurationChecker {
 
-    /**
-     * Align the FilterConfigurations of the pipeline model with the FilterDescriptors,
-     * if the Configuration diverges from the Descriptor.
-     * @param editingPipelineModel : EditingPipelineModel
-     * @param pipelineFilterDescriptors : FilterDescriptor[]
-     * @returns aligned EditingPipelineModel and a Map with blueprint id as key and updated ParameterDescriptors as value : {pipeline,updatedParameters}
-     */
-    public alignConfigWithDescriptor(editingPipelineModel: EditingPipelineModel, pipelineFilterDescriptors: FilterDescriptor[]):
-        { pipeline: EditingPipelineModel, updatedParameters: Map<string, ParameterDescriptor[]> } {
+    private _changedParameters$: BehaviorSubject<Map<string, ParameterRef[]>> = new BehaviorSubject<Map<string, ParameterRef[]>>(new Map());
+    public changedParameters$: Observable<Map<string, ParameterRef[]>> = this._changedParameters$.asObservable();
 
-        if (!editingPipelineModel) return {pipeline: null, updatedParameters: null};
-        if (!pipelineFilterDescriptors || !pipelineFilterDescriptors.length) return {
-            pipeline: editingPipelineModel,
-            updatedParameters: new Map()
-        };
+    public alignConfigWithDescriptor(editingPipelineModel: EditingPipelineModel, pipelineFilterDescriptors: FilterDescriptor[]): EditingPipelineModel {
 
-        const editingPipeline = _.cloneDeep(editingPipelineModel);
-        let updatedParameters = new Map();
+        if (!editingPipelineModel) return null;
+        if (!pipelineFilterDescriptors || !pipelineFilterDescriptors.length) {
+            this._changedParameters$.next(new Map());
+            return cloneDeep(editingPipelineModel);
+        }
+
+        const editingPipeline = cloneDeep(editingPipelineModel);
+        const updatedParameters: Map<string, ParameterRef[]> = new Map();
 
         editingPipeline.blueprints.forEach(blueprint => {
             const filterConfig = this.findFilterConfiguration(blueprint, editingPipeline.configurations);
             const filterDescriptor = this.findFilterDescriptor(blueprint, pipelineFilterDescriptors);
 
-            updatedParameters = this.addRecordForParametersToChange(updatedParameters, blueprint, filterConfig, filterDescriptor);
+            updatedParameters.set(blueprint.ref.uuid, this.getChangedParametersForConfigAndDescriptor(filterConfig, filterDescriptor));
 
             filterConfig.parameterSet.parameters = this.addMissingParameters(filterConfig, filterDescriptor);
             filterConfig.parameterSet.parameters = this.alignParameterTypes(filterConfig, filterDescriptor);
             filterConfig.parameterSet.parameters = this.removeUnnecessaryParameterConfigurations(filterConfig, filterDescriptor);
 
         });
+        this._changedParameters$.next(updatedParameters);
 
-        return {pipeline: editingPipeline, updatedParameters: updatedParameters};
+        return editingPipeline;
+    }
+
+    private addMissingParameters(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
+        const missingParameterDescriptors: ParameterDescriptor[] = this.getDescriptorsOfMissingParametersInConfig(descriptor, config);
+        const resultParameterList: Parameter[] = cloneDeep(config.parameterSet.parameters);
+        const parametersToAdd: Parameter[] = missingParameterDescriptors.map(descriptor => this.parameterFactory.parameterDescriptorToParameter(descriptor));
+        resultParameterList.push(...parametersToAdd);
+        return resultParameterList;
+
+    }
+
+    private alignParameterTypes(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
+        let resultParameterList: Parameter[] = cloneDeep(config.parameterSet.parameters);
+        const typeChangedParameterDescriptors: ParameterDescriptor[] =
+            this.getDescriptorsOfParametersWhereTypeChanged(this.getDescriptorsOfExistingParametersInConfig(descriptor, config), config.parameterSet.parameters);
+        resultParameterList = resultParameterList.filter(parameter => !typeChangedParameterDescriptors.map(descriptor => descriptor.ref.id).includes(parameter.ref.id));
+        const parametersToAdd = typeChangedParameterDescriptors.map(descriptor => this.parameterFactory.parameterDescriptorToParameter(descriptor));
+        resultParameterList.push(...parametersToAdd);
+        return resultParameterList;
     }
 
 
-    private addRecordForParametersToChange(updatedParameters: Map<string, ParameterDescriptor[]>, blueprint: Blueprint, config: Configuration, descriptor: FilterDescriptor): Map<string, ParameterDescriptor[]> {
-        const resultMap = _.cloneDeep(updatedParameters);
-        const missingParameters = this.getDescriptorsOfMissingParametersInConfig(descriptor, config);
-        const notMissingParameters = this.getDescriptorsOfNotMissingParametersInConfig(descriptor, config);
-        const typeChangedParameters = this.findTypeChangedDescriptors(notMissingParameters, config.parameterSet.parameters);
+    private removeUnnecessaryParameterConfigurations(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
+        return config.parameterSet.parameters.filter(param => {
+            return descriptor.parameters.map(desc => desc.ref.id).includes(param.ref.id);
+        });
+    }
 
-        resultMap.set(blueprint.ref.uuid, [...typeChangedParameters, ...missingParameters]);
-        return resultMap;
+    public confirmChangedParametersForFilter(filterBlueprintRef: string) {
+        const changedParameters: Map<string, ParameterRef[]> = cloneDeep(this._changedParameters$.getValue());
+        changedParameters.set(filterBlueprintRef, []);
+        this._changedParameters$.next(changedParameters);
+    }
 
+    public getUpdatedParametersForFilter(filterBlueprintRef: string): Observable<ParameterRef[]> {
+        return this.changedParameters$.pipe(map(changedParameters => {
+            const parameters = changedParameters.get(filterBlueprintRef);
+            return parameters || [];
+        }));
+    }
+
+    private getChangedParametersForConfigAndDescriptor(config: Configuration, descriptor: FilterDescriptor): ParameterRef[] {
+        const existingParameters = this.getDescriptorsOfExistingParametersInConfig(descriptor, config);
+        const missingParameters = this.getDescriptorsOfMissingParametersInConfig(descriptor, config).map(descriptor => descriptor.ref);
+        const typeChangedParameters = this.getDescriptorsOfParametersWhereTypeChanged(existingParameters, config.parameterSet.parameters).map(descriptor => descriptor.ref);
+
+        return [...typeChangedParameters, ...missingParameters];
     }
 
     private getDescriptorsOfMissingParametersInConfig(filterDescriptor: FilterDescriptor, filterConfig: Configuration): ParameterDescriptor[] {
-        return _.partition(filterDescriptor.parameters, (parameter: ParameterDescriptor) =>
+        return partition(filterDescriptor.parameters, (parameter: ParameterDescriptor) =>
             filterConfig.parameterSet.parameters.map(param => param.ref.id).includes(parameter.ref.id))[1] as ParameterDescriptor[];
     }
 
-    private getDescriptorsOfNotMissingParametersInConfig(filterDescriptor: FilterDescriptor, filterConfig: Configuration): ParameterDescriptor[] {
-        return _.partition(filterDescriptor.parameters, (parameter: ParameterDescriptor) =>
+    private getDescriptorsOfExistingParametersInConfig(filterDescriptor: FilterDescriptor, filterConfig: Configuration): ParameterDescriptor[] {
+        return partition(filterDescriptor.parameters, (parameter: ParameterDescriptor) =>
             filterConfig.parameterSet.parameters.map(param => param.ref.id).includes(parameter.ref.id))[0] as ParameterDescriptor[];
     }
 
@@ -76,7 +110,7 @@ export class PipelineConfigurationChecker {
             blueprint.configuration.uuid === config.ref.uuid);
     }
 
-    private findTypeChangedDescriptors(existingParameters: ParameterDescriptor[], parameterConfigs: Parameter[]): ParameterDescriptor[] {
+    private getDescriptorsOfParametersWhereTypeChanged(existingParameters: ParameterDescriptor[], parameterConfigs: Parameter[]): ParameterDescriptor[] {
         return existingParameters.filter(descriptor => {
             const newParameter: Parameter = this.parameterFactory.parameterDescriptorToParameter(descriptor);
             const existingParameter: Parameter = parameterConfigs.find(param => param.ref.id === descriptor.ref.id);
@@ -84,31 +118,6 @@ export class PipelineConfigurationChecker {
         });
     }
 
-    private addMissingParameters(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
-        const missingParameterDescriptors: ParameterDescriptor[] = this.getDescriptorsOfMissingParametersInConfig(descriptor, config);
-        const resultParameterList: Parameter[] = _.cloneDeep(config.parameterSet.parameters);
-        const parametersToAdd: Parameter[] = missingParameterDescriptors.map(descriptor => this.parameterFactory.parameterDescriptorToParameter(descriptor));
-        resultParameterList.push(...parametersToAdd);
-        return resultParameterList;
-
-    }
-
-    private alignParameterTypes(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
-        let resultParameterList: Parameter[] = _.cloneDeep(config.parameterSet.parameters);
-        const typeChangedParameterDescriptors: ParameterDescriptor[] =
-            this.findTypeChangedDescriptors(this.getDescriptorsOfNotMissingParametersInConfig(descriptor, config), config.parameterSet.parameters);
-        resultParameterList = resultParameterList.filter(parameter => !typeChangedParameterDescriptors.map(descriptor => descriptor.ref.id).includes(parameter.ref.id));
-        const parametersToAdd = typeChangedParameterDescriptors.map(descriptor => this.parameterFactory.parameterDescriptorToParameter(descriptor));
-        resultParameterList.push(...parametersToAdd);
-        return resultParameterList;
-    }
-
-
-    private removeUnnecessaryParameterConfigurations(config: Configuration, descriptor: FilterDescriptor): Parameter[] {
-        return config.parameterSet.parameters.filter(param => {
-            return descriptor.parameters.map(desc => desc.ref.id).includes(param.ref.id);
-        });
-    }
 
     constructor(private parameterFactory: ParameterFactoryService) {
 

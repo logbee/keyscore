@@ -5,7 +5,7 @@ import {computeRelativePositionToParent} from "../util/util";
 import {DropzoneType} from "../models/dropzone-type";
 import {DraggableModel} from "../models/draggable.model";
 import {ConnectorComponent} from "../connectors/connector.component";
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash-es';
 
 
 export class ConnectorDropzoneLogic extends DropzoneLogic {
@@ -21,7 +21,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             return this.prependModel(mirror, currentDragged);
         }
         else {
-            return _.cloneDeep(currentDragged.getDraggableModel());
+            return cloneDeep(currentDragged.getDraggableModel());
         }
 
     }
@@ -52,13 +52,13 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const droppedPosition = computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
             this.component.workspace.getWorkspaceDropzone().getAbsolutePosition());
 
-        const nextModelCopy = _.cloneDeep(this.component.getOwner().getDraggableModel());
+        const nextModelCopy = cloneDeep(this.component.getOwner().getDraggableModel());
         const nexDraggableModel = {
             ...nextModelCopy/*this.component.getOwner().getDraggableModel()*/,
             position: this.computePrependPosition(currentDragged)
         };
 
-        let draggedCopy: DraggableModel = _.cloneDeep(currentDragged.getDraggableModel());
+        let draggedCopy: DraggableModel = cloneDeep(currentDragged.getDraggableModel());
         let draggedTailModel: DraggableModel = draggedCopy;
         while (draggedTailModel.next) {
             draggedTailModel = draggedTailModel.next;

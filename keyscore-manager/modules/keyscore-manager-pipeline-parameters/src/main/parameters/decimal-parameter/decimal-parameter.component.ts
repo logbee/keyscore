@@ -1,6 +1,9 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
-import {DecimalParameterDescriptor, DecimalParameter} from "@keyscore-manager-models/src/main/parameters/decimal-parameter.model";
+import {
+    DecimalParameter,
+    DecimalParameterDescriptor
+} from "@keyscore-manager-models/src/main/parameters/decimal-parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 @Component({
@@ -37,14 +40,14 @@ export class DecimalParameterComponent extends ParameterComponent <DecimalParame
         this.ref = this.descriptor.ref;
     }
 
-    private onChange(value: string): void {
+    onChange(value: string): void {
         let decimal = Number(value).toFixed(this.descriptor.decimals);
         const parameter = new DecimalParameter(this.ref, +decimal);
         console.log("changed: ", parameter);
         this.emit(parameter)
     }
 
-    private validateStep(value: string) {
+    validateStep(value: string) {
         const val = +Number(value).toFixed(this.descriptor.decimals);
         const decimalFactor = Math.pow(10, this.descriptor.decimals);
         const powedVal = Math.round(val * decimalFactor);

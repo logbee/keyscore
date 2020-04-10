@@ -1,12 +1,11 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
 import {
-    FieldDirectiveSequenceParameterDescriptor,
+    FieldDirectiveSequenceConfiguration,
     FieldDirectiveSequenceParameter,
-    DirectiveConfiguration,
-    FieldDirectiveSequenceConfiguration
+    FieldDirectiveSequenceParameterDescriptor
 } from '@keyscore-manager-models/src/main/parameters/directive.model';
-import uuid = require("uuid");
+import * as uuid from 'uuid';
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 
@@ -18,7 +17,9 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
             <mat-expansion-panel-header fxLayout="row-reverse">
                 <mat-panel-title fxFlex="row" fxLayoutAlign="center center" fxLayoutGap="8px">
                     <span>{{descriptor.displayName}}</span>
-                    <mat-icon fxFlexAlign="center" [matTooltip]="descriptor.description" class="info-icon">info_outlined</mat-icon>                    
+                    <mat-icon fxFlexAlign="center" [matTooltip]="descriptor.description" class="info-icon">
+                        info_outlined
+                    </mat-icon>
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
@@ -46,12 +47,11 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 })
 export class DirectiveSequenceParameterComponent extends ParameterComponent<FieldDirectiveSequenceParameterDescriptor, FieldDirectiveSequenceParameter> {
 
-
     constructor(private _parameterFactory: ParameterFactoryService) {
         super();
     }
 
-    private sequenceChanged(sequence: FieldDirectiveSequenceConfiguration) {
+    sequenceChanged(sequence: FieldDirectiveSequenceConfiguration) {
         const index = this.parameter.value.findIndex(conf => conf.id === sequence.id);
         if (index < 0) {
             throw new Error(`[DirectiveSequenceParameter] The updated sequence: ${sequence.id} does not exist.`);
@@ -60,7 +60,7 @@ export class DirectiveSequenceParameterComponent extends ParameterComponent<Fiel
         this.propagateChange();
     }
 
-    private addSequence() {
+    addSequence() {
         this.parameter.value.push({
             id: uuid(),
             parameters: {
@@ -72,7 +72,7 @@ export class DirectiveSequenceParameterComponent extends ParameterComponent<Fiel
         this.propagateChange();
     }
 
-    private deleteSequence(sequence: FieldDirectiveSequenceConfiguration) {
+    deleteSequence(sequence: FieldDirectiveSequenceConfiguration) {
         const index = this.parameter.value.findIndex(seq => seq.id === sequence.id);
         if (index > -1) {
             this.parameter.value.splice(index, 1);
@@ -80,7 +80,7 @@ export class DirectiveSequenceParameterComponent extends ParameterComponent<Fiel
         }
     }
 
-    private drop(event: CdkDragDrop<FieldDirectiveSequenceConfiguration>) {
+    drop(event: CdkDragDrop<FieldDirectiveSequenceConfiguration>) {
         moveItemInArray(this.parameter.value, event.previousIndex, event.currentIndex);
         this.propagateChange();
     }

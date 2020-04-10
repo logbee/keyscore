@@ -4,7 +4,7 @@ import {Workspace} from "../models/contract";
 import {FormControl} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {debounceTime, map, startWith, takeUntil, tap} from "rxjs/operators";
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash-es';
 
 @Component({
     selector: "puzzle-box",
@@ -100,7 +100,7 @@ export class PuzzleBoxComponent implements OnChanges, OnInit {
     private filter(value: string): BlockDescriptor[] {
         if (!this.descriptors || !this.descriptors.length) return [];
         if (!value) return this.descriptors;
-        let filteredDescriptors = _.cloneDeep(this.descriptors);
+        let filteredDescriptors = cloneDeep(this.descriptors);
         let filterValue = value.toLowerCase();
 
         return filteredDescriptors.filter(descriptor =>

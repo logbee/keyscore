@@ -3,7 +3,7 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable} from "rxjs";
 import {SNACKBAR_CLOSE, SNACKBAR_OPEN, SnackbarClose, SnackbarOpen} from "./snackbar.actions";
 import {delay, map, tap} from "rxjs/operators";
-import {MatSnackBar} from "@angular/material";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Injectable()
 export class SnackbarEffects {

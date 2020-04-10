@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} fr
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {BlockDescriptor} from "../models/block-descriptor.model";
-import * as _ from "lodash";
+import {cloneDeep} from 'lodash-es';
 import {
     Parameter,
     ParameterDescriptor,
@@ -14,13 +14,13 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {map, startWith, takeUntil} from "rxjs/operators";
 import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-form.component"
-import {JSONCLASS_GROUP_PARAM} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
-import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-configuration-checker.service";
 
 @Component({
     selector: "configurator",
     template: `
-        <div fxFill fxLayout="column" class="configurator-wrapper mat-elevation-z8">
+        <div fxLayout="column" class="configurator-wrapper mat-elevation-z8">
             <div *ngIf="!(config$|async).conf" fxFlex>
                 <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                     <form [formGroup]="pipelineForm">
@@ -44,7 +44,7 @@ import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
                             <mat-select formControlName="pipeline.selectedAgent" #agentSelect>
                                 <mat-option>
                                     <ngx-mat-select-search
-                                            [formControl]="filteredAgentsControl"></ngx-mat-select-search>
+                                        [formControl]="filteredAgentsControl"></ngx-mat-select-search>
                                 </mat-option>
                                 <mat-option [value]="" *ngIf="!filteredAgentsControl.value">None</mat-option>
                                 <mat-option *ngFor="let agent of filteredAgents$ | async" [value]="agent.id">
@@ -57,12 +57,12 @@ import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
                     </form>
                 </div>
             </div>
-            <div *ngIf="(config$|async) as config" fxFlex>
+            <ng-container *ngIf="(config$|async) as config">
                 <ng-container *ngIf="config.conf">
-                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                        <div>
-                            <div>
-                                <h3 fxFlex style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
+                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start" class="configurator-header">
+                        <div fxLayout="column" fxLayoutGap="0px">
+                            <div fxLayout="row" fxLayoutAlign="space-between center">
+                                <h3>{{config?.descriptor?.displayName}}</h3>
                                 <mat-icon *ngIf="showMaturityIcon(config?.descriptor.maturity)"
                                           [svgIcon]="maturityIconNameOf(config?.descriptor.maturity)"
                                           matTooltip="{{maturityTooltipOf(config?.descriptor.maturity) | translate}}">
@@ -72,16 +72,26 @@ import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
                         </div>
                         <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
-                        <div class="configurator-body">
-                            <parameter-form #parameterForm
-                                            [autoCompleteDataList]="autoCompleteOptions"
-                                            [changedParameters]="_changedParameters$ | async"
-                                            [config]="parameterMap$|async"
-                                            (onValueChange)="saveConfiguration($event)"></parameter-form>
-                        </div>
+                    </div>
+                    <div class="configurator-body" fxFill>
+                        <parameter-form #parameterForm
+                                        [autoCompleteDataList]="autoCompleteOptions"
+                                        [config]="parameterMap$|async"
+                                        (onValueChange)="saveConfiguration($event)"></parameter-form>
+                    </div>
+                    <div class="configurator-footer" *ngIf="(_changedParameters$ | async).length" fxLayout="column"
+                         fxLayoutGap="8px">
+                        <mat-divider></mat-divider>
+                        <button mat-raised-button fxFlexAlign="end"
+                                (click)="confirmCorrectnessOfChangedParameters()">
+                            <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+                                <mat-icon>warning</mat-icon>
+                                Confirm
+                            </div>
+                        </button>
                     </div>
                 </ng-container>
-            </div>
+            </ng-container>
         </div>
     `,
     styleUrls: ['./configurator.component.scss']
@@ -107,11 +117,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     @Input() agents: Agent[];
 
-    @Input() set changedParameters(val: ParameterRef[]) {
-        this._changedParameters$.next(val);
-    }
 
-    private _changedParameters$: BehaviorSubject<ParameterRef[]> = new BehaviorSubject<ParameterRef[]>([]);
+    private _changedParameters$: Observable<ParameterRef[]>;
 
     @Input() enableSelectAgent: boolean;
 
@@ -145,8 +152,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     @ViewChild('parameterForm') parameterForm: ParameterFormComponent;
 
-    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor, uuid: string }>(undefined);
+    config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor, uuid: string }>(undefined);
     private _config: Configuration;
+    private filterUUID: string;
 
     form: FormGroup;
     pipelineForm: FormGroup = new FormGroup({
@@ -163,13 +171,15 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     unsubscribe$: Subject<void> = new Subject();
     unsubscribeForm$: Subject<void> = new Subject();
 
-    constructor() {
+    constructor(private pipelineConfigurationChecker: PipelineConfigurationChecker) {
     }
 
     public ngOnInit(): void {
 
         this.config$.pipe(takeUntil(this.unsubscribe$)).subscribe((config: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) => {
             this.createParameterMap(config);
+            this._changedParameters$ = this.pipelineConfigurationChecker.getUpdatedParametersForFilter(config.uuid);
+            this.filterUUID = config.uuid;
         });
 
         this.filteredAgents$ = this.filteredAgentsControl.valueChanges.pipe(
@@ -193,7 +203,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         if (!this.agents || !this.agents.length) return [];
         if (!val) return this.agents;
 
-        const resultAgents = _.cloneDeep(this.agents);
+        const resultAgents = cloneDeep(this.agents);
         const searchValue = val.toLowerCase();
         return resultAgents.filter(agent =>
             agent.id.toLowerCase().includes(searchValue) ||
@@ -211,7 +221,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
         let parameterMap: ParameterMap = {parameters: {}};
 
-
         descriptors.forEach(descriptor => {
             const parameter = parameters.find(parameter => parameter.ref.id === descriptor.ref.id);
             if (parameter) {
@@ -223,7 +232,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     saveConfiguration(parameter: Parameter) {
-        let configuration: Configuration = _.cloneDeep(this._config);
+        let configuration: Configuration = cloneDeep(this._config);
         let paramIndex = configuration.parameterSet.parameters.findIndex(param => param.ref.id === parameter.ref.id);
         if (paramIndex > -1) {
             configuration.parameterSet.parameters.splice(paramIndex, 1, parameter);
@@ -236,6 +245,10 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.unsubscribe$.complete();
         this.unsubscribeForm$.next();
         this.unsubscribeForm$.complete();
+    }
+
+    private confirmCorrectnessOfChangedParameters() {
+        this.pipelineConfigurationChecker.confirmChangedParametersForFilter(this.filterUUID);
     }
 
     private showMaturityIcon(maturity: Maturity): boolean {

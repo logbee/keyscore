@@ -8,7 +8,7 @@ import {ValueDirective} from "./directives/value.directive";
 import {DurationValueComponent} from "./duration-value.component";
 import {SharedControlsModule} from "../shared-controls/shared-controls.module";
 import {NumberValueComponent} from "./number-value.component";
-import {MatIconRegistry} from "@angular/material";
+import { MatIconRegistry } from "@angular/material/icon";
 import {DomSanitizer} from "@angular/platform-browser";
 import {DecimalValueComponent} from "./decimal-value.component";
 //svg icons

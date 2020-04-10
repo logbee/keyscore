@@ -6,8 +6,8 @@ import {Component, Input} from "@angular/core";
         <svg:path attr.d="{{staticConnectionTypes.get(connectionType).connectorPath}}"
                   attr.fill="{{color}}"/>
         <svg:path
-                attr.d="{{staticConnectionTypes.get(connectionType).indicatorPath}}" fill="none" stroke-width="25px"
-                attr.stroke="{{isDroppable ? droppableIndicatorColor : defaultIndicatorColor}}"/>
+            attr.d="{{staticConnectionTypes.get(connectionType).indicatorPath}}" fill="none" stroke-width="25px"
+            attr.stroke="{{isDroppable ? droppableIndicatorColor : defaultIndicatorColor}}"/>
         <svg:path attr.d="{{staticConnectionTypes.get(connectionType).selectedPath}}"
                   fill="none" attr.stroke="{{selectedColor}}" attr.stroke-width="{{isSelected ? '30px' : '0px'}}"/>
 
@@ -21,12 +21,14 @@ export class ConnectorComponent {
     @Input() connectionType: string;
     @Input() color: string;
 
-    private readonly droppableIndicatorColor = "lime";
-    private readonly defaultIndicatorColor = "white";
-    private readonly selectedColor = "#6495ED";
+    readonly droppableIndicatorColor = "lime";
+    readonly defaultIndicatorColor = "white";
+    readonly selectedColor = "#6495ED";
 
-    public static readonly connectionTypes: Map<string, { connectorPath: string, indicatorPath: string,
-        selectedPath: string, connectionOffset: number }> = new Map(
+    public static readonly connectionTypes: Map<string, {
+        connectorPath: string, indicatorPath: string,
+        selectedPath: string, connectionOffset: number
+    }> = new Map(
         [
             ["default-out", {
                 connectorPath: `M876.215,453.784v113.5H677.75V0.5h197.465v134.041l-0.097,0.781l86.097,
@@ -62,7 +64,7 @@ L10.536,135.915v-0.91 l-0.096,0.781V15 H294.75`,
         ]
     );
 
-    get staticConnectionTypes(){
+    get staticConnectionTypes() {
         return ConnectorComponent.connectionTypes;
     }
 

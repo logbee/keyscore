@@ -14,23 +14,15 @@ import {HealthModule} from "../common/health/health.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
-import {effects, reducers} from "./index";
+import {effects, reducers} from "./reducers/module";
 import {AppAuthGuard} from "../app.authguard";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
-import {AgentsEffects} from "@/app/agents/agents.effects";
-import {AgentsReducer} from "@/app/agents/agents.reducer";
 import {PipelineOverviewComponent} from "@/app/pipelines/pipeline-overview/pipeline-overview.component";
 
 export const routes: Routes = [
-    {path: "", component: PipelinesComponent,canActivate:[AppAuthGuard]},
-    {path: ":id", component: PipelineEditorComponent,canActivate:[AppAuthGuard]},
-    {path: "error", component: ErrorComponent,canActivate:[AppAuthGuard]}
-];
-
-export const routesWithoutAuth: Routes = [
-    {path: "", component: PipelinesComponent},
-    {path: ":id", component: PipelineEditorComponent},
-    {path: "error", component: ErrorComponent}
+    {path: "", component: PipelinesComponent, canActivate: [AppAuthGuard]},
+    {path: ":id", component: PipelineEditorComponent, canActivate: [AppAuthGuard]},
+    {path: "error", component: ErrorComponent, canActivate: [AppAuthGuard]}
 ];
 
 @NgModule({
@@ -39,8 +31,8 @@ export const routesWithoutAuth: Routes = [
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
-        StoreModule.forFeature("state", {...reducers}),
-        EffectsModule.forFeature([...effects,AgentsEffects]),
+        StoreModule.forFeature("state", reducers),
+        EffectsModule.forFeature(effects),
         TranslateModule,
         HeaderBarModule,
         LoadingModule,

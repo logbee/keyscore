@@ -38,22 +38,6 @@ export type AppConfigActions =
 @Injectable()
 export class AppConfigEffects {
 
-    @Effect() public initLanguage$: Observable<Action> = this.actions$.pipe(
-        ofType(ROOT_EFFECTS_INIT),
-        switchMap((action) => {
-                this.translate.addLangs(["en", "de"]);
-                this.translate.setDefaultLang("en");
-                const browserLang = this.translate.getBrowserLang();
-                this.translate.use(browserLang.match(/en|de/) ? browserLang : "en");
-                return of(new LanguageInitialised());
-            }
-        )
-    );
-
-    constructor(private http: HttpClient,
-                private actions$: Actions,
-                private translate: TranslateService) {
-    }
 }
 
 export function AppConfigReducer(state: AppConfig, action: AppConfigActions): AppConfig {
@@ -88,7 +72,7 @@ export class AppConfig {
         return this.resolveValue(key.split("."), this.configuration) as T;
     }
 
-    public getArray<T>(key:string): T[] {
+    public getArray<T>(key: string): T[] {
         return this.resolveValue(key.split("."), this.configuration) as T[];
     }
 
@@ -103,14 +87,15 @@ export class AppConfig {
 
 @Injectable()
 export class AppConfigLoader {
-    constructor(private http: HttpClient, private store: Store<AppState>) {
+    constructor(private http: HttpClient, private store: Store<AppState>, private translate:TranslateService) {
 
     }
 
     public load(): Promise<any> {
         return new Promise((resolve, reject) => {
+            this.initialiseLanguage();
 
-            this.http.get("application.conf").subscribe(
+            this.http.get("conf/application.conf").subscribe(
                 (data) => {
                     this.store.dispatch(new AppConfigLoaded(data));
                     resolve();
@@ -122,6 +107,14 @@ export class AppConfigLoader {
                 }
             );
         });
+    }
+
+    private initialiseLanguage(){
+        this.translate.addLangs(["en", "de"]);
+        this.translate.setDefaultLang("en");
+        const browserLang = this.translate.getBrowserLang();
+        this.translate.use(browserLang.match(/en|de/) ? browserLang : "en");
+        this.store.dispatch(new LanguageInitialised());
     }
 }
 
@@ -140,7 +133,7 @@ export class KeycloakConfigLoader {
 
     public getKeycloakConfig(): Promise<KeycloakConfig> {
         return new Promise<KeycloakConfig>((resolve, reject) => {
-            this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf =>
+            this.store.pipe(select(selectAppConfig), take(1)).subscribe((conf: AppConfig) =>
                 resolve(conf.getObject<KeycloakConfig>("keyscore.keycloak.config"))
             );
         })
@@ -153,9 +146,10 @@ export function initializer(configLoader: AppConfigLoader, keycloakConfigLoader:
         return new Promise(async (resolve, reject) => {
             try {
                 await configLoader.load();
+                console.log("AWAITED CONFIG LOAD");
                 const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
                 const isKeycloakEnabled = await keycloakConfigLoader.isKeycloakEnabled();
-                if(isKeycloakEnabled) {
+                if (isKeycloakEnabled) {
                     await keycloak.init({
                         config: keycloakConf,
                         initOptions: {

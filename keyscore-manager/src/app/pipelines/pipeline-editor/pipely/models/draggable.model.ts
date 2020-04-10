@@ -16,6 +16,7 @@ export interface DraggableModel {
     rootDropzone: DropzoneType;
     position?: { x: number, y: number };
     color?: string;
+    hasError?:boolean;
 
 }
 

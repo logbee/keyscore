@@ -56,7 +56,7 @@ import {
 
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
 
-import {getPipelinePolling, selectIsCreating} from "../index";
+import {getPipelinePolling, selectIsCreating} from "../reducers/module";
 import {PipelineBlueprint, Blueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";

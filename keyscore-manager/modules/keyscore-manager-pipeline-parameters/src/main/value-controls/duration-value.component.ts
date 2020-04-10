@@ -37,7 +37,7 @@ export class DurationValueComponent implements ValueComponent {
     static nextId = 0;
 
     @HostBinding() id = `ks-text-value-input-${DurationValueComponent.nextId++}`;
-    @ViewChild('durationInput') durationInput: DurationInputComponent;
+    @ViewChild('durationInput', { static: true }) durationInput: DurationInputComponent;
 
     @Input()
     get value(): DurationValue {

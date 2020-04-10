@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import * as moment from "moment-timezone";
@@ -10,7 +10,8 @@ import {TimestampValue} from "@/../modules/keyscore-manager-models/src/main/data
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="60">
-                <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)"
+                <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
+                       (keyup.enter)="keyUpEnter.emit($event)"
                        step="1">
                 <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
                 <mat-label *ngIf="showLabel && !label" translate>PARAMETER.TIMESTAMP</mat-label>
@@ -63,24 +64,24 @@ export class TimestampValueComponent implements ValueComponent {
     private _disabled = false;
 
     @Input() label: string;
-    @Input() showLabel:boolean = true;
+    @Input() showLabel: boolean = true;
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();
-    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
+    @Output() keyUpEnter: EventEmitter<Event> = new EventEmitter<Event>();
 
-    private timeZones: string[] = moment.tz.names();
+    timeZones: string[] = moment.tz.names();
 
 
     onChange() {
         this.changed.emit(this.value);
     }
 
-    private disable() {
+    disable() {
         this.inputControl.disable();
         this.selectControl.disable();
     }
 
-    private enable() {
+    enable() {
         this.inputControl.enable();
         this.selectControl.enable();
     }

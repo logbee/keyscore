@@ -60,13 +60,13 @@ import {
     FieldDirectiveSequenceParameter,
     JSONCLASS_DIRECTIVE_SEQ_PARAM
 } from "@keyscore-manager-models/src/main/parameters/directive.model";
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash-es';
 
 @Injectable({providedIn: 'root'})
 export class ConfigDeserializer {
 
     public deserializeConfig(config: Configuration): Configuration {
-        let result = _.cloneDeep(config);
+        let result = cloneDeep(config);
         result.parameterSet.parameters = config.parameterSet.parameters.map(parameter => this.deserializeParameter(parameter));
         return result;
     }
@@ -129,7 +129,7 @@ export class ConfigDeserializer {
     }
 
     private deserializeFieldDirectiveSequenceConfiguration(configJson: FieldDirectiveSequenceConfiguration): FieldDirectiveSequenceConfiguration {
-        let result = _.cloneDeep(configJson);
+        let result = cloneDeep(configJson);
         let sequenceParameter: Parameter[] = configJson.parameters.parameters.map(parameter => this.deserializeParameter(parameter));
         result.parameters.parameters = sequenceParameter;
 

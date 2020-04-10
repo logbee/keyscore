@@ -1,8 +1,8 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {
-    BooleanParameterDescriptor,
-    BooleanParameter
+    BooleanParameter,
+    BooleanParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 
 @Component({
@@ -17,9 +17,8 @@ import {
 })
 export class BooleanParameterComponent extends ParameterComponent<BooleanParameterDescriptor, BooleanParameter> {
 
-    private onChange(value: boolean): void {
+    onChange(value: boolean): void {
         const parameter = new BooleanParameter(this.descriptor.ref, value);
-        console.log("changed ", parameter);
         this.emit(parameter);
     }
 }

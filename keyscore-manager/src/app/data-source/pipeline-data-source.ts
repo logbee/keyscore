@@ -1,4 +1,4 @@
-import {MatTableDataSource} from "@angular/material";
+import { MatTableDataSource } from "@angular/material/table";
 import {BehaviorSubject, Observable} from "rxjs/index";
 import {PipelineTableModel} from "../pipelines/PipelineTableModel";
 

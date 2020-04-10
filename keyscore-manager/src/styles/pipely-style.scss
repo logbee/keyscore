@@ -1,0 +1,301 @@
+@import "variables";
+
+.pipely-wrapper {
+  box-sizing: border-box;
+}
+
+.draggable {
+  width: 150px;
+  //height: calc(88px + 2em + 5px);
+  cursor: move;
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
+
+}
+
+.draggable-name {
+  font-size: 0.7em;
+  margin-left: -15px;
+  padding: 4px;
+  color: #1d1d1d;
+  text-align: center;
+  max-height: 2.5em;
+  max-width: 100px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.draggable-name.sink {
+  margin-left: 0;
+}
+
+.blockContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.blockContainer.selectedDraggable {
+  z-index: 9999;
+}
+
+.iconContainer {
+  width: 30%;
+  max-width: 30%;
+  height: 30%;
+  max-height: 30%;
+  position: absolute;
+  right: 50%;
+  top: 25%;
+}
+
+.iconInnerContainer {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  position: relative;
+  right: -50%;
+}
+
+.draggable-warning {
+  font-size: 1em;
+  position: absolute;
+  top: 8px;
+  left: 16px;
+}
+
+.draggableDockingIndicator {
+  stroke: none;
+  fill: none;
+  stroke-width: 20px;
+}
+
+.draggableDockingIndicator.is-droppable {
+  stroke: lime;
+}
+
+.dropzone-workspace {
+  position: relative;
+  height: 100%;
+  //background-size: 40px 40px;
+  //background-image: linear-gradient(to right, rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.1) 1px, transparent 1px);
+  background-color: #fff;
+  min-width: 120%;
+}
+
+.workspace {
+  height: 95vh;
+}
+
+.workspace-scroll-wrapper {
+  /*border: solid 1px darkgrey;*/
+  height: 50vh;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+
+}
+
+.workspace-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+puzzle-box {
+  position: relative;
+  height: 45vh;
+  max-height: 45vh;
+  margin-top: -1px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  z-index: 400;
+  background-color: $pipeline-editor-configurator-background;
+}
+
+.category-block-container {
+  padding: 5px;
+  overflow-x: auto;
+
+}
+
+.category-container {
+  padding: 10px;
+}
+
+.connection {
+  min-height: 100%;
+}
+
+.dropzone-connector {
+  position: relative;
+}
+
+.cursor-delete {
+  cursor: not-allowed;
+}
+
+.dropzone-connector.is-droppable {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.mirror {
+  position: absolute;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+
+/*Trash*/
+
+.dropzone-trash {
+  background: #365880;
+  width: 55px;
+  height: 70px;
+  display: inline-block;
+  margin: 0 auto;
+
+  position: absolute;
+  right: 35px;
+  top: calc(100% - 110px);
+  -webkit-border-bottom-right-radius: 6px;
+  -webkit-border-bottom-left-radius: 6px;
+  -moz-border-radius-bottomright: 6px;
+  -moz-border-radius-bottomleft: 6px;
+  border-bottom-right-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.dropzone-trash span {
+  position: absolute;
+  height: 12px;
+  background: #365880;
+  top: -15px;
+  left: -4px;
+  right: -4px;
+
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  transform: rotate(0deg);
+  transition: transform 250ms;
+  transform-origin: right bottom;
+}
+
+.dropzone-trash span:after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 7px;
+  background: #365880;
+  top: -10px;
+
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  transform: rotate(0deg);
+  transition: transform 250ms;
+  transform-origin: 19% 100%;
+  left: 22px;
+}
+
+.dropzone-trash i {
+  position: relative;
+  width: 5px;
+  height: 50px;
+  background: #fff;
+  display: block;
+  margin: 14px auto;
+  border-radius: 5px;
+}
+
+.dropzone-trash i:after {
+  content: '';
+  width: 5px;
+  height: 50px;
+  background: #fff;
+  position: absolute;
+  left: -18px;
+  border-radius: 5px;
+}
+
+.dropzone-trash i:before {
+  content: '';
+  width: 5px;
+  height: 50px;
+  background: #fff;
+  position: absolute;
+  right: -18px;
+  border-radius: 5px;
+}
+
+.dropzone-trash.is-droppable span {
+  transform-origin: right bottom;
+  transform: rotate(45deg);
+  transition: transform 250ms;
+}
+
+/*delete animation*/
+.delete {
+  z-index: 9999;
+
+  -webkit-animation-name: deleting;
+  animation-name: deleting;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes deleting {
+  0% {
+    opacity: 1;
+    -webkit-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    -webkit-transform: scale(1) translate(0%, 0%);
+    transform: scale(1) translate(0%, 0%);
+  }
+
+  100% {
+    opacity: 0;
+    -webkit-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    -webkit-transform: scale(.2) translate(0%, 200%);
+    transform: scale(.2) translate(0%, 200%);
+  }
+}
+
+@keyframes deleting {
+  0% {
+    opacity: 1;
+    -webkit-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    -webkit-transform: scale(1) translate(0%, 0%);
+    transform: scale(1) translate(0%, 0%);
+  }
+
+  100% {
+    opacity: 0;
+    -webkit-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    -webkit-transform: scale(.2) translate(0%, 200%);
+    transform: scale(.2) translate(0%, 200%);
+  }
+}
+
+.move-cursor {
+  cursor: move;
+}
+
+data-preview {
+  height: 45vh;
+  margin-top: -1px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  z-index: 400;
+}

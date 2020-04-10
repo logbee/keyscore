@@ -1,28 +1,32 @@
 import {
-    ChangeDetectionStrategy, ChangeDetectorRef,
-    Component, ComponentFactory, ComponentFactoryResolver, ElementRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ComponentFactoryResolver,
+    ElementRef,
     EventEmitter,
     Input,
     OnDestroy,
     OnInit,
-    Output, Renderer, Renderer2,
+    Output,
+    Renderer2,
     ViewChild,
     ViewContainerRef
 } from "@angular/core";
-import {ParameterComponentFactoryService} from "./service/parameter-component-factory.service";
 import {
     Parameter,
     ParameterDescriptor,
+    ParameterDescriptorJsonClass,
     ParameterMap
 } from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {Subject} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
-import {ParameterDescriptorJsonClass} from '@keyscore-manager-models/src/main/parameters/parameter.model'
 import {ParameterGroupDescriptor} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
 import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
 import {ParameterErrorWrapperComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-error-wrapper.component";
-import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {PipelineConfigurationChecker} from "@/app/pipelines/services/pipeline-configuration-checker.service";
 
 @Component({
     selector: 'parameter-form',
@@ -32,7 +36,7 @@ import {ParameterRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
     styleUrls: ['./parameter-form.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ParameterFormComponent implements OnDestroy {
+export class ParameterFormComponent implements OnInit, OnDestroy {
 
     @Input() set config(conf: { id: string, parameters: ParameterMap }) {
         if (!this._conf || conf.id != this._conf.id) {
@@ -62,37 +66,33 @@ export class ParameterFormComponent implements OnDestroy {
 
     @Input() autoCompleteDataList: string[] = [];
 
-    @Input() set changedParameters(val: ParameterRef[]) {
-        this._changedParameters = val;
-        console.log("CHANGEDPARAMETERS ERRORWRAPPER: ", this._errorWrapperComponents);
-        if (this._errorWrapperComponents.size) {
-            Array.from(this._errorWrapperComponents.values()).forEach(wrapper =>
-                wrapper.wasUpdated = this.changedParameters.map(ref => ref.id).includes(wrapper.descriptor.ref.id))
-            console.log("CHANGEDPARAMETERS IN FORM SETTER: ", this.changedParameters)
-        }
-    }
-
-    get changedParameters() {
-        return this._changedParameters;
-    }
-
-    private _changedParameters: ParameterRef[] = [];
+    private _changedParameters$: Observable<ParameterRef[]>;
 
     @Output() onValueChange: EventEmitter<Parameter> = new EventEmitter();
 
-    @ViewChild("formContainer", {read: ViewContainerRef}) formContainer: ViewContainerRef;
+    @ViewChild("formContainer", { read: ViewContainerRef, static: true }) formContainer: ViewContainerRef;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
 
     private _parameterComponents: Map<string, ParameterComponent<ParameterDescriptor, Parameter>> = new Map();
     private _errorWrapperComponents: Map<string, ParameterErrorWrapperComponent> = new Map();
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private renderer: Renderer2, private elem: ElementRef) {
+    constructor(private pipelineConfigurationChecker: PipelineConfigurationChecker, private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private renderer: Renderer2, private elem: ElementRef) {
     }
 
+    ngOnInit(): void {
+        this._changedParameters$ = this.pipelineConfigurationChecker.getUpdatedParametersForFilter(this.config.id);
+
+        this._changedParameters$.pipe(takeUntil(this._unsubscribe$)).subscribe(parameters => {
+            console.log("PARAMETRSCHANGEDINPARAMETERFORM", parameters);
+            if (this._errorWrapperComponents.size) {
+                Array.from(this._errorWrapperComponents.values()).forEach(wrapper =>
+                    wrapper.confirmUpdate(!parameters.map(ref => ref.id).includes(wrapper.descriptor.ref.id)));
+            }
+        })
+    }
 
     createParameterComponents(parameters: ParameterMap, clearContainer: boolean = true) {
-        console.log("UPDATEDPARAMETERS IN PARAMETER FORM: ", this.changedParameters);
         if (clearContainer) {
             this._unsubscribe$.next();
             this.formContainer.clear();
@@ -116,14 +116,13 @@ export class ParameterFormComponent implements OnDestroy {
         componentRef.instance.parameter = parameter;
         componentRef.instance.descriptor = descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
-        componentRef.instance.wasUpdated =
-            this.changedParameters ? this.changedParameters.map(ref => ref.id).includes(descriptor.ref.id) : false;
 
         componentRef.instance.onValueChange.pipe(takeUntil(this._unsubscribe$)).subscribe((parameter: Parameter) => {
                 this.onValueChange.emit(parameter);
             }
         );
         componentRef.changeDetectorRef.detectChanges();
+        this._errorWrapperComponents.set(descriptor.ref.id, componentRef.instance);
         this._parameterComponents.set(descriptor.ref.id, componentRef.instance.parameterComponent);
     }
 
@@ -133,17 +132,6 @@ export class ParameterFormComponent implements OnDestroy {
             input.blur();
 
         })
-    }
-
-    public confirmUpdatedParameters() {
-        const updatedParameterWrappers: ParameterErrorWrapperComponent[] = this.getWrapperOfUpdatedParamters();
-        updatedParameterWrappers.forEach(wrapper => wrapper.confirmUpdate())
-    }
-
-
-    private getWrapperOfUpdatedParamters() {
-        return [...this._errorWrapperComponents].filter(([ref, _]) =>
-            this.changedParameters.map(parameterRef => parameterRef.id).includes(ref)).map(([_, component]) => component);
     }
 
     private connectGroupConditionToGroup(descriptor: ParameterGroupDescriptor) {

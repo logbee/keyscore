@@ -1,12 +1,4 @@
-import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Component,
-    ComponentFactoryResolver,
-    ComponentRef,
-    Input,
-    ViewChild
-} from "@angular/core";
+import {ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {ValueDirective} from "../../value-controls/directives/value.directive";
@@ -14,7 +6,10 @@ import {ValueComponentRegistryService} from "../../value-controls/services/value
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
-import {FieldParameterDescriptor, FieldParameter} from "@keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {
+    FieldParameter,
+    FieldParameterDescriptor
+} from "@keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
 
 @Component({
@@ -39,23 +34,25 @@ import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
                 <ng-template value-host></ng-template>
             </div>
         </div>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !fieldInput.value" translate [translateParams]="{name:descriptor.displayName}">
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !fieldInput.value" translate
+           [translateParams]="{name:descriptor.displayName}">
             PARAMETER.IS_REQUIRED
         </p>
         <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && descriptor.nameValidator.description">
             {{descriptor.nameValidator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description" translate [translateParams]="{pattern:descriptor.validator.expression}">
+        <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description" translate
+           [translateParams]="{pattern:descriptor.validator.expression}">
             PARAMETER.FULFILL_PATTERN
         </p>
     `,
-    styleUrls:['../../style/parameter-module-style.scss']
+    styleUrls: ['../../style/parameter-module-style.scss']
 
 
 })
 export class FieldParameterComponent extends ParameterComponent<FieldParameterDescriptor, FieldParameter> {
     @Input() showLabel: boolean = true;
-    @ViewChild(ValueDirective) valueHost: ValueDirective;
-    @ViewChild('fieldInput') autoCompleteComponent: AutocompleteFilterComponent;
+    @ViewChild(ValueDirective, {static: true}) valueHost: ValueDirective;
+    @ViewChild('fieldInput', {static: true}) autoCompleteComponent: AutocompleteFilterComponent;
 
     get value() {
         return new FieldParameter(this.descriptor.ref, new Field(this.autoCompleteComponent.value, this.valueComponentInstance.instance.value));
@@ -84,33 +81,6 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         ));
     }
 
-
-    public clear() {
-        this.autoCompleteComponent.value = '';
-        this.autoCompleteComponent.focus(null);
-        this.onChange();
-    }
-
-    public focus(event:Event){
-        console.log("Called FOCUS in FieldParameter");
-        this.autoCompleteComponent.focus(event);
-    }
-
-    private onEnter(event: Event) {
-        this.keyUpEnterEvent.emit(event);
-    }
-
-    private onChange(): void {
-        this.emit(this.value);
-    }
-
-    private isValid(value: string): boolean {
-        if (!this.descriptor.nameValidator) {
-            return true;
-        }
-        return this.stringValidator.validate(value, this.descriptor.nameValidator);
-    }
-
     private loadValueComponent() {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.valueRegistry.getValueComponent(this.descriptor.fieldValueType));
         this.valueHost.viewContainerRef.clear();
@@ -120,6 +90,31 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         }
         this.valueComponentInstance.instance.showLabel = this.showLabel;
         this.changeRef.detectChanges();
+    }
+
+    clear() {
+        this.autoCompleteComponent.value = '';
+        this.autoCompleteComponent.focus(null);
+        this.onChange();
+    }
+
+    focus(event: Event) {
+        this.autoCompleteComponent.focus(event);
+    }
+
+    onEnter(event: Event) {
+        this.keyUpEnterEvent.emit(event);
+    }
+
+    onChange(): void {
+        this.emit(this.value);
+    }
+
+    isValid(value: string): boolean {
+        if (!this.descriptor.nameValidator) {
+            return true;
+        }
+        return this.stringValidator.validate(value, this.descriptor.nameValidator);
     }
 
     onDestroy() {

@@ -1,4 +1,14 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewContainerRef} from "@angular/core";
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild,
+    ViewContainerRef
+} from "@angular/core";
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {takeUntil} from "rxjs/operators";
@@ -24,13 +34,13 @@ export class ParameterErrorWrapperComponent implements OnInit, OnDestroy {
 
     @Output() onValueChange: EventEmitter<Parameter> = new EventEmitter<Parameter>();
 
-    @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
+    @ViewChild('parameterContainer', { read: ViewContainerRef, static: true }) parameterContainer: ViewContainerRef;
 
     parameterComponent: ParameterComponent<ParameterDescriptor, Parameter>;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
 
-    constructor(private parameterComponentFactory: ParameterComponentFactoryService) {
+    constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef) {
 
     }
 
@@ -45,11 +55,12 @@ export class ParameterErrorWrapperComponent implements OnInit, OnDestroy {
 
     }
 
-    public confirmUpdate() {
-        this.wasUpdated = false;
+    public confirmUpdate(isConfirmed: boolean) {
+        this.wasUpdated = !isConfirmed;
+        this.cd.detectChanges();
     }
 
-    public isReadyToSave(){
+    public isReadyToSave() {
         return !this.wasUpdated;
     }
 

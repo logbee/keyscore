@@ -26,11 +26,11 @@ import {Draggable} from "../models/contract";
 
 export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, AfterViewInit {
 
-    @ViewChild("draggableContainer", {read: ViewContainerRef}) draggableContainer: ViewContainerRef;
+    @ViewChild("draggableContainer", { read: ViewContainerRef, static: true }) draggableContainer: ViewContainerRef;
 
-    @ViewChild("dropzone") dropzoneElement: ElementRef;
+    @ViewChild("dropzone", { static: true }) dropzoneElement: ElementRef;
 
-    @ViewChild("workspaceScrollContainer", {read: ElementRef}) workspaceScrollContainer: ElementRef;
+    @ViewChild("workspaceScrollContainer", { read: ElementRef, static: true }) workspaceScrollContainer: ElementRef;
 
     private initialWorkspaceWidth;
 

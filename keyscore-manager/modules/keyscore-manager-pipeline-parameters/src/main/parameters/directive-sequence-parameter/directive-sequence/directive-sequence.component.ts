@@ -1,22 +1,23 @@
 import {
-    AfterContentInit,
     AfterViewInit,
-    Component, ElementRef,
+    Component,
     EventEmitter,
     Input,
     OnDestroy,
-    Output, QueryList,
-    ViewChild, ViewChildren,
+    Output,
+    ViewChild,
     ViewContainerRef
 } from "@angular/core";
 import {
-    FieldDirectiveSequenceParameterDescriptor,
-    FieldDirectiveSequenceParameter,
     DirectiveConfiguration,
     FieldDirectiveSequenceConfiguration,
-    FieldDirectiveDescriptor
+    FieldDirectiveSequenceParameterDescriptor
 } from '@keyscore-manager-models/src/main/parameters/directive.model';
-import {ParameterDescriptor, Parameter} from '@keyscore-manager-models/src/main/parameters/parameter.model';
+import {
+    Parameter,
+    ParameterDescriptor,
+    ParameterDescriptorJsonClass
+} from '@keyscore-manager-models/src/main/parameters/parameter.model';
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
@@ -25,14 +26,12 @@ import {
     AddDirectiveComponent,
     MenuItem
 } from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/add-directive/add-directive.component";
-import uuid = require("uuid");
+import * as uuid from "uuid";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
-import {animate, style, transition, trigger, AnimationEvent} from "@angular/animations";
+import {animate, style, transition, trigger} from "@angular/animations";
 import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
-import {ParameterDescriptorJsonClass} from '@keyscore-manager-models/src/main/parameters/parameter.model'
 import {ParameterGroupDescriptor} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
 import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
-import {ContentChildren} from "@angular/core/src/metadata/di";
 
 @Component({
     selector: 'ks-directive-sequence',
@@ -66,7 +65,7 @@ import {ContentChildren} from "@angular/core/src/metadata/di";
                                   cdkDrag (mousedown)="closeAddPanel()"></ks-directive>
                 </div>
 
-                <ks-button-add-directive [itemsToAdd]="_menuItems"
+                <ks-button-add-directive [itemsToAdd]="menuItems"
                                          [autoClosePanelOnAdd]="true"
                                          (onAdd)="addDirective($event)"></ks-button-add-directive>
 
@@ -98,7 +97,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     @Input() set descriptor(val: FieldDirectiveSequenceParameterDescriptor) {
         this._descriptor = val;
-        this._menuItems = this.directivesToMenuItems();
+        this.menuItems = this.directivesToMenuItems();
     };
 
     get descriptor(): FieldDirectiveSequenceParameterDescriptor {
@@ -106,21 +105,21 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
     }
 
     private _descriptor: FieldDirectiveSequenceParameterDescriptor;
+
     @Input() autoCompleteDataList: string[];
 
     @Output() onSequenceChange: EventEmitter<FieldDirectiveSequenceConfiguration> = new EventEmitter<FieldDirectiveSequenceConfiguration>();
     @Output() onDelete: EventEmitter<FieldDirectiveSequenceConfiguration> = new EventEmitter<FieldDirectiveSequenceConfiguration>();
 
-    @ViewChild('parameterContainer', {read: ViewContainerRef}) parameterContainer: ViewContainerRef;
-    @ViewChild(AddDirectiveComponent) addComponent: AddDirectiveComponent;
+    @ViewChild('parameterContainer', {read: ViewContainerRef, static: true}) parameterContainer: ViewContainerRef;
+    @ViewChild(AddDirectiveComponent, {static: true}) addComponent: AddDirectiveComponent;
+
+    menuItems: MenuItem[] = [];
 
     private readonly PARAMETER_HEIGHT: number = 90;
 
     private _unsubscribe$: Subject<void> = new Subject<void>();
-    private _menuItems: MenuItem[] = [];
-
     private _parameterComponents: Map<string, ParameterComponent<ParameterDescriptor, Parameter>> = new Map();
-    private _expansionHeight = 0;
 
     constructor(private _parameterComponentFactory: ParameterComponentFactoryService, private _parameterFactory: ParameterFactoryService) {
 
@@ -128,6 +127,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     ngAfterViewInit(): void {
         this.createComponents();
+
     }
 
     private createComponents() {
@@ -174,7 +174,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         this.sequenceChanged(this.sequence);
     }
 
-    private getDirectiveDescriptor(config: DirectiveConfiguration) {
+    getDirectiveDescriptor(config: DirectiveConfiguration) {
         const directiveDescriptor = this.descriptor.directives.find(descriptor => descriptor.ref.uuid === config.ref.uuid);
         if (!directiveDescriptor) {
             throw new Error(`[DirectiveSequenceComponent] No descriptor found for DirectiveConfiguration: ${config.ref.uuid}`);
@@ -182,18 +182,18 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         return directiveDescriptor;
     }
 
-    private delete(event: MouseEvent) {
+    delete(event: MouseEvent) {
         event.stopPropagation();
         this.onDelete.emit(this.sequence);
     }
 
-    private get expansionHeight() {
+    get expansionHeight() {
         const height = (this.descriptor.parameters.length) * this.PARAMETER_HEIGHT;
         return `${height}px`;
     }
 
 
-    private drop(event: CdkDragDrop<DirectiveConfiguration[]>) {
+    drop(event: CdkDragDrop<DirectiveConfiguration[]>) {
         moveItemInArray(this.sequence.directives, event.previousIndex, event.currentIndex);
         this.sequenceChanged(this.sequence);
     }
@@ -209,7 +209,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    private addDirective(item: MenuItem) {
+    addDirective(item: MenuItem) {
         const directive = this.descriptor.directives.find(directive => directive.ref.uuid === item.id);
         if (!directive) throw new Error(`[DirectiveSequenceComponent] Directive ${item.displayName} was not found in the FieldDirectiveSequenceDescriptor!`);
         this.sequence.directives.push({
@@ -224,7 +224,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
         this.sequenceChanged(this.sequence);
     }
 
-    private deleteDirective(conf: DirectiveConfiguration) {
+    deleteDirective(conf: DirectiveConfiguration) {
         const index = this.sequence.directives.findIndex(directive => directive.instance.uuid === conf.instance.uuid);
         if (index > -1) {
             this.sequence.directives.splice(index, 1);
@@ -233,7 +233,7 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     }
 
-    private directiveChange(conf: DirectiveConfiguration) {
+    directiveChange(conf: DirectiveConfiguration) {
         const index = this.sequence.directives.findIndex(directive => directive.instance.uuid === conf.instance.uuid);
         if (index < 0) {
             throw new Error(`[DirectiveSequenceComponent] The directive instance which was updated by the DirectiveComponent could not be found in the current sequence`);
@@ -243,11 +243,11 @@ export class DirectiveSequenceComponent implements AfterViewInit, OnDestroy {
 
     }
 
-    private closeAddPanel() {
+    closeAddPanel() {
         this.addComponent.closePanel();
     }
 
-    private trackByFn(index: number, item: DirectiveConfiguration) {
+    trackByFn(index: number, item: DirectiveConfiguration) {
         return item.instance.uuid;
     }
 

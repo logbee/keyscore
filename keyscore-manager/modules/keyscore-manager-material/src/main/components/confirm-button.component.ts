@@ -22,11 +22,11 @@ export class ConfirmButtonComponent implements OnDestroy {
 
     @Output() confirmed: EventEmitter<void> = new EventEmitter();
 
-    private confirmation: number = 0;
-    private abort$ = new Subject<void>();
+    confirmation: number = 0;
+    abort$ = new Subject<void>();
 
-    private primaryColor = "#f5f5f5";
-    private secondaryColor = "#AFAFAF";
+    primaryColor = "#f5f5f5";
+    secondaryColor = "#AFAFAF";
 
     @Input() set kind(kind: string) {
         switch (kind) {
@@ -41,7 +41,7 @@ export class ConfirmButtonComponent implements OnDestroy {
         }
     }
 
-    private confirming(event: MouseEvent): void {
+    confirming(event: MouseEvent): void {
         if (event.ctrlKey) {
             this.confirm();
         }
@@ -58,12 +58,12 @@ export class ConfirmButtonComponent implements OnDestroy {
         }
     }
 
-    private confirm(): void {
+    confirm(): void {
         this.abort$.next();
         this.confirmed.emit();
     }
 
-    private abort(): void {
+    abort(): void {
         this.abort$.next();
     }
 

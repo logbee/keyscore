@@ -1,5 +1,4 @@
 import {Component, Input} from "@angular/core";
-import {Store} from "@ngrx/store";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
@@ -19,7 +18,7 @@ import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/de
             <mat-tab label="Configuration">
                 <div fxFlexFill="" fxLayoutGap="15px">
                     <ngx-json-viewer fxFlex="90%" [json]="configuration"></ngx-json-viewer>
-                    <button matTooltipPosition="after" matTooltip="Copy Json" mat-icon-button fxFlex="10%" 
+                    <button matTooltipPosition="after" matTooltip="Copy Json" mat-icon-button fxFlex="10%"
                             (click)="copy('configuration')">
                         <mat-icon>content_copy</mat-icon>
                     </button>
@@ -30,17 +29,17 @@ import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/de
 })
 
 export class JsonVisualizer {
-    @Input() private descriptor: FilterDescriptor;
-    @Input()private configuration: Configuration;
+    @Input() descriptor: FilterDescriptor;
+    @Input() configuration: Configuration;
 
     constructor() {
     }
 
     copy(which: string) {
-        let copiedElement:any;
+        let copiedElement: any;
         if (which == "descriptor") {
             copiedElement = this.descriptor
-        } else if(which == "configuration")  {
+        } else if (which == "configuration") {
             copiedElement = this.configuration;
         }
         let val = JSON.stringify(copiedElement);

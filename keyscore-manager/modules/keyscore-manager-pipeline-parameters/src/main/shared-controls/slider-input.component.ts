@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import {MatSlider} from "@angular/material";
+import { MatSlider } from "@angular/material/slider";
 import {NumberRange} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 @Component({
@@ -31,7 +31,7 @@ export class SliderInputComponent {
     }
     @Output()changed:EventEmitter<number> = new EventEmitter<number>();
 
-    @ViewChild(MatSlider) slider:MatSlider;
+    @ViewChild(MatSlider, { static: true }) slider:MatSlider;
 
     onChange(value:number){
         this.changed.emit(value);
