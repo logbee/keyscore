@@ -68,6 +68,11 @@ ext {
         ],
     ]
 
+    elasticVersion = '7.4.2'
+    dependency += [
+        elasticsearch_client: "org.elasticsearch.client:elasticsearch-rest-high-level-client:$elasticVersion"
+    ]
+
     protobufVersion = '3.8.0'
     dependency += [
         protobuf_java: [

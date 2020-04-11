@@ -39,11 +39,11 @@ class ConfigurationRepositorySpec extends AnyFreeSpec with Matchers with OptionV
         val configA = repository.get(exampleConfigurationRef)
         val configB = repository.get(modifiedExampleConfigurationRef)
 
-        configA should be('defined)
+        configA should be(Symbol("defined"))
         configA.get.findTextValue(ParameterRef("message")).value shouldBe "Hello World"
-        configA.get.findTextValue(ParameterRef("date")) should be('empty)
+        configA.get.findTextValue(ParameterRef("date")) should be(Symbol("empty"))
 
-        configB should be('defined)
+        configB should be(Symbol("defined"))
         configB.get.findTextValue(ParameterRef("message")).value shouldBe "Hello World"
         configB.get.findTextValue(ParameterRef("modified")).value shouldBe "02-11-2018"
       }
@@ -69,13 +69,13 @@ class ConfigurationRepositorySpec extends AnyFreeSpec with Matchers with OptionV
       }
 
       "should return None if there is no Configuration with the specified UUID" in {
-        repository.head(ConfigurationRef("877e7c83-7b6d-4a43-acd1-6802ef00930f", exampleConfigurationRef.revision)) should be('empty)
-        repository.get(ConfigurationRef("877e7c83-7b6d-4a43-acd1-6802ef00930f", exampleConfigurationRef.revision)) should be('empty)
+        repository.head(ConfigurationRef("877e7c83-7b6d-4a43-acd1-6802ef00930f", exampleConfigurationRef.revision)) should be(Symbol("empty"))
+        repository.get(ConfigurationRef("877e7c83-7b6d-4a43-acd1-6802ef00930f", exampleConfigurationRef.revision)) should be(Symbol("empty"))
       }
 
       "should return None if there is no Configuration with the specified revision" in {
-        repository.get(ConfigurationRef(exampleConfigurationUUID, "331a76f144d96cca5a31018c3055c20282ce75ac")) should be('empty)
-        repository.get(ConfigurationRef(exampleConfigurationUUID)) should be('empty)
+        repository.get(ConfigurationRef(exampleConfigurationUUID, "331a76f144d96cca5a31018c3055c20282ce75ac")) should be(Symbol("empty"))
+        repository.get(ConfigurationRef(exampleConfigurationUUID)) should be(Symbol("empty"))
       }
 
       "should set the ancestor of first committed configurations" in {

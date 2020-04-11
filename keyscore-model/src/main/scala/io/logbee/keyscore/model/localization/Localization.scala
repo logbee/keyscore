@@ -2,7 +2,7 @@ package io.logbee.keyscore.model.localization
 
 import java.util.ResourceBundle
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.{Success, Try}
 

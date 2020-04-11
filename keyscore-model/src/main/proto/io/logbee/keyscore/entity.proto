@@ -3,6 +3,7 @@ syntax = "proto3";
 import "scalapb/scalapb.proto";
 import "io/logbee/keyscore/descriptor.proto";
 import "io/logbee/keyscore/configuration.proto";
+import "io/logbee/keyscore/data.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model"
@@ -17,13 +18,15 @@ message Hash {
 
 message EntityRef {
     string uuid = 1;
-    string revision = 2;
-    string ancestor = 3;
+    Hash revision = 2 [(scalapb.field).no_box = true];
+    Hash ancestor = 3 [(scalapb.field).no_box = true];
 }
 
 message Entity {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.BaseEntity";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.EntityCompanion";
     EntityRef ref = 1 [(scalapb.field).no_box = true];
-    repeated Component components = 2;
+    map <string,Component> components = 2;
 }
 
 message Component {
@@ -32,7 +35,16 @@ message Component {
         FilterBlueprintComponent filterBlueprint = 2;
         MetaDataComponent metadata = 3;
         ConfigurationComponent configuration = 4;
+        DummyComponent dummyComponent = 12;
     }
+}
+
+message Aspect {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.BaseAspect";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.AspectCompanion";
+    repeated string intersectionSet = 3 [(scalapb.field).collection_type ="Set"];
+    repeated string unificationSet = 4 [(scalapb.field).collection_type ="Set"];
+    repeated string differenceSet = 5 [(scalapb.field).collection_type ="Set"];
 }
 
 message ParameterSetComponent {
@@ -54,6 +66,8 @@ message FilterBlueprintComponent {
 message MetaDataComponent {
 
 }
+
+message DummyComponent {}
 
 /*
 // 2. ConfigurationAspect(ConfigurationComponent, ParameterSetComponent)

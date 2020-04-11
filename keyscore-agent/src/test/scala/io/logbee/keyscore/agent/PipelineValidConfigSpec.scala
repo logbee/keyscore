@@ -8,12 +8,12 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.DiscardSinkLogic._
 import io.logbee.keyscore.pipeline.contrib.MetricSourceLogic._
 import io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoderLogic
-import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
+import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticsearchSinkLogic
 import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic
 import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic._
 import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic.fieldListParameter
 import io.logbee.keyscore.pipeline.contrib.filter.{AddFieldsLogic, RemoveFieldsLogic, RetainFieldsLogic}
-import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
+import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSinkLogicBase, KafkaSourceLogic}
 import io.logbee.keyscore.pipeline.contrib.{DiscardSinkLogic, MetricSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
@@ -61,10 +61,10 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("05dc6d8a-50ff-41bd-b637-5132be1f2415")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameterSet = ParameterSet(Seq(
-        TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
-        NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
+        TextParameter(KafkaSinkLogicBase.bootstrapServerParameter.ref, "keyscore-kafka"),
+        NumberParameter(KafkaSinkLogicBase.bootstrapServerPortParameter.ref, 9092),
         TextParameter(KafkaSinkLogic.topicParameter.ref, "TopicB"),
-        FieldNameParameter(KafkaSinkLogic.fieldNameParameter.ref, "__data_")
+        FieldNameParameter(KafkaSinkLogicBase.dataFieldNameParameter.ref, "__data_")
       )))
 
 
@@ -115,16 +115,15 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameterSet = ParameterSet(Seq(
-        TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
-        NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
-        TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "test")
+        TextParameter(ElasticsearchSinkLogic.urlParameter.ref, "http://keyscore-elasticsearch:9200/"),
+        TextParameter(ElasticsearchSinkLogic.indexParameter.ref, "test")
       )))
 
 
     val sourceBluePrint = SourceBlueprint(BlueprintRef("4a696573-ce73-4bb2-8d9a-b2a90e834153"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
     val jsonDecoderBluePrint = FilterBlueprint(BlueprintRef("af14c4a5-9770-4375-b57d-e82bf7ce9afe"), JsonDecoderLogic.describe.ref, jsonDecoderConfigurationRef)
     val removeFieldsBluePrint = FilterBlueprint(BlueprintRef("dc882c27-3de2-4603-b272-b35cf81080e2"), RemoveFieldsLogic.describe.ref, removeFieldsFilterConfigurationRef)
-    val sinkBluePrint = SinkBlueprint(BlueprintRef("0f7b4607-b60a-46b8-a396-424466b7618b"), ElasticSearchSinkLogic.describe.ref, sinkConfigurationRef)
+    val sinkBluePrint = SinkBlueprint(BlueprintRef("0f7b4607-b60a-46b8-a396-424466b7618b"), ElasticsearchSinkLogic.describe.ref, sinkConfigurationRef)
 
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("34db6f58-0090-4b7d-b32c-aba2706a58bf"), Seq(
       sourceBluePrint.ref,
@@ -172,16 +171,15 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val elasticSinkConfigurationRef = ConfigurationRef("7cce7c4c-c50e-49a8-b0fb-db2c45fb737b")
     val elasticSinkConfiguration = Configuration(elasticSinkConfigurationRef,
       parameterSet = ParameterSet(Seq(
-        TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
-        NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
-        TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "workflow")
+        TextParameter(ElasticsearchSinkLogic.urlParameter.ref, "http://keyscore-elasticsearch:9200/"),
+        TextParameter(ElasticsearchSinkLogic.indexParameter.ref, "workflow")
       )))
 
     val kafkaSourceBlueprint = SourceBlueprint(BlueprintRef("7bd47b18-547f-4752-9f5c-54028a6f5be0"), KafkaSourceLogic.describe.ref, kafkaSourceConfigurationRef)
     val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("f368c58c-db9a-43dc-8ccb-f495d29c441f"), RetainFieldsLogic.describe.ref, retainFieldsConfigurationRef)
     val firstRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("29c2942f-d098-46fc-a014-50ddc5277c0e"), RemoveFieldsLogic.describe.ref, firstRemoveFieldsConfigurationRef)
     val secondRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"), RemoveFieldsLogic.describe.ref, secondRemoveFieldsConfigurationRef)
-    val elasticSinkBlueprint = SinkBlueprint(BlueprintRef("3dfa3823-e202-4715-ad5d-0f81fc6efbc6"), ElasticSearchSinkLogic.describe.ref, elasticSinkConfigurationRef)
+    val elasticSinkBlueprint = SinkBlueprint(BlueprintRef("3dfa3823-e202-4715-ad5d-0f81fc6efbc6"), ElasticsearchSinkLogic.describe.ref, elasticSinkConfigurationRef)
 
     val workflowPipelineBlueprint = PipelineBlueprint(BlueprintRef("e49abe8a-6bf4-410f-8781-87b36db8168d"), Seq(
       kafkaSourceBlueprint.ref,
@@ -247,10 +245,10 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("cf4a508b-1383-4ef3-8b5c-3d018d49b158")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameterSet = ParameterSet(Seq(
-        TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
-        NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
+        TextParameter(KafkaSinkLogicBase.bootstrapServerParameter.ref, "keyscore-kafka"),
+        NumberParameter(KafkaSinkLogicBase.bootstrapServerPortParameter.ref, 9092),
         TextParameter(KafkaSinkLogic.topicParameter.ref, "Topic2"),
-        FieldNameParameter(KafkaSinkLogic.fieldNameParameter.ref, "__data_")
+        FieldNameParameter(KafkaSinkLogicBase.dataFieldNameParameter.ref, "__data_")
       )))
 
 

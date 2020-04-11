@@ -97,7 +97,11 @@ class TextMutatorLogicSpec extends AnyFreeSpec with Matchers with Inside with Te
                 patternType = PatternType.ExactMatch
               ),
               BooleanParameter(TextMutatorLogic.sequenceInplaceParameter.ref, false),
-              FieldNameParameter(TextMutatorLogic.mutatedFieldName.ref, "mutated_message")
+              GroupParameter(
+                TextMutatorLogic.conditionalInplaceParameters.ref,
+                Some(ParameterSet(Seq(FieldNameParameter(TextMutatorLogic.mutatedFieldName.ref, "mutated_message"))))
+              )
+
             )),
             directives = Seq(DirectiveConfiguration(TextMutatorLogic.trimDirective.ref))
           )

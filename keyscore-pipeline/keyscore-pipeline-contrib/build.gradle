@@ -11,7 +11,7 @@ dependencies {
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
     compileOnly project(':keyscore-pipeline:keyscore-pipeline-commons')
 
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.2'
 
     compile dependency.scala_lang
     compile dependency.akka_actor
@@ -21,6 +21,7 @@ dependencies {
     compile dependency.akka_http_json
     compile dependency.akka_stream_kafka
     compile dependency.smbj
+    compile dependency.elasticsearch_client
 
     compile dependency.math_expression_parser
 

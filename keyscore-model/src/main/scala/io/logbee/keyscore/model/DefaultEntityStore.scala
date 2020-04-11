@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 
 object DefaultEntityStore {
 
-  private def update(entity: Entity, ancestor: Option[String])(implicit digest: MessageDigest): Entity = {
+  private def update(entity: Entity, ancestor: Option[Hash])(implicit digest: MessageDigest): Entity = {
 
     digest.reset()
 
@@ -38,7 +38,9 @@ class DefaultEntityStore extends EntityStore {
   private val index = mutable.HashMap.empty[String, mutable.ListBuffer[EntityRef]]
   private val store = mutable.HashMap.empty[String, Entity]
 
-  def commit(entity: Entity): EntityRef = {
+  def commit[C](entity: Entity)(implicit detector: ChangeDetector[C]): C = {
+
+    import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
     val revisions = index.getOrElse(entity.ref.uuid, ListBuffer.empty[EntityRef])
 
@@ -47,13 +49,13 @@ class DefaultEntityStore extends EntityStore {
     )
 
     if (hasAncestor(updatedEntity.ref) && isNotRootAncestor(updatedEntity.ref)) {
-      if (!revisions.exists(ref => ref.revision == updatedEntity.ref.ancestor)) {
+      if (!revisions.exists(ref => ref.revision.equals(updatedEntity.ref.ancestor))) {
         throw UnknownAncestorException(updatedEntity.ref)
       }
     }
 
     if (revisions.nonEmpty && updatedEntity.ref.revision == revisions.last.revision) {
-      return updatedEntity.ref
+      return detector.detect(updatedEntity, updatedEntity)
     }
 
     if (revisions.nonEmpty && revisions.last.revision != updatedEntity.ref.ancestor) {
@@ -71,27 +73,30 @@ class DefaultEntityStore extends EntityStore {
     index.put(updatedEntity.ref.uuid, revisions)
     store.put(updatedEntity.ref.revision, updatedEntity)
 
-    updatedEntity.ref
+    detector.detect(store.get(updatedEntity.ref.ancestor), updatedEntity)
   }
 
-  def reset(ref: EntityRef): Unit = {
+  def reset[C](ref: EntityRef)(implicit detector: ChangeDetector[C]): C = {
 
     index.get(ref.uuid) match {
       case Some(revisions) =>
         val count = revisions.indexWhere(other => other.revision == ref.revision)
         if (count >= 0) {
+          val current: Option[Entity] = store.get(revisions.last.revision)
+          val target: Option[Entity] = store.get(ref.revision)
           for (_ <- 0 to count + 1) {
             store.remove(revisions.remove(revisions.size - 1).revision)
           }
+          detector.detect(current, target)
         }
         else {
-          throw UnknownRevisionException()
+          throw UnknownRevisionException(ref)
         }
-      case _ => throw UnknownEntityException()
+      case _ => throw UnknownEntityException(ref)
     }
   }
-  
-  def revert(ref: EntityRef): EntityRef = {
+
+  def revert[C](ref: EntityRef)(implicit detector: ChangeDetector[C]): C = {
     index.get(ref.uuid) match {
       case Some(revisions) =>
         val revisionIndex = revisions.indexWhere(other => other.revision == ref.revision)
@@ -116,9 +121,9 @@ class DefaultEntityStore extends EntityStore {
           )
         }
         else {
-          throw UnknownRevisionException()
+          throw UnknownRevisionException(ref)
         }
-      case _ => throw UnknownEntityException()
+      case _ => throw UnknownEntityException(ref)
     }
   }
 
@@ -129,8 +134,14 @@ class DefaultEntityStore extends EntityStore {
           store.remove(ref.revision)
         })
         index.remove(ref.uuid)
-      case _ =>
+      case None => throw UnknownEntityException(ref)
     }
+  }
+
+  override def deleteAll(aspect: Aspect): Unit = {
+    head(aspect).foreach(entity => {
+      delete(entity.ref)
+    })
   }
 
   def head(): Seq[Entity] = {
@@ -149,7 +160,7 @@ class DefaultEntityStore extends EntityStore {
     index.get(ref.uuid).flatMap(revisions => store.get(revisions.last.revision))
   }
 
-  def get(ref: EntityRef): Option[Entity] = {
+  def find(ref: EntityRef): Option[Entity] = {
 
     if (!index.contains(ref.uuid)) {
       return None
@@ -160,6 +171,10 @@ class DefaultEntityStore extends EntityStore {
     }
 
     store.get(ref.revision)
+  }
+
+  override def head(aspect: Aspect): Seq[Entity] = {
+    head().filter(entity => entity.matches(aspect))
   }
 
   def all(ref: EntityRef): Seq[Entity] = {
