@@ -1,14 +1,17 @@
 package io.logbee.keyscore.pipeline.contrib.filter
 
-import io.logbee.keyscore.model.configuration.{BooleanParameter, Configuration}
+import io.logbee.keyscore.model.configuration.{BooleanParameter, Configuration, FieldNameListParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
+import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class FingerprintLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   "A FingerprintLogic" - {
@@ -43,16 +46,50 @@ class FingerprintLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures w
 
           record0.fields should contain only (
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("63b06b1fa1b8436fcd215b3ac78b7783"))
+            Field("fingerprint", TextValue("7cdf34d3652fa02c411e2c6feb6a060b"))
           )
           record1.fields should contain only (
             Field("message", TextValue("Bye Bye")),
-            Field("fingerprint", TextValue("caec3b55a0acd7383a95d0242f067cc9"))
+            Field("fingerprint", TextValue("6fb0887a6d7c1bbc08ff7094b8f29030"))
           )
           record2.fields should contain only (
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("63b06b1fa1b8436fcd215b3ac78b7783"))
+            Field("fingerprint", TextValue("7cdf34d3652fa02c411e2c6feb6a060b"))
           )
+        }
+      }
+
+      "should respect the mime-type of TextValues when computing the fingerprint" in new TestStreamForFilter[FingerprintLogic]() {
+
+        import io.logbee.keyscore.model.util.ToOption.T2OptionT
+
+        whenReady(filterFuture) { _ =>
+
+          val sample1 = Dataset(Record(Field("message", TextValue("{ \"message\": \"HelloWorld\" }", MimeType("application", "json")))))
+          val sample2 = Dataset(Record(Field("message", TextValue("{ \"message\": \"HelloWorld\" }", MimeType("application", "text")))))
+
+          val expectedResult1 = Dataset(Record(
+            Field("message", TextValue("{ \"message\": \"HelloWorld\" }", MimeType("application", "json"))),
+            Field("fingerprint", TextValue("372bfb5abe0b3356527b092e0bdd5457")),
+          ))
+
+          val expectedResult2 = Dataset(Record(
+            Field("message", TextValue("{ \"message\": \"HelloWorld\" }", MimeType("application", "text"))),
+            Field("fingerprint", TextValue("4e87c28e3eed054d2ea829d481524ed0")),
+          ))
+
+          var result: Dataset = null
+
+          source.sendNext(sample1)
+          result = sink.requestNext()
+
+          result shouldBe expectedResult1
+
+          source.sendNext(sample2)
+          result = sink.requestNext()
+
+          result should not be expectedResult1 // due to different mime-type
+          result shouldBe expectedResult2
         }
       }
     }
@@ -72,7 +109,7 @@ class FingerprintLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures w
 
           sink.requestNext().records.head.fields should contain only(
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("Y7BrH6G4Q2/NIVs6x4t3gw=="))
+            Field("fingerprint", TextValue("fN8002UvoCxBHixv62oGCw=="))
           )
         }
       }
@@ -111,7 +148,7 @@ class FingerprintLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures w
 
           record1.fields should contain only (
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("63b06b1fa1b8436fcd215b3ac78b7783"))
+            Field("fingerprint", TextValue("7cdf34d3652fa02c411e2c6feb6a060b"))
           )
           record1.fields should have size 2
         }
@@ -145,16 +182,98 @@ class FingerprintLogicSpec extends AnyFreeSpec with Matchers with ScalaFutures w
 
           record0.fields should contain only (
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("63b06b1fa1b8436fcd215b3ac78b7783"))
+            Field("fingerprint", TextValue("7cdf34d3652fa02c411e2c6feb6a060b"))
           )
           record0.fields should have size 2
 
           record1.fields should contain only (
             Field("message", TextValue("Hello World")),
-            Field("fingerprint", TextValue("63b06b1fa1b8436fcd215b3ac78b7783"))
+            Field("fingerprint", TextValue("7cdf34d3652fa02c411e2c6feb6a060b"))
           )
           record1.fields should have size 2
         }
+      }
+    }
+
+    "should compute the fingerprint of the configured fields" - {
+
+      val sample = Dataset(
+        Record(
+          Field("message", TextValue("The weather is stormy.")),
+          Field("timestamp", TextValue("1990-02-26 21:35:59.605"))
+        )
+      )
+
+      "when one field is included" in new TestStreamForFilter[FingerprintLogic](
+        Configuration(
+          FieldNameListParameter(FingerprintLogic.includesParameter.ref, Seq("message"))
+        ))
+      {
+        whenReady(filterFuture) { _ =>
+
+          source.sendNext(sample)
+          sink.requestNext() shouldBe Dataset(Record(
+            Field("message", TextValue("The weather is stormy.")),
+            Field("timestamp", TextValue("1990-02-26 21:35:59.605")),
+            Field("fingerprint", TextValue("2fb0375b4bee4b475b94f7c567f238f3"))
+          ))
+        }
+      }
+
+      "when more fields are included" in new TestStreamForFilter[FingerprintLogic](
+        Configuration(
+          FieldNameListParameter(FingerprintLogic.includesParameter.ref, Seq("message", "timestamp"))
+        ))
+      {
+        whenReady(filterFuture) { _ =>
+
+          source.sendNext(sample)
+          sink.requestNext() shouldBe Dataset(Record(
+            Field("message", TextValue("The weather is stormy.")),
+            Field("timestamp", TextValue("1990-02-26 21:35:59.605")),
+            Field("fingerprint", TextValue("0e26e87312eeeefb3146d8d5fd6f7550"))
+          ))
+        }
+      }
+
+      "when a field is excluded" in new TestStreamForFilter[FingerprintLogic](
+        Configuration(
+          FieldNameListParameter(FingerprintLogic.excludesParameter.ref, Seq("timestamp"))
+        ))
+      {
+        whenReady(filterFuture) { _ =>
+
+          source.sendNext(sample)
+          sink.requestNext() shouldBe Dataset(Record(
+            Field("message", TextValue("The weather is stormy.")),
+            Field("timestamp", TextValue("1990-02-26 21:35:59.605")),
+            Field("fingerprint", TextValue("2fb0375b4bee4b475b94f7c567f238f3"))
+          ))
+        }
+      }
+    }
+
+    "should create a 'fingerprint.fields' field (when enabled)" in new TestStreamForFilter[FingerprintLogic](
+      Configuration(
+        BooleanParameter(FingerprintLogic.fingerprintFieldsEnabledParameter, true)
+      ))
+    {
+      val sample = Dataset(
+        Record(
+          Field("message", TextValue("The weather is stormy.")),
+          Field("timestamp", TextValue("1990-02-26 21:35:59.605"))
+        )
+      )
+
+      whenReady(filterFuture) { _ =>
+
+        source.sendNext(sample)
+        sink.requestNext shouldBe Dataset(Record(
+          Field("message", TextValue("The weather is stormy.")),
+          Field("timestamp", TextValue("1990-02-26 21:35:59.605")),
+          Field("fingerprint", TextValue("0e26e87312eeeefb3146d8d5fd6f7550")),
+          Field("fingerprint.fields", TextValue("[\"message\", \"timestamp\"]"))
+        ))
       }
     }
   }
